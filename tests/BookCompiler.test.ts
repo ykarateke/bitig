@@ -47,9 +47,11 @@ jest.mock('../src/PdfCompiler');
 
 describe('BookCompiler', () => {
   let config: BookConfig;
+  let consoleSpy: jest.SpyInstance;
 
   beforeEach(() => {
     jest.clearAllMocks();
+    consoleSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
     config = new BookConfig({
       title: 'Compile Book',
       assetsDir: './assets',
@@ -57,6 +59,10 @@ describe('BookCompiler', () => {
       outputFilename: 'book.md',
       pdf: true
     });
+  });
+
+  afterEach(() => {
+    consoleSpy.mockRestore();
   });
 
   describe('constructor', () => {
