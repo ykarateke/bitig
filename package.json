@@ -1,0 +1,35 @@
+{
+  "name": "bitig",
+  "version": "1.0.0",
+  "description": "TypeScript OOP-based book compiling and formatting package with Puppeteer PDF generation and AI agent metadata support.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "bitig": "dist/cli.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "prepublishOnly": "npm run build",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "book",
+    "markdown",
+    "pdf",
+    "compiler",
+    "ai",
+    "metadata",
+    "typescript"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "marked": "^12.0.1",
+    "puppeteer": "^22.11.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3"
+  }
+}
