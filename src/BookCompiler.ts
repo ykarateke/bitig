@@ -51,6 +51,23 @@ export class BookCompiler {
       bibliography: this.config.rawConfig.bibliographyFile || 'bibliography.md'
     };
 
+    // Calculate maximum regular section number from directories on disk
+    let maxFolderSection = 0;
+    try {
+      const filesInAssets = fs.readdirSync(this.config.assetsDir);
+      const folderNums = filesInAssets
+        .filter(f => fs.statSync(path.join(this.config.assetsDir, f)).isDirectory() && /^section-\d+$/i.test(f))
+        .map(f => {
+          const match = f.match(/\d+/);
+          return match ? parseInt(match[0], 10) : 0;
+        });
+      if (folderNums.length > 0) {
+        maxFolderSection = Math.max(...folderNums);
+      }
+    } catch (e) {
+      // Ignore reading directory errors
+    }
+
     mdFiles.forEach((filePath) => {
       const filename = path.basename(filePath);
       
@@ -64,8 +81,16 @@ export class BookCompiler {
 
       let section = this.sections.find(s => s.sectionNum === chapter.sectionNum);
       if (!section) {
-        const sectionTitle = this.config.sectionTitles[chapter.sectionNum] || 
-          (chapter.sectionNum === 998 ? 'Epilogue' : chapter.sectionNum === 999 ? 'Bibliography' : `Section ${chapter.sectionNum}`);
+        let sectionTitle = this.config.sectionTitles[String(chapter.sectionNum)];
+        if (!sectionTitle) {
+          if (chapter.sectionNum === 998) {
+            sectionTitle = this.config.sectionTitles[String(maxFolderSection + 1)] || 'Epilogue';
+          } else if (chapter.sectionNum === 999) {
+            sectionTitle = this.config.sectionTitles[String(maxFolderSection + 2)] || 'Bibliography';
+          } else {
+            sectionTitle = `Section ${chapter.sectionNum}`;
+          }
+        }
         section = new Section(chapter.sectionNum, sectionTitle);
         this.sections.push(section);
       }
@@ -194,11 +219,15 @@ export class BookCompiler {
     fs.writeFileSync(htmlOutputPath, html, 'utf8');
 
     // 4. If PDF output is desired, compile to PDF
-    const pdfOutputPath = path.join(this.config.distDir, this.config.outputFilename.replace(/\.md$/, '.pdf'));
-    const pdfCompiler = new PdfCompiler();
-    
-    console.log(`Generating PDF output: ${pdfOutputPath}...`);
-    await pdfCompiler.compileToPdf(html, pdfOutputPath);
+    if (this.config.pdf) {
+      const pdfOutputPath = path.join(this.config.distDir, this.config.outputFilename.replace(/\.md$/, '.pdf'));
+      const pdfCompiler = new PdfCompiler();
+      
+      console.log(`Generating PDF output: ${pdfOutputPath}...`);
+      await pdfCompiler.compileToPdf(html, pdfOutputPath);
+    } else {
+      console.log('PDF generation skipped (disabled in configuration).');
+    }
   }
 
   /**

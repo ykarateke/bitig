@@ -13,6 +13,7 @@ export class BookConfig {
   public sectionTitles: SectionTitles;
   public theme: string;
   public customThemePath: string;
+  public pdf: boolean;
   public citations: CitationRule[];
   public rawConfig: BookConfigData;
 
@@ -27,6 +28,7 @@ export class BookConfig {
     this.sectionTitles = configData.sectionTitles || {};
     this.theme = configData.theme || 'serif';
     this.customThemePath = configData.customThemePath || '';
+    this.pdf = configData.pdf !== false; // defaults to true
     this.citations = configData.citations || [];
     
     this.rawConfig = {
@@ -40,6 +42,7 @@ export class BookConfig {
       sectionTitles: this.sectionTitles,
       theme: this.theme,
       customThemePath: this.customThemePath,
+      pdf: this.pdf,
       citations: this.citations,
       ...configData
     };

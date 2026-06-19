@@ -25,6 +25,7 @@ export interface BookConfigData {
   customThemePath?: string;
   epilogueFile?: string;
   bibliographyFile?: string;
+  pdf?: boolean;
   citations?: CitationRule[];
 }
 

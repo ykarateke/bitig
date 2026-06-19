@@ -8,3 +8,7 @@ export { StyleManager } from './StyleManager';
 export { AgentMetadataGenerator } from './AgentMetadataGenerator';
 export { PdfCompiler } from './PdfCompiler';
 export { BookCompiler } from './BookCompiler';
+export { BookManager } from './BookManager';
+export { BookLinter, LintMessage } from './BookLinter';
+export { ContextPackager } from './ContextPackager';
+export { BookSearcher, SearchResult } from './BookSearcher';

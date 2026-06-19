@@ -5,46 +5,216 @@ import * as path from 'path';
 import { BookConfig } from './BookConfig';
 import { BookCompiler } from './BookCompiler';
 import { BookConfigData } from './types';
+import { BookManager } from './BookManager';
+import { BookLinter } from './BookLinter';
+import { ContextPackager } from './ContextPackager';
+import { BookSearcher } from './BookSearcher';
+
+interface CliArgs {
+  command?: string;
+  config?: string;
+  theme?: string;
+  output?: string;
+  dist?: string;
+  pdf?: boolean;
+  help?: boolean;
+  positionals: string[];
+  title?: string;
+  target?: string;
+}
 
 const args = process.argv.slice(2);
-const command = args[0];
+const cliArgs = parseArgs(args);
 
-if (!command || command === 'help' || command === '--help' || command === '-h') {
+if (cliArgs.help || (cliArgs.command && cliArgs.command === 'help') || (!cliArgs.command && args.length > 0 && args[0].startsWith('-h'))) {
   showHelp();
   process.exit(0);
 }
+
+// Default command to 'build' if not specified and config exists
+const command = cliArgs.command || 'build';
 
 switch (command) {
   case 'init':
     handleInit();
     break;
   case 'build':
-    handleBuild();
+    handleBuild(cliArgs);
+    break;
+  case 'add:section':
+    handleAddSection(cliArgs);
+    break;
+  case 'add:chapter':
+    handleAddChapter(cliArgs);
+    break;
+  case 'move:chapter':
+    handleMoveChapter(cliArgs);
+    break;
+  case 'delete:chapter':
+    handleDeleteChapter(cliArgs);
+    break;
+  case 'stats':
+  case 'status':
+    handleStats(cliArgs);
+    break;
+  case 'check':
+  case 'lint':
+    handleCheck(cliArgs);
+    break;
+  case 'context':
+    handleContext(cliArgs);
+    break;
+  case 'search':
+    handleSearch(cliArgs);
     break;
   default:
-    handleBuild(command);
-    break;
+    console.error(`Error: Unknown command "${command}"`);
+    showHelp();
+    process.exit(1);
 }
 
+/**
+ * Command-line arguments parser.
+ * @param args 
+ * @returns CliArgs
+ */
+function parseArgs(args: string[]): CliArgs {
+  const result: CliArgs = { positionals: [] };
+  if (args.length === 0) return result;
+
+  let startIndex = 0;
+  const firstArg = args[0];
+
+  // Check if first arg is a command
+  if (!firstArg.startsWith('-')) {
+    result.command = firstArg;
+    startIndex = 1;
+  }
+
+  for (let i = startIndex; i < args.length; i++) {
+    const arg = args[i];
+
+    if (arg === '-h' || arg === '--help') {
+      result.help = true;
+    } else if (arg === '-c' || arg === '--config') {
+      if (i + 1 < args.length) {
+        result.config = args[++i];
+      } else {
+        console.error('Error: Option --config requires a value.');
+        process.exit(1);
+      }
+    } else if (arg === '-t' || arg === '--theme') {
+      if (i + 1 < args.length) {
+        result.theme = args[++i];
+      } else {
+        console.error('Error: Option --theme requires a value.');
+        process.exit(1);
+      }
+    } else if (arg === '-o' || arg === '--output') {
+      if (i + 1 < args.length) {
+        result.output = args[++i];
+      } else {
+        console.error('Error: Option --output requires a value.');
+        process.exit(1);
+      }
+    } else if (arg === '-d' || arg === '--dist') {
+      if (i + 1 < args.length) {
+        result.dist = args[++i];
+      } else {
+        console.error('Error: Option --dist requires a value.');
+        process.exit(1);
+      }
+    } else if (arg === '--title') {
+      if (i + 1 < args.length) {
+        result.title = args[++i];
+      } else {
+        console.error('Error: Option --title requires a value.');
+        process.exit(1);
+      }
+    } else if (arg === '--target') {
+      if (i + 1 < args.length) {
+        result.target = args[++i];
+      } else {
+        console.error('Error: Option --target requires a value.');
+        process.exit(1);
+      }
+    } else if (arg === '--no-pdf') {
+      result.pdf = false;
+    } else if (arg === '--pdf') {
+      result.pdf = true;
+    } else if (!arg.startsWith('-')) {
+      result.positionals.push(arg);
+    }
+  }
+
+  return result;
+}
+
+/**
+ * Displays the help menu.
+ */
 function showHelp(): void {
   console.log(`
-Bitig - OOP Book Compiler CLI (TS)
+Bitig - OOP Book Compiler CLI
 
 Usage:
   bitig <command> [options]
 
 Commands:
-  init                  Creates a template book.json and assets folder in the current directory.
-  build [configPath]    Compiles the book. [configPath] defaults to 'book.json'.
-  help                  Displays this help menu.
+  init                           Initializes a template book project in the current directory.
+  build                          Compiles the book according to the configuration.
+  add:section <secNum>           Creates a new section folder and updates book.json.
+  add:chapter <secNum>.<chapNum> Creates a template markdown file for the chapter.
+  move:chapter <from> <to>       Moves and renames a chapter (e.g., bitig move:chapter 1.1 1.2).
+  delete:chapter <sec>.<chap>    Deletes a chapter markdown file.
+  stats                          Prints progress analytics, word counts, and structure breakdown.
+  check                          Runs static diagnostics for broken links, syntax, and citation usage.
+  context <sec>.<chap>           Generates a focused RAG/prompt package containing outlines and synopsis.
+  search <query>                 Searches the entire book for keywords or phrases.
+  help                           Displays this help menu.
 
-Examples:
-  bitig init
-  bitig build
-  bitig build ./custom-book.json
+Global Options:
+  -c, --config <path>            Path to the book configuration JSON file (default: ./book.json)
+
+Build Options:
+  -t, --theme <theme>            Override the visual theme (serif, sans-serif, academic).
+  -o, --output <name>            Override the compiled markdown output filename.
+  -d, --dist <dir>               Override the output distribution directory.
+  --pdf                          Enable PDF compilation (default).
+  --no-pdf                       Disable PDF compilation.
+
+Add Options:
+  --title "<title>"              Set a custom title for the section or chapter.
+
+Context Options:
+  --target <sec>.<chap>          Alternative way to specify target chapter for context command.
 `);
 }
 
+/**
+ * Helper to get resolved config path.
+ */
+function getConfigPath(configArg?: string): string {
+  const currentDir = process.cwd();
+  return configArg ? path.resolve(configArg) : path.join(currentDir, 'book.json');
+}
+
+/**
+ * Helper to load config safely.
+ */
+function loadConfig(configArg?: string): BookConfig {
+  const configPath = getConfigPath(configArg);
+  if (!fs.existsSync(configPath)) {
+    console.error(`Error: Configuration file not found at: ${configPath}`);
+    console.log('Use "bitig init" to initialize a new project.');
+    process.exit(1);
+  }
+  return BookConfig.loadFromFile(configPath);
+}
+
+/**
+ * Initializes a template project directory.
+ */
 function handleInit(): void {
   const currentDir = process.cwd();
   const configPath = path.join(currentDir, 'book.json');
@@ -65,6 +235,7 @@ function handleInit(): void {
     outputFilename: "book.md",
     epilogueFile: "epilogue.md",
     bibliographyFile: "bibliography.md",
+    pdf: true,
     sectionTitles: {
       "0": "Introduction and Preface",
       "1": "Chapter 1: Foundations",
@@ -81,11 +252,9 @@ function handleInit(): void {
   };
 
   try {
-    // Write book.json
     fs.writeFileSync(configPath, JSON.stringify(templateConfig, null, 2), 'utf8');
     console.log('✔ book.json created.');
 
-    // Create folders
     const assetsDir = path.join(currentDir, 'assets');
     const section0Dir = path.join(assetsDir, 'section-0');
     const section1Dir = path.join(assetsDir, 'section-1');
@@ -93,7 +262,6 @@ function handleInit(): void {
     fs.mkdirSync(section0Dir, { recursive: true });
     fs.mkdirSync(section1Dir, { recursive: true });
 
-    // Write sample chapters
     fs.writeFileSync(
       path.join(section0Dir, '0.1.md'),
       `# Introduction and Preface\n\nThis book was created using Bitig. This is the preface or introduction section.`,
@@ -125,22 +293,31 @@ function handleInit(): void {
   }
 }
 
-async function handleBuild(configArg?: string): Promise<void> {
-  const currentDir = process.cwd();
-  const configPath = configArg ? path.resolve(configArg) : path.join(currentDir, 'book.json');
-
-  if (!fs.existsSync(configPath)) {
-    console.error(`Error: Configuration file not found at: ${configPath}`);
-    console.log('Use "bitig init" to initialize a new project.');
-    process.exit(1);
-  }
-
+/**
+ * Loads configuration, applies CLI overrides, and runs the compiler.
+ * @param cliArgs 
+ */
+async function handleBuild(cliArgs: CliArgs): Promise<void> {
   try {
-    console.log(`📖 Loading configuration: ${configPath}`);
-    const config = BookConfig.loadFromFile(configPath);
+    const config = loadConfig(cliArgs.config);
     
+    // Apply CLI argument overrides
+    if (cliArgs.theme) {
+      config.theme = cliArgs.theme;
+    }
+    if (cliArgs.output) {
+      config.outputFilename = cliArgs.output;
+    }
+    if (cliArgs.dist) {
+      config.distDir = path.resolve(cliArgs.dist);
+    }
+    if (cliArgs.pdf !== undefined) {
+      config.pdf = cliArgs.pdf;
+    }
+
     const compiler = new BookCompiler(config);
     
+    console.log('📖 Loading configuration...');
     console.log('🔍 Scanning source files...');
     compiler.scanAndLoad();
     
@@ -151,6 +328,283 @@ async function handleBuild(configArg?: string): Promise<void> {
   } catch (error) {
     const err = error as Error;
     console.error('❌ Compilation Failed:', err.message);
+    process.exit(1);
+  }
+}
+
+/**
+ * Adds a new section configuration and folder.
+ */
+function handleAddSection(cliArgs: CliArgs): void {
+  const sectionNum = parseInt(cliArgs.positionals[0], 10);
+  if (isNaN(sectionNum)) {
+    console.error('Error: Please specify a valid section number, e.g.: bitig add:section 3 --title "My New Section"');
+    process.exit(1);
+  }
+  const title = cliArgs.title || `Section ${sectionNum}`;
+  const config = loadConfig(cliArgs.config);
+  const manager = new BookManager(config, getConfigPath(cliArgs.config));
+  
+  try {
+    manager.addSection(sectionNum, title);
+  } catch (error) {
+    const err = error as Error;
+    console.error('❌ Failed to add section:', err.message);
+    process.exit(1);
+  }
+}
+
+/**
+ * Adds a new chapter template.
+ */
+function handleAddChapter(cliArgs: CliArgs): void {
+  const target = cliArgs.positionals[0];
+  if (!target) {
+    console.error('Error: Please specify target chapter coordinates, e.g.: bitig add:chapter 1.2 --title "My Chapter"');
+    process.exit(1);
+  }
+  
+  const parts = target.split('.');
+  const sectionNum = parseInt(parts[0], 10);
+  const chapterNum = parts.length > 1 ? parseInt(parts[1], 10) : 1;
+
+  if (isNaN(sectionNum) || isNaN(chapterNum)) {
+    console.error('Error: Invalid section/chapter format. Use e.g. 1.2');
+    process.exit(1);
+  }
+
+  const title = cliArgs.title || `Chapter ${sectionNum}.${chapterNum}`;
+  const config = loadConfig(cliArgs.config);
+  const manager = new BookManager(config, getConfigPath(cliArgs.config));
+  
+  try {
+    manager.addChapter(sectionNum, chapterNum, title);
+  } catch (error) {
+    const err = error as Error;
+    console.error('❌ Failed to add chapter:', err.message);
+    process.exit(1);
+  }
+}
+
+/**
+ * Moves a chapter.
+ */
+function handleMoveChapter(cliArgs: CliArgs): void {
+  const from = cliArgs.positionals[0];
+  const to = cliArgs.positionals[1];
+  
+  if (!from || !to) {
+    console.error('Error: Please specify source and target chapter coordinates, e.g.: bitig move:chapter 1.1 1.2');
+    process.exit(1);
+  }
+
+  const fromParts = from.split('.');
+  const toParts = to.split('.');
+  
+  const fromSec = parseInt(fromParts[0], 10);
+  const fromChap = parseInt(fromParts[1], 10);
+  const toSec = parseInt(toParts[0], 10);
+  const toChap = parseInt(toParts[1], 10);
+
+  if (isNaN(fromSec) || isNaN(fromChap) || isNaN(toSec) || isNaN(toChap)) {
+    console.error('Error: Invalid coordinates format. Use format X.Y');
+    process.exit(1);
+  }
+
+  const config = loadConfig(cliArgs.config);
+  const manager = new BookManager(config, getConfigPath(cliArgs.config));
+  
+  try {
+    manager.moveChapter(fromSec, fromChap, toSec, toChap);
+  } catch (error) {
+    const err = error as Error;
+    console.error('❌ Failed to move chapter:', err.message);
+    process.exit(1);
+  }
+}
+
+/**
+ * Deletes a chapter.
+ */
+function handleDeleteChapter(cliArgs: CliArgs): void {
+  const target = cliArgs.positionals[0];
+  if (!target) {
+    console.error('Error: Please specify target chapter, e.g.: bitig delete:chapter 1.2');
+    process.exit(1);
+  }
+  
+  const parts = target.split('.');
+  const sectionNum = parseInt(parts[0], 10);
+  const chapterNum = parseInt(parts[1], 10);
+
+  if (isNaN(sectionNum) || isNaN(chapterNum)) {
+    console.error('Error: Invalid coordinates format. Use format X.Y');
+    process.exit(1);
+  }
+
+  const config = loadConfig(cliArgs.config);
+  const manager = new BookManager(config, getConfigPath(cliArgs.config));
+  
+  try {
+    manager.deleteChapter(sectionNum, chapterNum);
+  } catch (error) {
+    const err = error as Error;
+    console.error('❌ Failed to delete chapter:', err.message);
+    process.exit(1);
+  }
+}
+
+/**
+ * Displays draft analytics and progress statistics.
+ */
+function handleStats(cliArgs: CliArgs): void {
+  try {
+    const config = loadConfig(cliArgs.config);
+    const compiler = new BookCompiler(config);
+    compiler.scanAndLoad();
+    
+    if (!compiler.metadataGenerator) {
+      console.error('Error: Failed to initialize metadata generator.');
+      process.exit(1);
+    }
+    
+    const metadata = JSON.parse(compiler.metadataGenerator.generateJSONMetadata());
+    console.log(`
+============================================================
+📖 BOOK STATUS REPORT: "${metadata.book.title}"
+============================================================
+Author:             ${metadata.book.author}
+Subtitle:           ${metadata.book.subtitle || 'N/A'}
+Theme:              ${metadata.book.theme}
+
+[Draft Statistics]
+Total Sections:     ${metadata.stats.totalSections}
+Total Chapters:     ${metadata.stats.totalChapters}
+Total Words:        ${metadata.stats.totalWords} words
+Total Characters:   ${metadata.stats.totalCharacters} characters
+Est. Reading Time:  ${metadata.stats.estimatedReadTimeMinutes} minutes
+
+[Structure Breakdown]`);
+    
+    metadata.structure.forEach((sec: any) => {
+      console.log(`\nSection ${sec.sectionNum}: "${sec.title}" (${sec.chaptersCount} chapters)`);
+      sec.chapters.forEach((chap: any) => {
+        console.log(`  - Chapter ${sec.sectionNum}.${chap.chapterNum} "${chap.title}" (${chap.wordCount} words)`);
+      });
+    });
+    console.log('\n============================================================');
+  } catch (error) {
+    const err = error as Error;
+    console.error('❌ Failed to load statistics:', err.message);
+    process.exit(1);
+  }
+}
+
+/**
+ * Runs diagnostics checks on the book files.
+ */
+function handleCheck(cliArgs: CliArgs): void {
+  try {
+    const config = loadConfig(cliArgs.config);
+    const compiler = new BookCompiler(config);
+    const linter = new BookLinter(compiler);
+    
+    console.log('🔍 Running book diagnostics...');
+    const messages = linter.runAllChecks();
+    
+    if (messages.length === 0) {
+      console.log('✔ No diagnostics issues found! Book is clean and AI-ready.');
+      return;
+    }
+
+    let errors = 0;
+    let warnings = 0;
+
+    messages.forEach(msg => {
+      const badge = msg.type === 'error' ? '❌ [ERROR]' : '⚠️ [WARN]';
+      if (msg.type === 'error') errors++;
+      else warnings++;
+
+      const lineInfo = msg.line ? `:${msg.line}` : '';
+      console.log(`${badge} ${msg.file}${lineInfo} - ${msg.message}`);
+    });
+
+    console.log(`\nDiagnostics finished: ${errors} errors, ${warnings} warnings found.`);
+    if (errors > 0) {
+      process.exit(1);
+    }
+  } catch (error) {
+    const err = error as Error;
+    console.error('❌ Diagnostics failed to run:', err.message);
+    process.exit(1);
+  }
+}
+
+/**
+ * Packages RAG context prompt.
+ */
+function handleContext(cliArgs: CliArgs): void {
+  const target = cliArgs.positionals[0] || cliArgs.target;
+  if (!target) {
+    console.error('Error: Please specify target chapter coordinates, e.g.: bitig context 1.2');
+    process.exit(1);
+  }
+
+  const parts = target.split('.');
+  const sectionNum = parseInt(parts[0], 10);
+  const chapterNum = parseInt(parts[1], 10);
+
+  if (isNaN(sectionNum) || isNaN(chapterNum)) {
+    console.error('Error: Invalid section/chapter format. Use e.g. 1.2');
+    process.exit(1);
+  }
+
+  try {
+    const config = loadConfig(cliArgs.config);
+    const compiler = new BookCompiler(config);
+    const packager = new ContextPackager(compiler);
+
+    console.log(`📦 Packaging AI context for chapter ${sectionNum}.${chapterNum}...`);
+    const pack = packager.packageContextFor(sectionNum, chapterNum);
+    console.log('\n' + pack);
+  } catch (error) {
+    const err = error as Error;
+    console.error('❌ Failed to package context:', err.message);
+    process.exit(1);
+  }
+}
+
+/**
+ * Keyword search across all book chapters.
+ */
+function handleSearch(cliArgs: CliArgs): void {
+  const query = cliArgs.positionals.join(' ');
+  if (!query) {
+    console.error('Error: Please specify a search query, e.g.: bitig search "quantum consciousness"');
+    process.exit(1);
+  }
+
+  try {
+    const config = loadConfig(cliArgs.config);
+    const compiler = new BookCompiler(config);
+    const searcher = new BookSearcher(compiler);
+
+    console.log(`🔍 Searching for "${query}"...`);
+    const results = searcher.search(query);
+
+    if (results.length === 0) {
+      console.log('No matches found.');
+      return;
+    }
+
+    console.log(`Found ${results.length} match(es):`);
+    results.forEach(res => {
+      console.log(`\n📄 ${res.file}:${res.lineNumber} [${res.chapterTitle}]`);
+      console.log(`   > ${res.lineContent}`);
+    });
+  } catch (error) {
+    const err = error as Error;
+    console.error('❌ Search failed:', err.message);
     process.exit(1);
   }
 }
