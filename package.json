@@ -28,8 +28,8 @@
     "metadata",
     "typescript"
   ],
-  "author": "",
-  "license": "ISC",
+  "author": "Erdem Ayaz",
+  "license": "MIT",
   "dependencies": {
     "marked": "^12.0.1",
     "puppeteer": "^22.11.0"
