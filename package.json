@@ -8,7 +8,7 @@
     "bitig": "dist/cli.js"
   },
   "scripts": {
-    "build": "tsc",
+    "build": "tsc -p tsconfig.build.json",
     "prepublishOnly": "npm run build",
     "test": "jest",
     "test:cov": "jest --coverage"
