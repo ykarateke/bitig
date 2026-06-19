@@ -1,6 +1,13 @@
 import { BookConfig } from '../src/BookConfig';
+import * as fs from 'fs';
+
+jest.mock('fs');
 
 describe('BookConfig', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
   describe('constructor defaults', () => {
     it('should set reasonable defaults', () => {
       const config = new BookConfig();
@@ -31,6 +38,29 @@ describe('BookConfig', () => {
       const config = new BookConfig();
       config.assetsDir = ''; // bypass constructor fallback
       expect(() => config.validate()).toThrow();
+    });
+  });
+
+  describe('loadFromFile', () => {
+    it('should load config JSON and resolve relative paths', () => {
+      (fs.existsSync as jest.Mock).mockReturnValue(true);
+      (fs.readFileSync as jest.Mock).mockReturnValue(JSON.stringify({
+        title: 'File Book',
+        assetsDir: './my-assets',
+        distDir: './my-dist',
+        customThemePath: './custom.css'
+      }));
+
+      const config = BookConfig.loadFromFile('/path/to/book.json');
+      expect(config.title).toBe('File Book');
+      expect(config.assetsDir).toContain('my-assets');
+      expect(config.distDir).toContain('my-dist');
+      expect(config.customThemePath).toContain('custom.css');
+    });
+
+    it('should throw error if config file does not exist', () => {
+      (fs.existsSync as jest.Mock).mockReturnValue(false);
+      expect(() => BookConfig.loadFromFile('missing.json')).toThrow();
     });
   });
 
