@@ -14,6 +14,17 @@ describe('TextProcessor', () => {
       const expected = '## Header 1\n```markdown\n# Code Header\n```\n### Header 2';
       expect(TextProcessor.shiftHeaders(content)).toBe(expected);
     });
+
+    it('should handle deeply nested headers (H3 and H4)', () => {
+      const content = '### Header 3\n#### Header 4';
+      const expected = '#### Header 3\n##### Header 4';
+      expect(TextProcessor.shiftHeaders(content)).toBe(expected);
+    });
+
+    it('should return empty string if content is empty', () => {
+      expect(TextProcessor.shiftHeaders('')).toBe('');
+      expect(TextProcessor.shiftHeaders(undefined as any)).toBe('');
+    });
   });
 
   describe('applyCitations', () => {
@@ -44,6 +55,21 @@ describe('TextProcessor', () => {
       const expected = 'Matching term A<sup>[1]</sup> and term B<sup>[2]</sup> here.';
       expect(TextProcessor.applyCitations(content, rules)).toBe(expected);
     });
+
+    it('should return content unchanged if it is empty, or if rules is empty/invalid', () => {
+      expect(TextProcessor.applyCitations('', [])).toBe('');
+      expect(TextProcessor.applyCitations('hello', [])).toBe('hello');
+      expect(TextProcessor.applyCitations('hello', null as any)).toBe('hello');
+    });
+
+    it('should skip citation rules that are invalid or malformed', () => {
+      const rules: CitationCompiledRule[] = [
+        null as any,
+        { term: null as any, replacement: 'replacement' },
+        { term: /term/g, replacement: 1234 as any }
+      ];
+      expect(TextProcessor.applyCitations('This is a term.', rules)).toBe('This is a term.');
+    });
   });
 
   describe('slugify', () => {
@@ -57,6 +83,11 @@ describe('TextProcessor', () => {
       expect(TextProcessor.slugify('Ilık Göller Öksüz Kalmasın')).toBe(
         'ilik-goller-oksuz-kalmasin'
       );
+    });
+
+    it('should return empty string if text is empty', () => {
+      expect(TextProcessor.slugify('')).toBe('');
+      expect(TextProcessor.slugify(undefined as any)).toBe('');
     });
   });
 });

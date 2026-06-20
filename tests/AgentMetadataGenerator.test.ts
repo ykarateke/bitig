@@ -53,4 +53,35 @@ describe('AgentMetadataGenerator', () => {
     expect(result).toContain('chapters: ["Hello"]');
     expect(result).toContain('## Content of the book');
   });
+
+  it('should handle empty chapter content and truncate long synopses to 250 chars', () => {
+    const emptyChapter = new Chapter('assets/section-1/1.2.md', './assets');
+    emptyChapter.title = 'Empty';
+    emptyChapter.rawContent = '';
+
+    const longChapter = new Chapter('assets/section-1/1.3.md', './assets');
+    longChapter.title = 'Long';
+    longChapter.rawContent = 'A'.repeat(300); // 300 character long single paragraph
+
+    const sec = new Section(1, 'Part One');
+    sec.addChapter(emptyChapter);
+    sec.addChapter(longChapter);
+
+    const gen = new AgentMetadataGenerator(config, [sec]);
+    const jsonStr = gen.generateJSONMetadata();
+    const data = JSON.parse(jsonStr);
+
+    // Empty chapter asserts
+    expect(data.structure[0].chapters[0].characterCount).toBe(0);
+    expect(data.structure[0].chapters[0].wordCount).toBe(0);
+    expect(data.structure[0].chapters[0].synopsis).toBe('');
+
+    // Long chapter synopsis assert (length should be 253: 250 characters + '...')
+    expect(data.structure[0].chapters[1].synopsis.length).toBe(253);
+    expect(data.structure[0].chapters[1].synopsis.endsWith('...')).toBe(true);
+
+    // Check countWords private method with empty text via cast
+    const wordCountEmpty = (gen as any)._countWords('');
+    expect(wordCountEmpty).toBe(0);
+  });
 });

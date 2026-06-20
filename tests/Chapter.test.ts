@@ -42,6 +42,12 @@ describe('Chapter', () => {
       expect(chapter.sectionNum).toBe(999);
       expect(chapter.chapterNum).toBe(1);
     });
+
+    it('should parse section from dirParts when section-X structure is missing and extract single digit chapter', () => {
+      const chapter = new Chapter('assets/part-4/chapter-5.md', './assets');
+      expect(chapter.sectionNum).toBe(4);
+      expect(chapter.chapterNum).toBe(5);
+    });
   });
 
   describe('getSortKey', () => {
@@ -71,6 +77,12 @@ describe('Chapter', () => {
       chapter.load();
 
       expect(chapter.title).toBe('1.1');
+    });
+
+    it('should throw error if file does not exist', () => {
+      (fs.existsSync as jest.Mock).mockReturnValue(false);
+      const chapter = new Chapter('assets/section-1/missing.md', './assets');
+      expect(() => chapter.load()).toThrow('Chapter file not found');
     });
   });
 });

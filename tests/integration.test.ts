@@ -113,4 +113,24 @@ describe('Bitig CLI Integration Tests', () => {
     expect(metadata.book.title).toBe('Yeni Kitap Başlığı');
     expect(metadata.stats.totalChapters).toBe(4);
   });
+
+  it('should support English localization in CLI outputs', () => {
+    execSync(`node ${cliPath} init`, { cwd: tempDir });
+
+    // Modify book.json to use English language
+    const configPath = path.join(tempDir, 'book.json');
+    const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+    config.language = 'en';
+    fs.writeFileSync(configPath, JSON.stringify(config, null, 2), 'utf8');
+
+    // Test stats command in English
+    const statsOutput = execSync(`node ${cliPath} stats`, { cwd: tempDir, encoding: 'utf8' });
+    expect(statsOutput).toContain('BOOK STATUS REPORT');
+    expect(statsOutput).toContain('Total Chapters:     4');
+
+    // Test check command in English
+    const checkOutput = execSync(`node ${cliPath} check`, { cwd: tempDir, encoding: 'utf8' });
+    expect(checkOutput).toContain('Running book diagnostics...');
+    expect(checkOutput).toContain('Diagnostics finished: 0 errors, 1 warnings found.');
+  });
 });

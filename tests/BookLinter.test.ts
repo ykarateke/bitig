@@ -114,4 +114,23 @@ describe('BookLinter', () => {
     );
     expect(linkError).toBeDefined();
   });
+
+  it('should ignore external HTTP/HTTPS links', () => {
+    const section = new Section(1, 'Foundations');
+    const chapter = new Chapter('assets/section-1/1.1.md', './assets');
+    chapter.title = 'Link Chapter';
+    chapter.rawContent =
+      'This chapter contains [Google](https://google.com/doc.md) and [HTTP link](http://example.com/site.md).';
+    section.addChapter(chapter);
+    compiler.sections = [section];
+
+    const linter = new BookLinter(compiler);
+    jest.spyOn(compiler, 'scanAndLoad').mockImplementation(() => {});
+
+    const reports = linter.runAllChecks();
+    const linkErrors = reports.filter(
+      (r) => r.type === 'error' && r.message.includes('Broken internal markdown link')
+    );
+    expect(linkErrors.length).toBe(0);
+  });
 });

@@ -60,4 +60,16 @@ describe('BookSearcher', () => {
     const results = searcher.search('case');
     expect(results.length).toBe(1);
   });
+
+  it('should return empty array if search query is empty or falsy', () => {
+    const config = new BookConfig({
+      title: 'Search Book',
+      assetsDir: './assets',
+      distDir: './dist'
+    });
+    const compiler = new BookCompiler(config);
+    const searcher = new BookSearcher(compiler);
+    expect(searcher.search('')).toEqual([]);
+    expect(searcher.search(undefined as any)).toEqual([]);
+  });
 });

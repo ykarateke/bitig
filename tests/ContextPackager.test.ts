@@ -97,4 +97,48 @@ describe('ContextPackager', () => {
     expect(result).toContain('İlk bölümün birinci paragrafı.');
     expect(result).toContain('Bu hedef bölüm içeriğidir.');
   });
+
+  it('should throw error if target chapter does not exist in the book', () => {
+    const config = new BookConfig({
+      title: 'Context Book',
+      assetsDir: './assets',
+      distDir: './dist'
+    });
+    const compiler = new BookCompiler(config);
+    jest.spyOn(compiler, 'scanAndLoad').mockImplementation(() => {});
+    compiler.sections = [new Section(1, 'S1')];
+
+    const packager = new ContextPackager(compiler);
+    expect(() => packager.packageContextFor(1, 10)).toThrow(
+      'Target chapter 1.10 not found in the scanned files.'
+    );
+  });
+
+  it('should package context with missing metadata, empty target chapter, no citations and no preceding chapter', () => {
+    const config = new BookConfig({
+      title: 'Minimal Context Book',
+      assetsDir: './assets',
+      distDir: './dist',
+      citations: [],
+      language: 'en'
+    });
+    const compiler = new BookCompiler(config);
+    jest.spyOn(compiler, 'scanAndLoad').mockImplementation(() => {});
+
+    const section = new Section(1, 'S1');
+    const chapter1 = new Chapter('assets/section-1/1.1.md', './assets');
+    chapter1.title = 'Empty Target';
+    chapter1.rawContent = '';
+    section.addChapter(chapter1);
+    compiler.sections = [section];
+    compiler.metadataGenerator = null;
+
+    const packager = new ContextPackager(compiler);
+    const result = packager.packageContextFor(1, 1);
+
+    expect(result).toContain('Empty Target');
+    expect(result).toContain('No citations defined.');
+    expect(result).toContain('No preceding chapter exists.');
+    expect(result).toContain('The target chapter is currently empty.');
+  });
 });

@@ -31,4 +31,27 @@ describe('Section', () => {
     expect(section.chapters[1]).toBe(chapter2); // 1.2
     expect(section.chapters[2]).toBe(chapter1); // 1.10
   });
+
+  it('should sort chapters by filePath when chapterNum is identical', () => {
+    const section = new Section(1, 'Foundations');
+    const chapter1 = new Chapter('assets/section-1/1.1-b.md', './assets');
+    const chapter2 = new Chapter('assets/section-1/1.1-a.md', './assets');
+
+    chapter1.chapterNum = 1;
+    chapter2.chapterNum = 1;
+
+    section.addChapter(chapter1);
+    section.addChapter(chapter2);
+
+    section.sortChapters();
+
+    // Alphabetically '1.1-a.md' comes before '1.1-b.md'
+    expect(section.chapters[0]).toBe(chapter2);
+    expect(section.chapters[1]).toBe(chapter1);
+  });
+
+  it('should fallback to default title if no title is provided', () => {
+    const section = new Section(5);
+    expect(section.title).toBe('Section 5');
+  });
 });

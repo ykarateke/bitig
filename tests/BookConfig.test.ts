@@ -39,6 +39,26 @@ describe('BookConfig', () => {
       config.assetsDir = ''; // bypass constructor fallback
       expect(() => config.validate()).toThrow();
     });
+
+    it('should throw an error if distDir is missing', () => {
+      const config = new BookConfig();
+      config.distDir = ''; // bypass constructor fallback
+      expect(() => config.validate()).toThrow('Config Error: "distDir" is required.');
+    });
+
+    it('should throw an error if outputFilename is not a string', () => {
+      const config = new BookConfig();
+      config.outputFilename = undefined as any;
+      expect(() => config.validate()).toThrow(
+        'Config Error: "outputFilename" must be a valid string.'
+      );
+    });
+
+    it('should throw an error if language is not a string', () => {
+      const config = new BookConfig();
+      config.language = 123 as any;
+      expect(() => config.validate()).toThrow('Config Error: "language" must be a valid string.');
+    });
   });
 
   describe('loadFromFile', () => {
@@ -60,9 +80,32 @@ describe('BookConfig', () => {
       expect(config.customThemePath).toContain('custom.css');
     });
 
+    it('should load config JSON and not resolve paths if they are missing', () => {
+      (fs.existsSync as jest.Mock).mockReturnValue(true);
+      (fs.readFileSync as jest.Mock).mockReturnValue(
+        JSON.stringify({
+          title: 'Missing Paths Book'
+        })
+      );
+
+      const config = BookConfig.loadFromFile('/path/to/book.json');
+      expect(config.title).toBe('Missing Paths Book');
+      expect(config.assetsDir).toBe('./assets'); // defaults from constructor
+      expect(config.distDir).toBe('./dist'); // defaults from constructor
+      expect(config.customThemePath).toBe('');
+    });
+
     it('should throw error if config file does not exist', () => {
       (fs.existsSync as jest.Mock).mockReturnValue(false);
       expect(() => BookConfig.loadFromFile('missing.json')).toThrow();
+    });
+
+    it('should throw error with custom message if JSON parsing fails', () => {
+      (fs.existsSync as jest.Mock).mockReturnValue(true);
+      (fs.readFileSync as jest.Mock).mockReturnValue('invalid json { content }');
+      expect(() => BookConfig.loadFromFile('/path/to/book.json')).toThrow(
+        'Failed to load config from /path/to/book.json'
+      );
     });
   });
 
@@ -89,6 +132,24 @@ describe('BookConfig', () => {
       expect(testString.replace(rule.term, rule.replacement)).toBe(
         'The Orch-OR<sup>[1]</sup> theory.'
       );
+    });
+
+    it('should return empty array if citations is not an array', () => {
+      const config = new BookConfig();
+      config.citations = null as any;
+      expect(config.getCitationRules()).toEqual([]);
+    });
+
+    it('should ignore rules where term is not a string', () => {
+      const config = new BookConfig({
+        citations: [
+          {
+            term: 12345 as any,
+            replacement: 'replaced'
+          }
+        ]
+      });
+      expect(config.getCitationRules()).toEqual([]);
     });
   });
 });

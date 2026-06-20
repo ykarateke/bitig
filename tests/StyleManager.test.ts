@@ -52,16 +52,38 @@ describe('StyleManager', () => {
     expect(() => manager.useCustomTheme('nonexistent.css')).toThrow();
   });
 
+  it('should return early and do nothing if custom CSS path is empty', () => {
+    manager.useCustomTheme('');
+    expect(manager.customCSS).toBe('');
+    expect(fs.existsSync).not.toHaveBeenCalled();
+  });
+
   it('should generate cover page HTML', () => {
     const config = new BookConfig({
       title: 'My Novel',
       subtitle: 'A saga',
-      author: 'Author'
+      author: 'Author',
+      description: 'An epic story.'
     });
 
     const html = manager.generateCoverPage(config);
     expect(html).toContain('MY NOVEL');
     expect(html).toContain('A saga');
     expect(html).toContain('Author');
+    expect(html).toContain('An epic story.');
+  });
+
+  it('should generate cover page HTML without subtitle or description if they are missing', () => {
+    const config = new BookConfig({
+      title: 'Minimal Book',
+      author: 'Author'
+    });
+    config.subtitle = '';
+    config.description = '';
+
+    const html = manager.generateCoverPage(config);
+    expect(html).toContain('MINIMAL BOOK');
+    expect(html).not.toContain('cover-subtitle');
+    expect(html).not.toContain('cover-description');
   });
 });

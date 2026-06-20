@@ -51,6 +51,14 @@ describe('TOCGenerator', () => {
       // Section 998 should not have prefix
       expect(html).toContain('<li><a href="#the-end">The End</a></li>');
     });
+
+    it('should handle sections without chapters in generateHTML', () => {
+      const emptySection = new Section(2, 'Empty Sec');
+      emptySection.chapters = [];
+      const html = TOCGenerator.generateHTML([emptySection], 'en');
+      expect(html).toContain('Empty Sec');
+      expect(html).not.toContain('toc-chapters');
+    });
   });
 
   describe('generateMarkdown', () => {
@@ -70,6 +78,14 @@ describe('TOCGenerator', () => {
     it('should render markdown structure with anchors in Turkish', () => {
       const md = TOCGenerator.generateMarkdown(sections, 'tr');
       expect(md).toContain('# İçindekiler');
+    });
+
+    it('should handle sections without chapters in generateMarkdown', () => {
+      const emptySection = new Section(2, 'Empty Sec');
+      emptySection.chapters = [];
+      const md = TOCGenerator.generateMarkdown([emptySection], 'en');
+      expect(md).toContain('## [Empty Sec](#empty-sec)');
+      expect(md).not.toContain('* ');
     });
   });
 });
