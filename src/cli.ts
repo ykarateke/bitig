@@ -239,6 +239,9 @@ Metadata Options:
 Context Options:
   --target <sec>.<chap>          Alternative way to specify target chapter for context command.
 
+Configuration Details:
+  For a comprehensive reference on book.json structural and styling parameters (themes, custom fonts, page sizes, margins, colors, etc.), run:
+    bitig guide
 `);
 }
 
@@ -772,13 +775,69 @@ Welcome to Bitig! This guide details the workflow steps to write, refine, and co
 
 For detailed command options, run:
   bitig --help
+
+================================================================================
+## BOOK CONFIGURATION REFERENCE (book.json)
+================================================================================
+
+book.json is the central configuration file of your book project. It governs both structural properties and visual styling.
+
+### 1. Structural Configuration Options
+
+* title: (Required) The primary title of the book.
+* subtitle: (Optional) The subtitle of the book.
+* author: (Optional) The author's name.
+* description: (Optional) A brief summary of the book.
+* assetsDir: (Required) Path to the manuscript directory (default: "./assets").
+* distDir: (Required) Path to the output directory (default: "./dist").
+* outputFilename: (Required) Filename of the compiled book (default: "book.md").
+* epilogueFile: (Optional) Epilogue markdown file (default: "epilogue.md").
+* bibliographyFile: (Optional) Bibliography markdown file (default: "bibliography.md").
+* pdf: (Optional) Enable/disable PDF compilation (default: true).
+* language: (Optional) Locale of the book (default: "tr", supported: "tr", "en").
+* sectionTitles: (Optional) Section folder to header title mappings.
+* citations: (Optional) Rules for auto-replacement of citations.
+* synopses: (Optional) Chapter summaries coordinate map (e.g. {"1.1": "summary"}).
+
+### 2. Styling & Layout Customization
+
+#### Theme Configurations
+* theme: Set a predefined style theme (default: "serif").
+  - serif: Merriweather (body) + Montserrat (headings). Classic literary look.
+  - sans-serif: Inter (body) + Outfit (headings). Modern, clean look.
+  - academic: EB Garamond. Classical look with 3cm margins and paragraph indentation.
+* customThemePath: Path to a custom CSS stylesheet file. Completely overrides themes.
+
+#### Customizing Layout and Design using CSS (customThemePath)
+By pointing customThemePath to a local CSS file, you can customize every detail:
+
+* Typography: Import Google Fonts and define sizes:
+  @import url('https://fonts.googleapis.com/css2?family=Lora&family=Playfair+Display&display=swap');
+  body { font-family: 'Lora', serif; font-size: 11.5pt; line-height: 1.7; }
+  h1, h2 { font-family: 'Playfair Display', serif; }
+
+* Page Dimensions & Margins: Alter margins and page numbering using CSS @page:
+  @page {
+    size: A4;
+    margin: 2.5cm;
+    @bottom-center { content: counter(page); font-size: 9pt; }
+  }
+
+* Selective Page Layouts: Customize cover page and TOC specifically to hide page numbers:
+  @page cover-page-layout { margin: 0; @bottom-center { content: none; } }
+  .cover-page { page: cover-page-layout; padding: 3cm; }
+  @page toc-page-layout { @bottom-center { content: none; } }
+  .toc-page { page: toc-page-layout; }
+
+* Paragraph Styling: Define alignment, spacing, and indents:
+  p { text-align: justify; text-indent: 1cm; margin-bottom: 1.2em; orphans: 3; widows: 3; }
+  p:first-of-type { text-indent: 0; }
+
+* Custom Containers: Style blockquotes, code blocks, lists, and tables:
+  blockquote { font-style: italic; background-color: #f9f9f9; border-left: 5px solid #d2b48c; padding: 10px 20px; }
 `);
 }
 
-/**
- * Starts the local development preview server.
- * @param cliArgs
- */
 async function handleDev(cliArgs: CliArgs): Promise<void> {
   let config: BookConfig | undefined;
   try {
