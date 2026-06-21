@@ -42,11 +42,11 @@ This document outlines the planned feature roadmap for the **Bitig** book compil
   - Implement an AI-powered diagnostic command (`bitig analyze [coords]`) that scores sections or chapters out of 100 based on the custom scoring guidelines.
   - Report diagnostics in a structured tabular format in CLI stdout and log files.
 
-### 5. AI Agent Thought Logging & Learning History
+### [COMPLETED] 5. AI Agent Thought Logging & Learning History
 
 - **Objective**: Create a persistent history and memory mechanism for AI writing assistants to log internal rationale, feedback, and key style configurations.
 - **Details**:
-  - Introduce an agent history log file (`.bitig/history.json` or `.bitig/memory.json`) in the book workspace.
+  - Introduce an agent memory file (`memory.json`) in the book workspace root.
   - Allow writing assistants to programmatically append "lessons learned", user preferences, or characters' tone details.
   - Enrich the `bitig context <coords>` command to automatically inject past notes, feedback history, and context-specific rules into the RAG prompt package.
 

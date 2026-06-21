@@ -94,16 +94,35 @@ Crawls all chapter files and returns line matches, files, line numbers, and head
 ### 6. AI Agent Context Packaging
 
 ```bash
-bitig context <sectionNum>.<chapterNum>
+bitig context <sectionNum>.<chapterNum> [--memory <layers>]
 ```
 
-Produces a focused context window prompt pack for LLM/RAG writers to edit or continue the target chapter. Contains:
+Produces a focused context window prompt pack for LLM/RAG writers to edit or continue the target chapter. Contains outlines, synopses, preceding chapter content, visual theme guidelines, and injected memory layers.
 
-- Outlines and synopses of all chapters.
-- Complete text of the preceding chapter to maintain tone and narrative flow.
-- Visual theme guidelines and citation constraints.
+- `--memory <layers>`: Comma-separated list of memory layers to inject (options: `global`, `section`, `chapter` or `none`. Default: all layers).
 
-### 7. Visual Screenshot Capture
+### 7. AI Agent Learning & Memory
+
+```bash
+bitig learn <scope> [options]
+```
+
+Updates the persistent AI agent memory log (`memory.json`).
+
+- `<scope>`: Can be `global`, `section:<secNum>` (or `<secNum>`), or `chapter:<coords>` (or `<coords>`, e.g., `1.3`).
+- `--feedback "<text>"`: Adds user/agent feedback comments.
+- `--style "<text>"`: Adds layout or style instructions.
+- `--routine "<text>"`: Adds workflow/action rule constraints.
+- `--clear`: Clears memory for the specified scope.
+
+_Example:_
+
+```bash
+bitig learn global --feedback "Benden izinsiz git commit yapma"
+bitig learn 1.3 --style "Formülü italik yaz"
+```
+
+### 8. Visual Screenshot Capture
 
 ```bash
 bitig capture [options]
@@ -118,7 +137,7 @@ Generates PNG screenshots of compiled PDF pages, specific HTML sections/chapters
 - `--epub-chapter <coords>`: Render and screenshot a specific EPUB chapter by coordinates (e.g. `1.1`). No `.epub` file is required — XHTML is generated on-the-fly.
 - `--output-dir <dir>`: Custom folder to save screenshots (defaults to `dist/screenshots`).
 
-### 8. Workflow Guide
+### 9. Workflow Guide
 
 ```bash
 bitig guide
@@ -136,10 +155,11 @@ When writing or editing using Bitig, you can leverage the **AI-First Autonomous 
 
 AI agents can execute a complete autonomous loop to draft, visually inspect, and summarize chapters:
 
-1. **`bitig context <coords>`**: Retrieve the complete RAG prompt pack for the chapter you are writing. This feeds you preceding chapter text, outline constraints, and tone rules so you can match vocabulary and pacing perfectly.
+1. **`bitig context <coords>`**: Retrieve the complete RAG prompt pack for the chapter you are writing. This feeds you preceding chapter text, outline constraints, injected memory logs, and tone rules so you can match vocabulary and pacing perfectly.
 2. **Draft/Edit the content**: Write or update the markdown file under `assets/section-X/X.Y.md`.
 3. **`bitig capture --coords <coords>`** (or `--epub-chapter <coords>`): Generate a visual screenshot of the rendered chapter (either PDF/HTML or EPUB) to verify visual layout, font scaling, or custom CSS rules programmatically.
-4. **`bitig update:metadata <coords> --synopsis "..."`**: Programmatically write a concise summary (synopsis) of what you wrote back to `book.json`. This updates the book's index so subsequent AI agents writing later chapters have an accurate summary of your chapter.
+4. **`bitig learn <coords> --feedback "feedback"`**: Feed back any stylistic corrections or instructions to ensure subsequent generations adapt.
+5. **`bitig update:metadata <coords> --synopsis "..."`**: Programmatically write a concise summary (synopsis) of what you wrote back to `book.json`. This updates the book's index so subsequent AI agents writing later chapters have an accurate summary of your chapter.
 
 ---
 

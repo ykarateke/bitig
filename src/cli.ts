@@ -924,26 +924,31 @@ Welcome to Bitig! This guide details the workflow steps to write, refine, and co
 3. AI CONTEXT PACKAGING & AUTONOMOUS LOOP (For AI Writers)
    When using an LLM / AI Agent to write or continue a chapter, do NOT pass the entire book.
    Instead, package a focused context prompt:
-     bitig context <secNum>.<chapNum>
-   This generates a prompt pack containing:
-     - Book metadata & overall outlines.
-     - Detailed synopses of all chapters.
-     - Style/citation guidelines.
-     - The complete text of the preceding chapter to maintain narrative flow.
-     - Target chapter's current text (if any) to expand or edit.
+     bitig context <secNum>.<chapNum> [--memory <layers>]
+   This generates a prompt pack containing outlines, synopses, preceding chapter content, visual theme guidelines, and injected memory layers.
 
    🤖 THE AI-FIRST AUTONOMOUS LOOP:
    AI agents can execute a complete autonomous cycle to write, verify, and summarize content:
-     1. bitig context 2.3  --> Retrieve prompt pack
+     1. bitig context 2.3  --> Retrieve prompt pack (including memory logs)
      2. Write/edit manuscript chapter file (assets/section-2/2.3.md)
      3. bitig capture --coords 2.3 (or --epub-chapter 2.3) --> Visual validation
-     4. bitig update:metadata 2.3 --synopsis "..." --> AI feedback loop to update index
+     4. bitig learn 2.3 --feedback "feedback" --> Feed style/routine/feedback back into memory
+     5. bitig update:metadata 2.3 --synopsis "..." --> AI feedback loop to update index
 
-4. DIAGNOSTICS & QUALITY CHECKS
+4. AI AGENT LEARNING & MEMORY
+   AI agents learn from feedback and styling decisions, persisting logs inside memory.json:
+     bitig learn <scope> [options]
+   Options include:
+     --feedback "<text>"   Add feedback corrections.
+     --style "<text>"      Add styling instructions.
+     --routine "<text>"    Add workflow routine rules.
+     --clear               Clear memory for the specified scope.
+
+5. DIAGNOSTICS & QUALITY CHECKS
    Run static diagnostics to check for unclosed code blocks, broken internal links, and unused citation terms:
      bitig check
 
-5. COMPILING & PUBLISHING
+6. COMPILING & PUBLISHING
    Generate your final distribution formats inside the 'dist/' folder:
      bitig build
    This compiles:
@@ -952,15 +957,15 @@ Welcome to Bitig! This guide details the workflow steps to write, refine, and co
      - <bookName>.pdf: Print-ready A4 PDF with covers and page-number aligned TOC (requires Puppeteer).
      - book-metadata.json: Comprehensive structural metadata and chapter summaries for AI search/indexing.
 
-6. LOCAL PREVIEW
+7. LOCAL PREVIEW
    Start a local HTTP preview server that watches assets/ and book.json for changes, recompiles, and hot-reloads the browser automatically (PDF compiling is bypassed to keep reload times under 50ms):
      bitig dev [--port <port>]
 
-7. PROGRAMMATIC METADATA UPDATES
+8. PROGRAMMATIC METADATA UPDATES
    Update chapter titles and synopses programmatically:
      bitig update:metadata <secNum>.<chapNum> [--synopsis "<text>"] [--title "<title>"]
 
-8. VISUAL SCREENSHOT CAPTURE
+9. VISUAL SCREENSHOT CAPTURE
    Capture PNG screenshots of PDF pages or specific HTML sections/chapters:
      bitig capture [--page <number>] [--range <start>-<end>] [--coords <coords>] [--selector <selector>] [--output-dir <dir>]
 
