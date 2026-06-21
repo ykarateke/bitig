@@ -158,7 +158,7 @@ When writing or editing using Bitig, follow this recommended workflow loop:
 - **`epilogueFile`** (Optional - `string`): Name of the epilogue file under `assetsDir` (default: `"epilogue.md"`). Treated as Section 998.
 - **`bibliographyFile`** (Optional - `string`): Name of the bibliography file under `assetsDir` (default: `"bibliography.md"`). Treated as Section 999.
 - **`pdf`** (Optional - `boolean`): Enables/disables PDF compilation via Puppeteer (default: `true`).
-- **`language`** (Optional - `string`): Locale code of the book (default: `"tr"`, supported: `"tr"`, `"en"`). Determines TOC headings and template localizations.
+- **`language`** (Optional - `string`): Locale code of the book (default: `"tr"`, supported: `"tr"`, `"en"`, `"de"`, `"es"`, `"fr"`). Determines TOC headings and template localizations.
 - **`sectionTitles`** (Optional - `Record<string, string>`): Map of section folder numbers (e.g. `"1"`) to section header titles.
 - **`citations`** (Optional - `Array<{ term: string, replacement: string }>`): Auto-replacement rules for inserting reference citations (e.g., term matching to HTML footnotes).
 - **`synopses`** (Optional - `Record<string, string>`): Coordinate mapping of custom summaries for chapters (e.g. `"1.1": "Chapter 1.1 synopsis"`).

@@ -856,7 +856,7 @@ book.json is the central configuration file of your book project. It governs bot
 * epilogueFile: (Optional) Epilogue markdown file (default: "epilogue.md").
 * bibliographyFile: (Optional) Bibliography markdown file (default: "bibliography.md").
 * pdf: (Optional) Enable/disable PDF compilation (default: true).
-* language: (Optional) Locale of the book (default: "tr", supported: "tr", "en").
+* language: (Optional) Locale of the book (default: "tr", supported: "tr", "en", "de", "es", "fr").
 * sectionTitles: (Optional) Section folder to header title mappings.
 * citations: (Optional) Rules for auto-replacement of citations.
 * synopses: (Optional) Chapter summaries coordinate map (e.g. {"1.1": "summary"}).
