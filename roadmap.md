@@ -6,24 +6,7 @@ This document outlines the planned feature roadmap for the **Bitig** book compil
 
 ## 🗺️ Feature Roadmap
 
-### 1. Asset & Image Management
-
-- **Objective**: Introduce structured support for media files inside the book assets, ensuring reliable local paths and correct rendering across HTML and PDF outputs.
-- **Details**:
-  - Standardize a media assets directory (e.g., `assets/images/`) within the workspace.
-  - Automatically copy, bundle, and resolve image assets during compilation (`bitig build`).
-  - Support responsive visual container styles in predefined stylesheets.
-  - _Prerequisite for advanced cover layout designs._
-
-### 2. AI Agent Thought Logging & Learning History
-
-- **Objective**: Create a persistent history and memory mechanism for AI writing assistants to log internal rationale, feedback, and key style configurations.
-- **Details**:
-  - Introduce an agent history log file (`.bitig/history.json` or `.bitig/memory.json`) in the book workspace.
-  - Allow writing assistants to programmatically append "lessons learned", user preferences, or characters' tone details.
-  - Enrich the `bitig context <coords>` command to automatically inject past notes, feedback history, and context-specific rules into the RAG prompt package.
-
-### 3. EPUB Compilation & Visual Testing Support
+### [COMPLETED] 1. EPUB Compilation & Visual Testing Support
 
 - **Objective**: Add EPUB as a primary export target format alongside Markdown, HTML, and PDF.
 - **Details**:
@@ -31,7 +14,7 @@ This document outlines the planned feature roadmap for the **Bitig** book compil
   - Ensure all layout customization capabilities (themes, typography, metadata) align between EPUB and PDF.
   - Extend the `bitig capture` layout screenshot testing framework to emulate and verify EPUB viewer dimensions.
 
-### 4. Legal & Publishing Metadata Standards
+### [COMPLETED] 2. Legal & Publishing Metadata Standards
 
 - **Objective**: Integrate industry-standard metadata into the book configuration and output headers.
 - **Details**:
@@ -42,14 +25,16 @@ This document outlines the planned feature roadmap for the **Bitig** book compil
     - **`copyright`**: Rights statement and license (e.g., Creative Commons, All Rights Reserved).
   - Automatically render legal copyright pages and insert metadata tags into HTML header blocks and EPUB packages.
 
-### 5. Advanced Cover Design System (Research & Implementation)
+### 3. Asset & Image Management
 
-- **Objective**: Research and design customizable cover templates and graphics, building on top of the core Asset Management module.
+- **Objective**: Introduce structured support for media files inside the book assets, ensuring reliable local paths and correct rendering across HTML and PDF outputs.
 - **Details**:
-  - Implement customizable cover designs supporting full-page background images, title alignments, and geometric color blocks.
-  - Provide easy configuration overrides in `book.json` to load background graphics and set front cover layouts.
+  - Standardize a media assets directory (e.g., `assets/images/`) within the workspace.
+  - Automatically copy, bundle, and resolve image assets during compilation (`bitig build`).
+  - Support responsive visual container styles in predefined stylesheets.
+  - _Prerequisite for advanced cover layout designs._
 
-### 6. Semantic Diagnostics & Quality Scoring Guide
+### 4. Semantic Diagnostics & Quality Scoring Guide
 
 - **Objective**: Introduce a framework to analyze manuscript quality (e.g. style consistency, narrative flow, interdisciplinarity, rationality) using AI evaluations.
 - **Details**:
@@ -57,10 +42,39 @@ This document outlines the planned feature roadmap for the **Bitig** book compil
   - Implement an AI-powered diagnostic command (`bitig analyze [coords]`) that scores sections or chapters out of 100 based on the custom scoring guidelines.
   - Report diagnostics in a structured tabular format in CLI stdout and log files.
 
-### 7. Fiction & Narrative Planning Tools
+### 5. AI Agent Thought Logging & Learning History
+
+- **Objective**: Create a persistent history and memory mechanism for AI writing assistants to log internal rationale, feedback, and key style configurations.
+- **Details**:
+  - Introduce an agent history log file (`.bitig/history.json` or `.bitig/memory.json`) in the book workspace.
+  - Allow writing assistants to programmatically append "lessons learned", user preferences, or characters' tone details.
+  - Enrich the `bitig context <coords>` command to automatically inject past notes, feedback history, and context-specific rules into the RAG prompt package.
+
+### 6. Fiction & Narrative Planning Tools
 
 - **Objective**: Provide structured database models for managing plot structures and character arcs, targeted at creative writing and novels.
 - **Details**:
   - Support defining character profiles (e.g., attributes, relationships, descriptions) inside a structured database file (`assets/characters.json`).
   - Support plot outlines, timelines, and narrative constraints inside `assets/plot.json`.
   - Include character details and event outlines inside the AI agent prompt package (`bitig context`) to help writing agents avoid narrative contradictions and maintain character consistency.
+
+### 7. Advanced Cover Design System (Research & Implementation)
+
+- **Objective**: Research and design customizable cover templates and graphics, building on top of the core Asset Management module.
+- **Details**:
+  - Implement customizable cover designs supporting full-page background images, title alignments, and geometric color blocks.
+  - Provide easy configuration overrides in `book.json` to load background graphics and set front cover layouts.
+
+### 8. CSS & Bibliography Validation
+
+- **Objective**: Add static validation checks to ensure all CSS classes used in manuscript files exist in the stylesheet, and all bibliography citations are correctly referenced.
+- **Details**:
+  - Extend the `bitig check` / `bitig lint` command to scan markdown content for undeclared CSS classes.
+  - Cross-check met citation numbers with entries in the bibliography source files to detect broken or missing references.
+
+### 9. Compact Configuration & Predefined Layout Profiles
+
+- **Objective**: Make the configuration structure compact and introduce predefined layout profiles matching different book genres (e.g., novels, scientific papers, textbooks) while keeping the core schema flexible and generic.
+- **Details**:
+  - Allow defining a `profile` key in `book.json` (e.g., `"profile": "novel"` or `"profile": "academic-article"`) that automatically configures visual templates, styling rules, page dimensions, and page numbering conventions.
+  - Maintain a clean, minimal root configuration schema where custom parameters can still override profile defaults.
