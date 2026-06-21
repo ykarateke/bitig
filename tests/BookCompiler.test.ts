@@ -304,5 +304,16 @@ describe('BookCompiler', () => {
       expect(compiled.html).toContain('<div class="copyright-page">');
       expect(compiled.html).toContain('COPYRIGHT');
     });
+
+    it('should inject KaTeX stylesheets, script tags, and auto-render config', () => {
+      const compiler = new BookCompiler(config);
+      compiler.scanAndLoad();
+      const compiled = compiler.compile();
+
+      expect(compiled.html).toContain('katex.min.css');
+      expect(compiled.html).toContain('katex.min.js');
+      expect(compiled.html).toContain('auto-render.min.js');
+      expect(compiled.html).toContain('renderMathInElement(document.body');
+    });
   });
 });

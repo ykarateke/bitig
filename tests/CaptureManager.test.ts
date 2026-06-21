@@ -57,6 +57,7 @@ describe('CaptureManager', () => {
   // Helper to create mocked puppeteer browser/page flow
   function setupMockPuppeteer(mockElement: any, extraPageOverrides = {}) {
     const mockPage = {
+      on: jest.fn().mockReturnValue(undefined),
       setContent: jest.fn().mockResolvedValue(undefined),
       addScriptTag: jest.fn().mockResolvedValue(undefined),
       evaluate: jest.fn().mockImplementation((fn, ...args) => {
