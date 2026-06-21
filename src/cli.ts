@@ -13,6 +13,7 @@ import { Locale } from './Locale';
 import { DevServer } from './DevServer';
 import { CaptureManager } from './CaptureManager';
 import { MemoryManager } from './MemoryManager';
+import { DiagnosticsManager } from './DiagnosticsManager';
 
 interface CliArgs {
   command?: string;
@@ -39,6 +40,7 @@ interface CliArgs {
   routine?: string;
   clear?: boolean;
   memory?: string;
+  file?: string;
   version?: boolean;
 }
 
@@ -120,6 +122,15 @@ switch (command) {
     break;
   case 'update:metadata':
     handleUpdateMetadata(cliArgs);
+    break;
+  case 'analyze:init':
+    handleAnalyzeInit(cliArgs);
+    break;
+  case 'analyze:context':
+    handleAnalyzeContext(cliArgs);
+    break;
+  case 'analyze:report':
+    handleAnalyzeReport(cliArgs);
     break;
   case 'capture':
   case 'screenshot':
@@ -306,6 +317,13 @@ function parseArgs(args: string[]): CliArgs {
         result.memory = args[++i];
       } else {
         console.error('Error: Option --memory requires a value.');
+        process.exit(1);
+      }
+    } else if (arg === '--file') {
+      if (i + 1 < args.length) {
+        result.file = args[++i];
+      } else {
+        console.error('Error: Option --file requires a value.');
         process.exit(1);
       }
     } else if (arg === '-v' || arg === '--version') {
@@ -1173,6 +1191,84 @@ async function handleCapture(cliArgs: CliArgs): Promise<void> {
   } catch (error) {
     const err = error as Error;
     console.error(`Error: Visual capture failed: ${err.message}`);
+    process.exit(1);
+  }
+}
+
+function handleAnalyzeInit(cliArgs: CliArgs): void {
+  let config: BookConfig | undefined;
+  try {
+    config = loadConfig(cliArgs.config);
+    const compiler = new BookCompiler(config);
+    const diagnosticsManager = new DiagnosticsManager(compiler);
+    diagnosticsManager.initGuidelines();
+  } catch (error) {
+    const err = error as Error;
+    console.error(`Error: Failed to init guidelines: ${err.message}`);
+    process.exit(1);
+  }
+}
+
+function handleAnalyzeContext(cliArgs: CliArgs): void {
+  const coords = cliArgs.positionals[0];
+  if (!coords) {
+    console.error('Error: Please specify target chapter, e.g. bitig analyze:context 1.1');
+    process.exit(1);
+  }
+  const parts = coords.split('.');
+  const sectionNum = parseInt(parts[0], 10);
+  const chapterNum = parseInt(parts[1], 10);
+
+  if (isNaN(sectionNum) || isNaN(chapterNum)) {
+    console.error('Error: Invalid section/chapter format. Use X.Y');
+    process.exit(1);
+  }
+
+  let config: BookConfig | undefined;
+  try {
+    config = loadConfig(cliArgs.config);
+    const compiler = new BookCompiler(config);
+    const diagnosticsManager = new DiagnosticsManager(compiler);
+    const contextStr = diagnosticsManager.packageContext(sectionNum, chapterNum);
+    console.log(contextStr);
+  } catch (error) {
+    const err = error as Error;
+    console.error(`Error: Failed to package analyze context: ${err.message}`);
+    process.exit(1);
+  }
+}
+
+function handleAnalyzeReport(cliArgs: CliArgs): void {
+  const coords = cliArgs.positionals[0];
+  if (!coords) {
+    console.error(
+      'Error: Please specify target chapter, e.g. bitig analyze:report 1.1 --file temp.json'
+    );
+    process.exit(1);
+  }
+  if (!cliArgs.file) {
+    console.error('Error: Please provide the analysis JSON file with --file');
+    process.exit(1);
+  }
+
+  const parts = coords.split('.');
+  const sectionNum = parseInt(parts[0], 10);
+  const chapterNum = parseInt(parts[1], 10);
+
+  if (isNaN(sectionNum) || isNaN(chapterNum)) {
+    console.error('Error: Invalid section/chapter format. Use X.Y');
+    process.exit(1);
+  }
+
+  let config: BookConfig | undefined;
+  try {
+    config = loadConfig(cliArgs.config);
+    const compiler = new BookCompiler(config);
+    const diagnosticsManager = new DiagnosticsManager(compiler);
+    diagnosticsManager.reportDiagnostics(sectionNum, chapterNum, cliArgs.file);
+  } catch (error) {
+    const err = error as Error;
+    console.error(`Error: Failed to report diagnostics: ${err.message}`);
     process.exit(1);
   }
 }
