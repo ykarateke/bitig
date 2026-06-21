@@ -225,6 +225,126 @@ export class Locale {
       contextInstruction2: '- Do not repeat information already covered in the synopses.',
       contextInstruction3: '- Integrate the citation terms naturally.',
       contextInstruction4: '- Output ONLY valid markdown text.'
+    },
+    de: {
+      tocHtmlHeading: 'INHALTSVERZEICHNIS',
+      tocMdHeading: '# Inhaltsverzeichnis\n\n',
+
+      // CLI Stats
+      statsReportTitle: 'BUCH-STATUSBERICHT',
+      statsAuthor: 'Autor',
+      statsSubtitle: 'Untertitel',
+      statsTheme: 'Thema',
+      statsDraftStats: '[Entwurf-Statistiken]',
+      statsTotalSections: 'Gesamtanzahl Abschnitte',
+      statsTotalChapters: 'Gesamtanzahl Kapitel',
+      statsTotalWords: 'Gesamtzahl Wörter',
+      statsTotalChars: 'Gesamtzahl Zeichen',
+      statsEstReadingTime: 'Geschätzte Lesezeit: {time} Minuten',
+      statsStructureBreakdown: '[Struktur-Übersicht]',
+      statsSectionLabel: '\nAbschnitt {num}: "{title}" ({count} Kapitel)',
+      statsChapterLabel: '  - Kapitel {sec}.{chap} "{title}" ({words} Wörter)',
+
+      // CLI Check/Lint
+      checkRunning: 'Buch-Diagnose wird ausgeführt...',
+      checkClean: 'Keine Diagnoseprobleme gefunden! Buch ist sauber und bereit für die KI.',
+      checkFinished: '\nDiagnose abgeschlossen: {errors} Fehler, {warnings} Warnungen gefunden.',
+
+      // Linter messages
+      linterEmpty: 'Kapitel ist leer oder enthält nur einen Titel.',
+      linterUnclosedCode:
+        'Enthält einen nicht geschlossenen Markdown-Codeblock (ungerade Anzahl dreifacher Backticks).',
+      linterBrokenLink: 'Fehlerhafter interner Markdown-Link: "{target}" existiert nicht.',
+      linterUnusedCitation:
+        'Zitierbegriff "{term}" ist in der Konfiguration definiert, wurde aber im Buchinhalt nicht gefunden.',
+
+      // CLI Search
+      searchRunning: 'Suche nach "{query}"...',
+      searchNoMatches: 'Keine Treffer gefunden.',
+      searchFoundMatches: '{count} Treffer gefunden:',
+
+      // CLI Build/Compiler
+      buildLoadingConfig: 'Konfiguration wird geladen...',
+      buildScanning: 'Quelldateien werden gescannt...',
+      buildCompiling: 'Buch wird kompiliert...',
+      buildSuccess: 'Buch und KI-Metadaten erfolgreich kompiliert!',
+      buildPdfSkip: 'PDF-Erstellung übersprungen (in der Konfiguration deaktiviert).',
+      buildGeneratingPdf: 'PDF-Ausgabe wird generiert: {path}...',
+
+      // CLI Management
+      managerSectionCreated:
+        '✔ Ordner für Abschnitt {sectionNum} wurde erstellt und in der Konfiguration mit dem Titel "{title}" benannt.',
+      managerChapterCreated: '✔ Kapitel erstellt unter: {filePath}',
+      managerChapterMoved: '✔ Kapitel von {fromPath} nach {toPath} verschoben',
+      managerChapterDeleted: '✔ Kapitel gelöscht: {filePath}',
+      managerSynopsisUpdated: '✔ Zusammenfassung für Kapitel {coords} wurde aktualisiert.',
+      managerTitleUpdated: '✔ Titel in {filePath} wurde auf "{title}" aktualisiert.',
+      devServerStarting: 'Entwicklungsserver wird gestartet...',
+      devServerCompiling: 'Änderung erkannt. Recompilierung läuft...',
+      devServerReady:
+        'Vorschau-Server bereit. Öffnen Sie http://localhost:{port}/ in Ihrem Browser.',
+      cliErrorFailedStartDevServer: 'Fehler beim Starten des Entwicklungsservers:',
+      captureStarting: 'Screenshots werden generiert...',
+      captureSaved: 'Screenshot gespeichert unter: {path}',
+      captureFailed: 'Fehler beim Erstellen des Screenshots: {error}',
+      captureInvalidPage: 'Ungültige Seitennummer: {page}',
+      managerChapterTemplate:
+        '# {title}\n\nDies ist Kapitel {sectionNum}.{chapterNum} mit dem Titel "{title}". Fügen Sie hier den Inhalt ein.\n',
+      initSuccessJson: 'book.json erstellt.',
+      initSuccessChapters: 'Beispiel-Kapitelverzeichnisse und Markdown-Dateien (assets/) erstellt.',
+      initSuccessRun:
+        '\nErfolgreich! Führen Sie Folgendes aus, um das Buch zu kompilieren:\n  bitig build',
+      initError: 'Fehler: Bei der Erstellung der Vorlage ist ein Fehler aufgetreten:',
+      cliErrorCompilationFailed: 'Kompilierung fehlgeschlagen:',
+      cliErrorFailedAddSection: 'Abschnitt konnte nicht hinzugefügt werden:',
+      cliErrorFailedAddChapter: 'Kapitel konnte nicht hinzugefügt werden:',
+      cliErrorFailedMoveChapter: 'Kapitel konnte nicht verschoben werden:',
+      cliErrorFailedDeleteChapter: 'Kapitel konnte nicht gelöscht werden:',
+      cliErrorFailedLoadStats: 'Statistiken konnten nicht geladen werden:',
+      cliErrorFailedRunCheck: 'Diagnose konnte nicht ausgeführt werden:',
+      cliErrorFailedPackageContext: 'Kontext konnte nicht paketiert werden:',
+      cliErrorFailedSearch: 'Suche fehlgeschlagen:',
+
+      // Context Packager
+      contextTitle: '# BUCH-SCHREIBKONTEXT-PAKET',
+      contextIntro:
+        'Dieses Paket wurde speziell zum Schreiben oder Verfeinern von Folgendem erstellt:',
+      contextTargetChapter: '👉 **Abschnitt {sec}, Kapitel {chap}**: "{title}"',
+      contextMetadataHeader: '## 1. ALLGEMEINE BUCH-METADATEN',
+      contextBookTitle: 'Titel',
+      contextBookSubtitle: 'Untertitel',
+      contextBookAuthor: 'Autor',
+      contextBookDescription: 'Beschreibung',
+      contextBookTheme: 'Thema',
+      contextStructureHeader: '## 2. BUCHSTRUKTUR & ZUSAMMENFASSUNGEN',
+      contextStructureIntro:
+        'Hier ist die Gliederung des Buches, einschließlich des ersten Absatzes (Zusammenfassung) jedes Kapitels:',
+      contextStructureNoSynopsis: 'Keine Zusammenfassungen verfügbar.',
+      contextStructureNoContent: 'Noch kein Inhalt vorhanden.',
+      contextStructureSection: '### Abschnitt {sec}: {title}',
+      contextStructureChapter: '  - Kapitel {sec}.{chap} "{title}": {synopsis}{marker}',
+      contextGuidelinesHeader: '## 3. STILRICHTLINIEN & ZITIERREGELN',
+      contextGuidelinesIntro:
+        'Wenden Sie die folgenden Begriffe automatisch an. Der Compiler formatiert sie hochgestellt:',
+      contextGuidelinesNoCitations: 'Keine Zitate definiert.',
+      contextGuidelinesRule: '- Begriff: "{term}" -> Zitat: "{replacement}"',
+      contextPrecedingHeader: '## 4. INHALT DES VORHERIGEN KAPITELS (Für den Erzählfluss)',
+      contextPrecedingIntro:
+        'Hier ist der vollständige Text des vorherigen Kapitels (Kapitel {sec}.{chap} "{title}"), um den Erzählfluss und die Konsistenz der Charaktere zu wahren:',
+      contextPrecedingNone:
+        'Dies ist das erste Kapitel des Buches. Es gibt kein vorheriges Kapitel.',
+      contextTargetHeader:
+        '## 5. AKTUELLER INHALT DES ZIELKAPITELS (Zum Bearbeiten oder Fortfahren)',
+      contextTargetIntro:
+        'Hier ist der aktuelle Inhalt des Zielkapitels. Erweitern, bearbeiten oder schreiben Sie diesen neu:',
+      contextTargetEmpty: 'Das Zielkapitel ist derzeit leer.',
+      contextInstructionsHeader: '[ANWEISUNGEN FÜR DEN KI-AGENTEN]',
+      contextInstruction1:
+        '- Behalten Sie Stil, Vokabular und Tonfall des vorherigen Kapitels bei.',
+      contextInstruction2:
+        '- Wiederholen Sie keine Informationen, die bereits in den Zusammenfassungen behandelt wurden.',
+      contextInstruction3: '- Integrieren Sie die Zitierbegriffe natürlich.',
+      contextInstruction4: '- Geben Sie NUR gültigen Markdown-Text aus.'
     }
   };
 
@@ -237,7 +357,13 @@ export class Locale {
     lang: string = 'tr',
     replaces?: Record<string, string | number>
   ): string {
-    const normLang = lang.toLowerCase().startsWith('tr') ? 'tr' : 'en';
+    let normLang = 'en';
+    const l = lang.toLowerCase();
+    if (l.startsWith('tr')) {
+      normLang = 'tr';
+    } else if (l.startsWith('de')) {
+      normLang = 'de';
+    }
     let text = Locale.translations[normLang]?.[key] || Locale.translations['en']?.[key] || key;
     if (replaces) {
       Object.entries(replaces).forEach(([k, v]) => {

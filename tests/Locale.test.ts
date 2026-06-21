@@ -22,9 +22,12 @@ describe('Locale', () => {
     expect(Locale.get('tocHtmlHeading', 'tr-TR')).toBe('İÇİNDEKİLER');
   });
 
-  it('should fallback to English for non-Turkish languages', () => {
+  it('should fallback to English for non-supported languages', () => {
     expect(Locale.get('tocHtmlHeading', 'fr')).toBe('TABLE OF CONTENTS');
-    expect(Locale.get('tocHtmlHeading', 'de')).toBe('TABLE OF CONTENTS');
+  });
+
+  it('should retrieve correct translations for German', () => {
+    expect(Locale.get('tocHtmlHeading', 'de')).toBe('INHALTSVERZEICHNIS');
   });
 
   it('should correctly perform token replacements', () => {
