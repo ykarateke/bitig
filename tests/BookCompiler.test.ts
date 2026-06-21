@@ -276,6 +276,7 @@ describe('BookCompiler', () => {
       const compiled = compiler.compile();
       // Should contain page break class between c1 and c2
       expect(compiled.html).toContain('<div class="page-break"></div>');
+      expect(compiled.html).not.toContain('<div class="copyright-page">');
     });
 
     it('should inject metadata tags and copyright page HTML if configured', () => {

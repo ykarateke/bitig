@@ -100,6 +100,9 @@ describe('StyleManager', () => {
       expect(html).toContain('Quantum Physics');
       expect(html).toContain('Einstein');
       expect(html).toContain('All rights reserved. No part of this publication');
+      expect(html).not.toContain('Publisher:');
+      expect(html).not.toContain('ISBN:');
+      expect(html).not.toContain('Published:');
     });
 
     it('should generate copyright page HTML in Turkish when configured', () => {
