@@ -78,6 +78,74 @@ describe('DiagnosticsManager', () => {
       expect(savedData.baseScore).toBe(100);
       expect(savedData.criteria.AccuracyAndVeracity.weight).toBe(0.25);
     });
+
+    it('should throw an error if custom template file is not found', () => {
+      (fs.existsSync as jest.Mock).mockReturnValue(false);
+      expect(() => manager.initGuidelines('missing.json')).toThrow(
+        /Custom template file not found/
+      );
+    });
+
+    it('should throw an error if custom template contains invalid JSON', () => {
+      (fs.existsSync as jest.Mock).mockImplementation((path) => path === 'invalid.json');
+      (fs.readFileSync as jest.Mock).mockReturnValue('invalid json {');
+
+      expect(() => manager.initGuidelines('invalid.json')).toThrow(
+        /Failed to parse custom template file/
+      );
+    });
+
+    it('should throw an error if custom template lacks criteria object', () => {
+      (fs.existsSync as jest.Mock).mockImplementation((path) => path === 'nocrit.json');
+      (fs.readFileSync as jest.Mock).mockReturnValue(JSON.stringify({ projectType: 'general' }));
+
+      expect(() => manager.initGuidelines('nocrit.json')).toThrow(/missing or invalid "criteria"/);
+    });
+
+    it('should throw an error if custom template has invalid criteria definition', () => {
+      (fs.existsSync as jest.Mock).mockImplementation((path) => path === 'badcrit.json');
+      (fs.readFileSync as jest.Mock).mockReturnValue(
+        JSON.stringify({
+          criteria: {
+            Accuracy: { weight: 'not-a-number', enabled: true }
+          }
+        })
+      );
+
+      expect(() => manager.initGuidelines('badcrit.json')).toThrow(/Invalid criteria definition/);
+    });
+
+    it('should successfully write quality guidelines if custom template is valid', () => {
+      (fs.existsSync as jest.Mock).mockImplementation((path) => {
+        if (path === '/mock/project/quality-guidelines.json') return false;
+        if (path === 'valid.json') return true;
+        return false;
+      });
+      const validCustom = {
+        projectType: 'custom-fiction',
+        baseScore: 100,
+        criteria: {
+          PlotLogic: { weight: 0.5, description: 'Plot logic', enabled: true },
+          Style: { weight: 0.5, description: 'Style flow', enabled: true }
+        },
+        customRules: []
+      };
+      (fs.readFileSync as jest.Mock).mockImplementation((path) => {
+        if (path === 'valid.json') return JSON.stringify(validCustom);
+        return '';
+      });
+
+      manager.initGuidelines('valid.json');
+
+      expect(fs.writeFileSync).toHaveBeenCalled();
+      const args = (fs.writeFileSync as jest.Mock).mock.calls.find((c) =>
+        c[0].includes('quality-guidelines.json')
+      );
+      expect(args).toBeTruthy();
+      const savedData = JSON.parse(args[1]);
+      expect(savedData.projectType).toBe('custom-fiction');
+      expect(savedData.criteria.PlotLogic.weight).toBe(0.5);
+    });
   });
 
   describe('packageContext', () => {

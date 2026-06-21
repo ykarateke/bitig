@@ -1043,8 +1043,8 @@ Welcome to Bitig! This guide details the workflow steps to write, refine, and co
 
 10. SEMANTIC DIAGNOSTICS & QUALITY SCORING
    Facilitate AI-driven quality and consistency evaluations based on customizable rubrics:
-     - bitig analyze:init
-       Initializes a template 'quality-guidelines.json' with configurable scoring criteria and weights.
+     - bitig analyze:init [--file <customTemplatePath>]
+       Initializes a template 'quality-guidelines.json' with configurable scoring criteria and weights. If --file is supplied, validates and initializes using the custom template.
      - bitig analyze:context <secNum>.<chapNum>
        Combines the target chapter manuscript with the quality guidelines into a single package.
      - bitig analyze:report <secNum>.<chapNum> --file <tempJsonPath>
@@ -1219,7 +1219,7 @@ function handleAnalyzeInit(cliArgs: CliArgs): void {
     config = loadConfig(cliArgs.config);
     const compiler = new BookCompiler(config);
     const diagnosticsManager = new DiagnosticsManager(compiler);
-    diagnosticsManager.initGuidelines();
+    diagnosticsManager.initGuidelines(cliArgs.file);
   } catch (error) {
     const err = error as Error;
     console.error(`Error: Failed to init guidelines: ${err.message}`);

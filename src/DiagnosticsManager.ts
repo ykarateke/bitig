@@ -28,56 +28,87 @@ export class DiagnosticsManager {
     return path.join(projectDir, 'quality-guidelines.json');
   }
 
-  public initGuidelines(): void {
+  public initGuidelines(customTemplatePath?: string): void {
     const guidelinesPath = this.getGuidelinesPath();
     if (fs.existsSync(guidelinesPath)) {
       throw new Error(`Quality guidelines already exist at ${guidelinesPath}`);
     }
 
-    const defaultGuidelines: QualityGuidelines = {
-      projectType: 'general',
-      baseScore: 100,
-      criteria: {
-        AccuracyAndVeracity: {
-          weight: 0.25,
-          description: 'Bilgilerin doğruluğu ve kaynakların güvenilirliği.',
-          enabled: true
-        },
-        LogicalProgression: {
-          weight: 0.15,
-          description: 'Fikirlerin veya olay örgüsünün mantıksal bir sırayla ilerlemesi.',
-          enabled: true
-        },
-        Transitions: {
-          weight: 0.1,
-          description: 'Paragraflar ve bölümler arası geçişlerin akıcılığı.',
-          enabled: true
-        },
-        ReadabilityAndMechanics: {
-          weight: 0.1,
-          description: 'Dil bilgisi, akıcılık ve cümle yapısı.',
-          enabled: true
-        },
-        CompletenessAndScope: {
-          weight: 0.15,
-          description: 'Konunun veya olayların yeterince işlenmiş olması, eksik nokta kalmaması.',
-          enabled: true
-        },
-        Consistency: {
-          weight: 0.15,
-          description: 'Karakterlerin, terimlerin veya üslubun kitap genelinde tutarlı olması.',
-          enabled: true
-        },
-        Intelligibility: {
-          weight: 0.1,
-          description: 'Hedef kitleye uygun anlaşılırlık seviyesi.',
-          enabled: true
-        }
-      },
-      customRules: ['Genel kaliteyi düşürecek tekrarlardan kaçınılmalıdır.']
-    };
+    let guidelines: QualityGuidelines;
 
-    fs.writeFileSync(guidelinesPath, JSON.stringify(defaultGuidelines, null, 2), 'utf8');
+    if (customTemplatePath) {
+      if (!fs.existsSync(customTemplatePath)) {
+        throw new Error(`Custom template file not found: ${customTemplatePath}`);
+      }
+      try {
+        const content = fs.readFileSync(customTemplatePath, 'utf8');
+        guidelines = JSON.parse(content);
+      } catch (e) {
+        throw new Error(`Failed to parse custom template file. Must be valid JSON.`);
+      }
+
+      // Basic validation
+      if (!guidelines.criteria || typeof guidelines.criteria !== 'object') {
+        throw new Error(`Invalid guidelines schema: missing or invalid "criteria" object.`);
+      }
+      for (const [key, val] of Object.entries(guidelines.criteria)) {
+        if (
+          !val ||
+          typeof val !== 'object' ||
+          typeof val.weight !== 'number' ||
+          typeof val.enabled !== 'boolean'
+        ) {
+          throw new Error(
+            `Invalid criteria definition for "${key}". Must be an object with numeric weight and boolean enabled properties.`
+          );
+        }
+      }
+    } else {
+      guidelines = {
+        projectType: 'general',
+        baseScore: 100,
+        criteria: {
+          AccuracyAndVeracity: {
+            weight: 0.25,
+            description: 'Bilgilerin doğruluğu ve kaynakların güvenilirliği.',
+            enabled: true
+          },
+          LogicalProgression: {
+            weight: 0.15,
+            description: 'Fikirlerin veya olay örgüsünün mantıksal bir sırayla ilerlemesi.',
+            enabled: true
+          },
+          Transitions: {
+            weight: 0.1,
+            description: 'Paragraflar ve bölümler arası geçişlerin akıcılığı.',
+            enabled: true
+          },
+          ReadabilityAndMechanics: {
+            weight: 0.1,
+            description: 'Dil bilgisi, akıcılık ve cümle yapısı.',
+            enabled: true
+          },
+          CompletenessAndScope: {
+            weight: 0.15,
+            description: 'Konunun veya olayların yeterince işlenmiş olması, eksik nokta kalmaması.',
+            enabled: true
+          },
+          Consistency: {
+            weight: 0.15,
+            description: 'Karakterlerin, terimlerin veya üslubun kitap genelinde tutarlı olması.',
+            enabled: true
+          },
+          Intelligibility: {
+            weight: 0.1,
+            description: 'Hedef kitleye uygun anlaşılırlık seviyesi.',
+            enabled: true
+          }
+        },
+        customRules: ['Genel kaliteyi düşürecek tekrarlardan kaçınılmalıdır.']
+      };
+    }
+
+    fs.writeFileSync(guidelinesPath, JSON.stringify(guidelines, null, 2), 'utf8');
     console.log(`Initialized quality guidelines at: ${guidelinesPath}`);
   }
 
