@@ -47,6 +47,39 @@ export class EpubCompiler {
     const oebps = zip.folder('OEBPS')!;
     oebps.folder('styles')!.file('book.css', this.styleManager.getEpubCSS());
 
+    // Load local KaTeX resources
+    const possiblePaths = [
+      path.join(__dirname, 'resources'),
+      path.join(__dirname, '../src/resources'),
+      path.join(__dirname, '../resources')
+    ];
+    let resourceDir = '';
+    for (const p of possiblePaths) {
+      if (fs.existsSync(p)) {
+        resourceDir = p;
+        break;
+      }
+    }
+
+    if (resourceDir) {
+      const katexJsPath = path.join(resourceDir, 'katex.min.js');
+      const autoRenderJsPath = path.join(resourceDir, 'auto-render.min.js');
+      const katexCssPath = path.join(resourceDir, 'katex.min.css');
+
+      if (
+        fs.existsSync(katexJsPath) &&
+        fs.existsSync(autoRenderJsPath) &&
+        fs.existsSync(katexCssPath)
+      ) {
+        const scriptsFolder = oebps.folder('scripts')!;
+        scriptsFolder.file('katex.min.js', fs.readFileSync(katexJsPath));
+        scriptsFolder.file('auto-render.min.js', fs.readFileSync(autoRenderJsPath));
+
+        const stylesFolder = oebps.folder('styles')!;
+        stylesFolder.file('katex.min.css', fs.readFileSync(katexCssPath));
+      }
+    }
+
     // ── 4. Build spine items (reading order) ──────────────────────────────
     const spineItems: Array<{ id: string; href: string; chapter?: Chapter; section?: Section }> =
       [];
@@ -172,10 +205,15 @@ export class EpubCompiler {
     let manifest = `  <manifest>
     <item id="nav" href="nav.xhtml" media-type="application/xhtml+xml" properties="nav"/>
     <item id="ncx" href="toc.ncx" media-type="application/x-dtbncx+xml"/>
-    <item id="stylesheet" href="styles/book.css" media-type="text/css"/>`;
+    <item id="stylesheet" href="styles/book.css" media-type="text/css"/>
+    <item id="katex-css" href="styles/katex.min.css" media-type="text/css"/>
+    <item id="katex-js" href="scripts/katex.min.js" media-type="application/javascript"/>
+    <item id="katex-auto-render-js" href="scripts/auto-render.min.js" media-type="application/javascript"/>`;
 
     spineItems.forEach((item) => {
-      manifest += `\n    <item id="${item.id}" href="${item.href}" media-type="application/xhtml+xml"/>`;
+      // Add properties="scripted" to chapter/xhtml items to enable local JS execution
+      const properties = item.id.startsWith('chapter-') ? ' properties="scripted"' : '';
+      manifest += `\n    <item id="${item.id}" href="${item.href}" media-type="application/xhtml+xml"${properties}/>`;
     });
 
     manifest += `\n  </manifest>`;
@@ -295,7 +333,8 @@ ${navPoints}</navMap>
     }
 
     // Convert Markdown → HTML
-    const bodyHtml = marked.parse(content) as string;
+    let bodyHtml = marked.parse(content) as string;
+    bodyHtml = this._toXhtml(bodyHtml);
 
     const escapedTitle = this._escapeXml(chapter.title);
 
@@ -308,10 +347,11 @@ ${navPoints}</navMap>
   <meta charset="UTF-8"/>
   <title>${escapedTitle}</title>
   <link rel="stylesheet" type="text/css" href="../styles/book.css"/>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css"/>
-  <script defer="defer" src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
-  <script defer="defer" src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
-  <script>
+  <link rel="stylesheet" type="text/css" href="../styles/katex.min.css"/>
+  <script type="text/javascript" src="../scripts/katex.min.js"></script>
+  <script type="text/javascript" src="../scripts/auto-render.min.js"></script>
+  <script type="text/javascript">
+    //<![CDATA[
     document.addEventListener("DOMContentLoaded", function() {
       renderMathInElement(document.body, {
         delimiters: [
@@ -323,6 +363,7 @@ ${navPoints}</navMap>
         throwOnError: false
       });
     });
+    //]]>
   </script>
 </head>
 <body>
@@ -418,6 +459,16 @@ ${navPoints}</navMap>
       .replace(/>/g, '&gt;')
       .replace(/"/g, '&quot;')
       .replace(/'/g, '&apos;');
+  }
+
+  /**
+   * Converts HTML tags (like <hr>, <br>, <img>) to their self-closing XHTML equivalents.
+   */
+  private _toXhtml(html: string): string {
+    return html
+      .replace(/<hr([^>]*)(?<!\/)>/gi, '<hr$1 />')
+      .replace(/<br([^>]*)(?<!\/)>/gi, '<br$1 />')
+      .replace(/<img([^>]*)(?<!\/)>/gi, '<img$1 />');
   }
 }
 

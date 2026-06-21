@@ -12,7 +12,7 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsc -p tsconfig.build.json",
+    "build": "tsc -p tsconfig.build.json && mkdir -p dist/resources && cp -r src/resources/* dist/resources/",
     "prepublishOnly": "npm run build",
     "test": "jest",
     "test:cov": "jest --coverage",

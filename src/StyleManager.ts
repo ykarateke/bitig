@@ -83,8 +83,13 @@ export class StyleManager {
   public getEpubCSS(): string {
     const raw = this.getCSS();
 
+    // Remove @import statements (like Google Fonts) that fail offline
+    let stripped = raw
+      .replace(/@import\s+url\([^)]+\)\s*;/gi, '')
+      .replace(/@import\s+['"][^'"]+['"]\s*;/gi, '');
+
     // Remove @page { ... } blocks (including nested @bottom-center etc.)
-    let stripped = raw.replace(/@page\s*[^{]*\{[^{}]*(\{[^{}]*\}[^{}]*)?\}/g, '');
+    stripped = stripped.replace(/@page\s*[^{]*\{[^{}]*(\{[^{}]*\}[^{}]*)?\}/g, '');
 
     // Remove @media print { ... } blocks
     stripped = stripped.replace(/@media\s+print\s*\{[\s\S]*?\}\s*\}/g, '');
