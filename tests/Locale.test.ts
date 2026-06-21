@@ -32,6 +32,18 @@ describe('Locale', () => {
     expect(Locale.get('tocHtmlHeading', 'fr')).toBe('TABLE DES MATIÈRES');
   });
 
+  it('should retrieve memory translations for German, Spanish and French', () => {
+    expect(Locale.get('contextMemoryTitle', 'de')).toBe(
+      '## 🧠 PERSISTENTES AGENTEN-GEDÄCHTNIS & FEEDBACK-VERLAUF'
+    );
+    expect(Locale.get('contextMemoryTitle', 'es')).toBe(
+      '## 🧠 MEMORIA PERSISTENTE DEL AGENTE E HISTORIAL DE RETROALIMENTACIÓN'
+    );
+    expect(Locale.get('contextMemoryTitle', 'fr')).toBe(
+      "## 🧠 MÉMOIRE PERSISTANTE DE L'AGENT & HISTORIQUE DES RETOURS"
+    );
+  });
+
   it('should correctly perform token replacements', () => {
     const key = 'buildGeneratingPdf'; // Translation text has: "PDF çıktısı üretiliyor: {path}..."
     const trText = Locale.get(key, 'tr', { path: '/some/path/book.pdf' });
