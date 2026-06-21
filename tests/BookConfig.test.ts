@@ -89,6 +89,14 @@ describe('BookConfig', () => {
       config.copyright = 123 as any;
       expect(() => config.validate()).toThrow('Config Error: "copyright" must be a valid string.');
     });
+
+    it('should throw an error if sectionHeaderStyle is invalid', () => {
+      const config = new BookConfig();
+      config.sectionHeaderStyle = 'invalid-style' as any;
+      expect(() => config.validate()).toThrow(
+        'Config Error: "sectionHeaderStyle" must be one of: combined, split, title-only, hidden.'
+      );
+    });
   });
 
   describe('loadFromFile', () => {

@@ -20,6 +20,7 @@ export class BookConfig {
   public publisher: string;
   public publishDate: string;
   public copyright: string;
+  public sectionHeaderStyle: 'combined' | 'split' | 'title-only' | 'hidden';
   public rawConfig: BookConfigData;
 
   constructor(configData: Partial<BookConfigData> = {}) {
@@ -40,6 +41,7 @@ export class BookConfig {
     this.publisher = configData.publisher || '';
     this.publishDate = configData.publishDate || '';
     this.copyright = configData.copyright || '';
+    this.sectionHeaderStyle = configData.sectionHeaderStyle || 'combined';
 
     this.rawConfig = {
       title: this.title,
@@ -59,6 +61,7 @@ export class BookConfig {
       publisher: this.publisher,
       publishDate: this.publishDate,
       copyright: this.copyright,
+      sectionHeaderStyle: this.sectionHeaderStyle,
       ...configData
     };
   }
@@ -129,6 +132,14 @@ export class BookConfig {
     }
     if (this.copyright && typeof this.copyright !== 'string') {
       throw new Error('Config Error: "copyright" must be a valid string.');
+    }
+    if (
+      this.sectionHeaderStyle &&
+      !['combined', 'split', 'title-only', 'hidden'].includes(this.sectionHeaderStyle)
+    ) {
+      throw new Error(
+        'Config Error: "sectionHeaderStyle" must be one of: combined, split, title-only, hidden.'
+      );
     }
     return true;
   }

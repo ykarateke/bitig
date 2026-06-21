@@ -305,6 +305,70 @@ describe('BookCompiler', () => {
       expect(compiled.html).toContain('COPYRIGHT');
     });
 
+    it('should handle sectionHeaderStyle config option formats correctly', () => {
+      const section = new Section(1, 'Part One');
+      const chapter = new Chapter('assets/section-1/1.1.md', './assets');
+      chapter.title = 'Start';
+      chapter.rawContent = '# Start\nThis is content.';
+      section.addChapter(chapter);
+
+      // 1. split style
+      const configSplit = new BookConfig({
+        title: 'Book',
+        assetsDir: './assets',
+        distDir: './dist',
+        sectionHeaderStyle: 'split',
+        language: 'en'
+      });
+      const compilerSplit = new BookCompiler(configSplit);
+      compilerSplit.sections = [section];
+      compilerSplit.metadataGenerator = {
+        generateJSONMetadata: () => '{}',
+        injectYAMLFrontmatter: (c: string) => c
+      } as any;
+
+      const compiledSplit = compilerSplit.compile();
+      expect(compiledSplit.markdown).toContain('<div class="section-header">');
+      expect(compiledSplit.markdown).toContain('<div class="section-number">Section 1</div>');
+      expect(compiledSplit.markdown).toContain('<h1 class="section-title">Part One</h1>');
+
+      // 2. title-only style
+      const configTitleOnly = new BookConfig({
+        title: 'Book',
+        assetsDir: './assets',
+        distDir: './dist',
+        sectionHeaderStyle: 'title-only'
+      });
+      const compilerTitleOnly = new BookCompiler(configTitleOnly);
+      compilerTitleOnly.sections = [section];
+      compilerTitleOnly.metadataGenerator = {
+        generateJSONMetadata: () => '{}',
+        injectYAMLFrontmatter: (c: string) => c
+      } as any;
+
+      const compiledTitleOnly = compilerTitleOnly.compile();
+      expect(compiledTitleOnly.markdown).toContain('# Part One');
+      expect(compiledTitleOnly.markdown).not.toContain('<div class="section-header">');
+
+      // 3. hidden style
+      const configHidden = new BookConfig({
+        title: 'Book',
+        assetsDir: './assets',
+        distDir: './dist',
+        sectionHeaderStyle: 'hidden'
+      });
+      const compilerHidden = new BookCompiler(configHidden);
+      compilerHidden.sections = [section];
+      compilerHidden.metadataGenerator = {
+        generateJSONMetadata: () => '{}',
+        injectYAMLFrontmatter: (c: string) => c
+      } as any;
+
+      const compiledHidden = compilerHidden.compile();
+      expect(compiledHidden.markdown).toContain('<div id="part-one"></div>');
+      expect(compiledHidden.markdown).not.toContain('# Part One');
+    });
+
     it('should inject KaTeX stylesheets, script tags, and auto-render config', () => {
       const compiler = new BookCompiler(config);
       compiler.scanAndLoad();

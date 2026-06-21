@@ -134,7 +134,21 @@ export class BookCompiler {
         currentSectionNum = section.sectionNum;
         // Don't output Section H1 for section 0 (usually Preface / introduction)
         if (section.sectionNum > 0) {
-          markdownContent += `\n\n# ${section.title}\n\n---\n\n`;
+          const style = this.config.sectionHeaderStyle;
+          if (style === 'split') {
+            const sectionLabel = Locale.get('sectionLabel', this.config.language, {
+              num: section.sectionNum
+            });
+            markdownContent += `\n\n<div class="section-header">\n  <div class="section-number">${sectionLabel}</div>\n  <h1 class="section-title">${section.title}</h1>\n</div>\n\n`;
+          } else if (style === 'title-only') {
+            markdownContent += `\n\n# ${section.title}\n\n`;
+          } else if (style === 'hidden') {
+            const sectionSlug = TextProcessor.slugify(section.title);
+            markdownContent += `\n\n<div id="${sectionSlug}"></div>\n\n`;
+          } else {
+            // 'combined' (default)
+            markdownContent += `\n\n# ${section.title}\n\n`;
+          }
         }
       }
 

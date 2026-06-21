@@ -33,6 +33,7 @@ export interface BookConfigData {
   publisher?: string;
   publishDate?: string;
   copyright?: string;
+  sectionHeaderStyle?: 'combined' | 'split' | 'title-only' | 'hidden';
 }
 
 export interface SpecialFiles {

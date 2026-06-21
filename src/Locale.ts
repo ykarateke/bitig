@@ -18,6 +18,7 @@ export class Locale {
       statsStructureBreakdown: '[Yapı Detayları]',
       statsSectionLabel: '\nKısım {num}: "{title}" ({count} bölüm)',
       statsChapterLabel: '  - Bölüm {sec}.{chap} "{title}" ({words} kelime)',
+      sectionLabel: '{num}. Bölüm',
 
       // CLI Check/Lint
       checkRunning: 'Tanılamalar çalıştırılıyor...',
@@ -137,6 +138,7 @@ export class Locale {
       statsStructureBreakdown: '[Structure Breakdown]',
       statsSectionLabel: '\nSection {num}: "{title}" ({count} chapters)',
       statsChapterLabel: '  - Chapter {sec}.{chap} "{title}" ({words} words)',
+      sectionLabel: 'Section {num}',
 
       // CLI Check/Lint
       checkRunning: 'Running book diagnostics...',
@@ -256,6 +258,7 @@ export class Locale {
       statsStructureBreakdown: '[Struktur-Übersicht]',
       statsSectionLabel: '\nAbschnitt {num}: "{title}" ({count} Kapitel)',
       statsChapterLabel: '  - Kapitel {sec}.{chap} "{title}" ({words} Wörter)',
+      sectionLabel: 'Abschnitt {num}',
 
       // CLI Check/Lint
       checkRunning: 'Buch-Diagnose wird ausgeführt...',
@@ -382,6 +385,7 @@ export class Locale {
       statsStructureBreakdown: '[Estructura Detallada]',
       statsSectionLabel: '\nSección {num}: "{title}" ({count} capítulos)',
       statsChapterLabel: '  - Capítulo {sec}.{chap} "{title}" ({words} palabras)',
+      sectionLabel: 'Sección {num}',
 
       // CLI Check/Lint
       checkRunning: 'Ejecutando diagnósticos del libro...',
@@ -505,6 +509,7 @@ export class Locale {
       statsStructureBreakdown: '[Détail de la Structure]',
       statsSectionLabel: '\nSection {num}: "{title}" ({count} chapitres)',
       statsChapterLabel: '  - Chapitre {sec}.{chap} "{title}" ({words} mots)',
+      sectionLabel: 'Section {num}',
 
       // CLI Check/Lint
       checkRunning: 'Exécution des diagnostics du livre...',

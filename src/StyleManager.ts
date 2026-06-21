@@ -205,6 +205,35 @@ export class StyleManager {
     letter-spacing: 2px;
   }
   
+  hr {
+    display: none;
+  }
+  
+  .section-header {
+    text-align: center;
+    margin-top: 5cm;
+    margin-bottom: 2cm;
+    page-break-before: always;
+    break-before: page;
+  }
+  
+  .section-number {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 14pt;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: #7f8c8d;
+    margin-bottom: 0.5cm;
+  }
+  
+  .section-header h1.section-title {
+    font-size: 26pt;
+    margin-top: 0;
+    margin-bottom: 0;
+    page-break-before: avoid;
+    break-before: avoid;
+  }
+  
   h2 {
     font-size: 18pt;
     margin-top: 1.8cm;
@@ -487,6 +516,35 @@ export class StyleManager {
     letter-spacing: 1px;
   }
   
+  hr {
+    display: none;
+  }
+  
+  .section-header {
+    text-align: center;
+    margin-top: 5cm;
+    margin-bottom: 2cm;
+    page-break-before: always;
+    break-before: page;
+  }
+  
+  .section-number {
+    font-family: 'Outfit', sans-serif;
+    font-size: 14pt;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: #64748b;
+    margin-bottom: 0.5cm;
+  }
+  
+  .section-header h1.section-title {
+    font-size: 28pt;
+    margin-top: 0;
+    margin-bottom: 0;
+    page-break-before: avoid;
+    break-before: avoid;
+  }
+  
   h2 {
     font-size: 18pt;
     margin-top: 1.8cm;
@@ -765,6 +823,35 @@ export class StyleManager {
     margin-bottom: 2cm;
     page-break-before: always;
     break-before: page;
+  }
+  
+  hr {
+    display: none;
+  }
+  
+  .section-header {
+    text-align: center;
+    margin-top: 6cm;
+    margin-bottom: 2cm;
+    page-break-before: always;
+    break-before: page;
+  }
+  
+  .section-number {
+    font-family: 'EB Garamond', serif;
+    font-size: 14pt;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #000000;
+    margin-bottom: 0.5cm;
+  }
+  
+  .section-header h1.section-title {
+    font-size: 24pt;
+    margin-top: 0;
+    margin-bottom: 0;
+    page-break-before: avoid;
+    break-before: avoid;
   }
   
   h2 {
