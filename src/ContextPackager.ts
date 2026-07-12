@@ -7,6 +7,9 @@ import { CharacterManager } from './CharacterManager';
 import { PlotManager } from './PlotManager';
 import { WorldManager } from './WorldManager';
 import { StoryContextBuilder } from './StoryContextBuilder';
+import { TaskContextOptions, TaskInstructionLibrary } from './TaskInstructionLibrary';
+
+const CONTINUE_TAIL_CHARS = 1500;
 
 export class ContextPackager {
   public compiler: BookCompiler;
@@ -27,7 +30,8 @@ export class ContextPackager {
     sectionNum: number,
     chapterNum: number,
     activeMemoryLayers: string[] = ['global', 'section', 'chapter'],
-    activeStoryLayers: string[] = ['characters', 'plot', 'world']
+    activeStoryLayers: string[] = ['characters', 'plot', 'world'],
+    taskOptions?: TaskContextOptions
   ): string {
     // Ensure files are loaded
     this.compiler.scanAndLoad();
@@ -147,7 +151,9 @@ export class ContextPackager {
     }
 
     let precedingText = Locale.get('contextPrecedingNone', lang);
-    if (prevChapter) {
+    if (taskOptions?.task === 'summarize') {
+      precedingText = Locale.get('taskPrecedingSkipped', lang);
+    } else if (prevChapter) {
       const intro = Locale.get('contextPrecedingIntro', lang, {
         sec: prevChapter.sectionNum,
         chap: prevChapter.chapterNum,
@@ -159,7 +165,32 @@ export class ContextPackager {
     let targetText = Locale.get('contextTargetEmpty', lang);
     if (targetChapter.rawContent.trim() !== '') {
       const intro = Locale.get('contextTargetIntro', lang);
-      targetText = `${intro}\n\n\`\`\`markdown\n${targetChapter.rawContent}\n\`\`\``;
+      const targetContent =
+        taskOptions?.task === 'continue'
+          ? this._tailOf(targetChapter.rawContent)
+          : targetChapter.rawContent;
+      targetText = `${intro}\n\n\`\`\`markdown\n${targetContent}\n\`\`\``;
+    }
+
+    if (taskOptions?.task === 'continue') {
+      const nextChapter = targetIdx < allChapters.length - 1 ? allChapters[targetIdx + 1] : null;
+      if (nextChapter) {
+        targetText += `\n\n${Locale.get('taskNextSynopsis', lang, {
+          coords: `${nextChapter.sectionNum}.${nextChapter.chapterNum}`,
+          title: nextChapter.title,
+          synopsis: this._synopsisOf(nextChapter)
+        })}`;
+      }
+    }
+
+    const instructionLines: string[] = taskOptions
+      ? [
+          TaskInstructionLibrary.getTaskHeader(taskOptions.task, lang),
+          ...TaskInstructionLibrary.getInstructions(taskOptions.task, lang, taskOptions.styleTarget)
+        ]
+      : [1, 2, 3, 4].map((i) => Locale.get(`contextInstruction${i}`, lang));
+    if (storyBlock) {
+      instructionLines.push(Locale.get('contextInstruction5', lang));
     }
 
     const context = `
@@ -200,13 +231,43 @@ ${targetText}
 
 =========================
 [${instructionsHeader}]
-${Locale.get('contextInstruction1', lang)}
-${Locale.get('contextInstruction2', lang)}
-${Locale.get('contextInstruction3', lang)}
-${Locale.get('contextInstruction4', lang)}${storyBlock ? `\n${Locale.get('contextInstruction5', lang)}` : ''}
+${instructionLines.join('\n')}
 `;
 
     return context.trim();
+  }
+
+  /**
+   * Returns the tail of a chapter for `--task continue`, cut at a paragraph
+   * boundary so the agent picks up mid-scene without the full text.
+   */
+  private _tailOf(rawContent: string): string {
+    if (rawContent.length <= CONTINUE_TAIL_CHARS) {
+      return rawContent;
+    }
+    let tail = rawContent.slice(-CONTINUE_TAIL_CHARS);
+    const paragraphBreak = tail.indexOf('\n\n');
+    if (paragraphBreak >= 0 && paragraphBreak < tail.length - 200) {
+      tail = tail.slice(paragraphBreak + 2);
+    }
+    return `[...]\n\n${tail}`;
+  }
+
+  private _synopsisOf(chapter: Chapter): string {
+    const key = `${chapter.sectionNum}.${chapter.chapterNum}`;
+    const configured = this.compiler.config.rawConfig.synopses?.[key];
+    if (configured) return configured;
+
+    const withoutHeading = chapter.rawContent
+      .split('\n')
+      .filter((line) => !line.trim().startsWith('#'))
+      .join('\n')
+      .trim();
+    const firstParagraph = withoutHeading.split('\n\n')[0] || '';
+    return (
+      firstParagraph.slice(0, 250) ||
+      Locale.get('contextStructureNoContent', this.compiler.config.language)
+    );
   }
 }
 export default ContextPackager;

@@ -20,6 +20,7 @@ import { WorldManager } from './WorldManager';
 import { StoryLinter } from './StoryLinter';
 import { ProseAnalyzer } from './ProseAnalyzer';
 import { GoalTracker } from './GoalTracker';
+import { TaskContextOptions, TaskInstructionLibrary } from './TaskInstructionLibrary';
 import { CharacterData, PlotEvent, PlotThread, WorldEntry, WritingGoals } from './types';
 
 interface CliArgs {
@@ -76,6 +77,8 @@ interface CliArgs {
   min?: number;
   max?: number;
   chapter?: string;
+  task?: string;
+  styleTarget?: string;
 }
 
 const args = process.argv.slice(2);
@@ -622,6 +625,20 @@ function parseArgs(args: string[]): CliArgs {
         console.error('Error: Option --chapter requires a value.');
         process.exit(1);
       }
+    } else if (arg === '--task') {
+      if (i + 1 < args.length) {
+        result.task = args[++i];
+      } else {
+        console.error('Error: Option --task requires a value.');
+        process.exit(1);
+      }
+    } else if (arg === '--style-target') {
+      if (i + 1 < args.length) {
+        result.styleTarget = args[++i];
+      } else {
+        console.error('Error: Option --style-target requires a value.');
+        process.exit(1);
+      }
     } else if (!arg.startsWith('-')) {
       result.positionals.push(arg);
     }
@@ -719,6 +736,8 @@ Context Options:
   --target <sec>.<chap>          Alternative way to specify target chapter for context command.
   --memory <layers>              Comma-separated list of memory layers to include (global,section,chapter or none).
   --story <layers>               Comma-separated list of story layers to include (characters,plot,world or none).
+  --task <mode>                  Task-specific instruction mode: continue, rewrite, summarize, expand, dialogue, style-transform.
+  --style-target "<style>"       Target style for --task style-transform (e.g. "noir", "academic").
 
 Story Bible Options:
   --name "<name>"                Entity display name (character/world entry).
@@ -1308,11 +1327,24 @@ function handleContext(cliArgs: CliArgs): void {
       }
     }
 
+    let taskOptions: TaskContextOptions | undefined;
+    if (cliArgs.task !== undefined) {
+      const task = TaskInstructionLibrary.normalizeTask(cliArgs.task);
+      if (task === 'style-transform' && !cliArgs.styleTarget) {
+        console.error(
+          'Error: --task style-transform requires --style-target, e.g.: bitig context 1.2 --task style-transform --style-target "noir"'
+        );
+        process.exit(1);
+      }
+      taskOptions = { task, styleTarget: cliArgs.styleTarget };
+    }
+
     const pack = packager.packageContextFor(
       sectionNum,
       chapterNum,
       activeMemoryLayers,
-      activeStoryLayers
+      activeStoryLayers,
+      taskOptions
     );
     console.log('\n' + pack);
   } catch (error) {

@@ -333,4 +333,53 @@ describe('Bitig CLI Integration Tests', () => {
       expect(statsOutput).toContain('"goals" bloğu tanımlı değil');
     });
   });
+
+  describe('context task modes', () => {
+    it('should render task-specific instruction blocks', () => {
+      execSync(`node ${cliPath} init`, { cwd: tempDir });
+
+      const continueOutput = execSync(`node ${cliPath} context 1.1 --task continue`, {
+        cwd: tempDir,
+        encoding: 'utf8'
+      });
+      expect(continueOutput).toContain('GÖREV: BÖLÜMÜ DEVAM ETTİR');
+      expect(continueOutput).not.toContain('YALNIZCA geçerli markdown metni');
+
+      const summarizeOutput = execSync(`node ${cliPath} context 1.1 --task summarize`, {
+        cwd: tempDir,
+        encoding: 'utf8'
+      });
+      expect(summarizeOutput).toContain('GÖREV: BÖLÜMÜ ÖZETLE');
+      expect(summarizeOutput).toContain('bilinçli olarak atlanmıştır');
+
+      const styleOutput = execSync(
+        `node ${cliPath} context 1.1 --task style-transform --style-target "kara film"`,
+        { cwd: tempDir, encoding: 'utf8' }
+      );
+      expect(styleOutput).toContain('GÖREV: STİL DÖNÜŞÜMÜ');
+      expect(styleOutput).toContain('"kara film"');
+
+      const defaultOutput = execSync(`node ${cliPath} context 1.1`, {
+        cwd: tempDir,
+        encoding: 'utf8'
+      });
+      expect(defaultOutput).not.toContain('GÖREV:');
+      expect(defaultOutput).toContain('YALNIZCA geçerli markdown metni');
+    });
+
+    it('should reject unknown tasks and style-transform without a target', () => {
+      execSync(`node ${cliPath} init`, { cwd: tempDir });
+
+      expect(() =>
+        execSync(`node ${cliPath} context 1.1 --task polish`, { cwd: tempDir, stdio: 'pipe' })
+      ).toThrow();
+
+      expect(() =>
+        execSync(`node ${cliPath} context 1.1 --task style-transform`, {
+          cwd: tempDir,
+          stdio: 'pipe'
+        })
+      ).toThrow();
+    });
+  });
 });

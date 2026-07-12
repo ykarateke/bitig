@@ -88,11 +88,13 @@ This document outlines the planned feature roadmap for the **Bitig** book compil
   - `bitig analyze:prose [<coords>] [--top N] [--json]`: repeated-word frequency (language-aware stopword lists for tr/en/de/es/fr), sentence-length distribution, dialogue/narration ratio (Turkish `—` dialogue dash aware), and approximate readability scoring using language-specific formulas (Ateşman, Flesch, Amstad, Fernández-Huerta, Kandel-Moles).
   - Writing goals in `book.json` (`goals` block: `totalWords`, `dailyWords`, `perChapter` min/max) managed via `bitig goals:set` and surfaced by `bitig stats --goals` with zero-dependency completion bars; a `progress.json` daily word log is appended on `stats --goals` and `bitig build`.
 
-### 11. Smart Context Task Modes
+### [COMPLETED] 11. Smart Context Task Modes
 
 - **Objective**: Task-specific instruction blocks for the context pack — the facilitator answer to "continue/rewrite this chapter".
 - **Details**:
-  - `bitig context <coords> --task continue|rewrite|summarize|expand|dialogue|style-transform` swaps the instruction block and adjusts included content per task.
+  - `bitig context <coords> --task continue|rewrite|summarize|expand|dialogue|style-transform [--style-target "<style>"]` swaps the instruction block with task-specific, localized directives.
+  - Content adapts per task: `continue` trims the target to its tail and appends the next chapter's synopsis; `summarize` omits the preceding chapter's full text; `dialogue` leans on the story bible's `speechStyle` fields; `style-transform` interpolates the requested target style.
+  - Without `--task`, the context output is byte-identical to previous versions.
 
 ### 12. AI Review Suite: Continuity, Style & Plot Holes
 

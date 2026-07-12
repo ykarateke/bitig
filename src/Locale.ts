@@ -199,6 +199,41 @@ export class Locale {
         '"{id}" ({name}) hiçbir bölümde geçmiyor ve hiçbir olayda referans edilmiyor',
       storyLinterPossibleUnregistered:
         'Kayıtlı olmayan olası karakter/mekan adı: "{word}" ({count} kez geçiyor)',
+      // Context Task Modes
+      taskContinueHeader: '📝 GÖREV: BÖLÜMÜ DEVAM ETTİR',
+      taskContinue1: '- Hedef bölümün mevcut metnini DEĞİŞTİRMEYİN; kaldığı yerden devam edin.',
+      taskContinue2:
+        '- Yukarıda yalnızca bölümün son kısmı gösterilmiş olabilir; üslubu ve sahneyi oradan sürdürün.',
+      taskContinue3:
+        '- Sonraki bölümün özetiyle çelişmeyecek şekilde bölümü doğal bir noktada bitirin.',
+      taskRewriteHeader: '📝 GÖREV: BÖLÜMÜ YENİDEN YAZ',
+      taskRewrite1: '- Bölümü aynı olay örgüsünü koruyarak baştan sona yeniden yazın.',
+      taskRewrite2:
+        '- Bellek bölümündeki geri bildirimleri ve stil kararlarını öncelikli olarak uygulayın.',
+      taskRewrite3: '- Bölüm başlığını (H1) koruyun; çıktı yalnızca yeni markdown metni olsun.',
+      taskSummarizeHeader: '📝 GÖREV: BÖLÜMÜ ÖZETLE',
+      taskSummarize1: '- Hedef bölümün içeriğini 1-3 paragraflık bir özete dönüştürün.',
+      taskSummarize2: '- Yeni olay veya diyalog EKLEMEYİN; yalnızca mevcut içeriği özetleyin.',
+      taskSummarize3:
+        '- Özet, sonraki bölümleri yazacak ajanlar için sinopsis olarak kullanılacaktır (bitig update:metadata --synopsis).',
+      taskExpandHeader: '📝 GÖREV: BÖLÜMÜ GENİŞLET',
+      taskExpand1:
+        '- Mevcut sahneleri koruyarak betimleme, iç ses ve ayrıntılarla metni zenginleştirin.',
+      taskExpand2: '- Olay örgüsünü ve bölüm sonunu DEĞİŞTİRMEYİN.',
+      taskExpand3: '- Tempoyu düşürmemek için gereksiz tekrar eklemekten kaçının.',
+      taskDialogueHeader: '📝 GÖREV: DİYALOGLARI DOĞALLAŞTIR',
+      taskDialogue1:
+        '- Yalnızca diyalog satırlarını iyileştirin; anlatı paragraflarını olabildiğince koruyun.',
+      taskDialogue2:
+        '- Her karakterin hikaye rehberindeki konuşma tarzına (speechStyle) sadık kalın.',
+      taskDialogue3: '- Diyalogları kısaltıp doğallaştırın; bilgi aktarımını sohbete gömün.',
+      taskStyleHeader: '📝 GÖREV: STİL DÖNÜŞÜMÜ',
+      taskStyle1: '- Bölümü "{target}" üslubuna dönüştürerek yeniden yazın.',
+      taskStyle2: '- Olay örgüsünü, karakterleri ve bölüm yapısını aynen koruyun.',
+      taskStyle3: '- Kelime seçimini, cümle ritmini ve anlatıcı sesini hedef üsluba uyarlayın.',
+      taskPrecedingSkipped: '(Özet görevi için önceki bölüm içeriği bilinçli olarak atlanmıştır.)',
+      taskNextSynopsis: '➡️ Sonraki bölüm ({coords} "{title}") özeti: {synopsis}',
+
       // Prose Analytics
       proseReportTitle: 'METİN ANALİZ RAPORU',
       proseTargetBook: 'Tüm Kitap',
@@ -440,6 +475,42 @@ export class Locale {
         '"{id}" ({name}) never appears in any chapter and is not referenced by any event',
       storyLinterPossibleUnregistered:
         'Possible unregistered character/place name: "{word}" (occurs {count} times)',
+      // Context Task Modes
+      taskContinueHeader: '📝 TASK: CONTINUE THE CHAPTER',
+      taskContinue1: '- Do NOT modify the existing chapter text; continue from where it stops.',
+      taskContinue2:
+        '- Only the tail of the chapter may be shown above; pick up the style and scene from there.',
+      taskContinue3:
+        '- End the chapter at a natural point that does not contradict the next chapter synopsis.',
+      taskRewriteHeader: '📝 TASK: REWRITE THE CHAPTER',
+      taskRewrite1: '- Rewrite the chapter from start to finish while preserving the same plot.',
+      taskRewrite2:
+        '- Apply the feedback and stylistic decisions from the memory section with priority.',
+      taskRewrite3: '- Keep the chapter title (H1); output only the new markdown text.',
+      taskSummarizeHeader: '📝 TASK: SUMMARIZE THE CHAPTER',
+      taskSummarize1: '- Condense the target chapter into a 1-3 paragraph summary.',
+      taskSummarize2: '- Do NOT invent new events or dialogue; only summarize existing content.',
+      taskSummarize3:
+        '- The summary will be used as the synopsis for later writing agents (bitig update:metadata --synopsis).',
+      taskExpandHeader: '📝 TASK: EXPAND THE CHAPTER',
+      taskExpand1:
+        '- Enrich the text with description, inner voice, and detail while keeping existing scenes.',
+      taskExpand2: '- Do NOT change the plot or the chapter ending.',
+      taskExpand3: '- Avoid filler repetition that would slow the pacing.',
+      taskDialogueHeader: '📝 TASK: MAKE DIALOGUE NATURAL',
+      taskDialogue1:
+        '- Improve only the dialogue lines; preserve narration paragraphs as much as possible.',
+      taskDialogue2: "- Stay faithful to each character's speechStyle from the story bible.",
+      taskDialogue3:
+        '- Tighten and naturalize the dialogue; bury exposition inside the conversation.',
+      taskStyleHeader: '📝 TASK: STYLE TRANSFORMATION',
+      taskStyle1: '- Rewrite the chapter transformed into the "{target}" style.',
+      taskStyle2: '- Keep the plot, characters, and chapter structure exactly the same.',
+      taskStyle3: '- Adapt word choice, sentence rhythm, and narrator voice to the target style.',
+      taskPrecedingSkipped:
+        '(The preceding chapter content is intentionally omitted for the summarize task.)',
+      taskNextSynopsis: '➡️ Next chapter ({coords} "{title}") synopsis: {synopsis}',
+
       // Prose Analytics
       proseReportTitle: 'PROSE ANALYSIS REPORT',
       proseTargetBook: 'Whole Book',
@@ -690,6 +761,47 @@ export class Locale {
         '"{id}" ({name}) kommt in keinem Kapitel vor und wird von keinem Ereignis referenziert',
       storyLinterPossibleUnregistered:
         'Möglicher nicht registrierter Charakter-/Ortsname: "{word}" (kommt {count} Mal vor)',
+      // Context Task Modes
+      taskContinueHeader: '📝 AUFGABE: KAPITEL FORTSETZEN',
+      taskContinue1:
+        '- Ändern Sie den vorhandenen Kapiteltext NICHT; setzen Sie dort fort, wo er endet.',
+      taskContinue2:
+        '- Oben ist möglicherweise nur das Ende des Kapitels zu sehen; übernehmen Sie Stil und Szene von dort.',
+      taskContinue3:
+        '- Beenden Sie das Kapitel an einem natürlichen Punkt, der der Zusammenfassung des nächsten Kapitels nicht widerspricht.',
+      taskRewriteHeader: '📝 AUFGABE: KAPITEL NEU SCHREIBEN',
+      taskRewrite1:
+        '- Schreiben Sie das Kapitel von Anfang bis Ende neu und bewahren Sie dabei die Handlung.',
+      taskRewrite2:
+        '- Wenden Sie das Feedback und die Stilentscheidungen aus dem Gedächtnisabschnitt vorrangig an.',
+      taskRewrite3:
+        '- Behalten Sie den Kapiteltitel (H1) bei; geben Sie nur den neuen Markdown-Text aus.',
+      taskSummarizeHeader: '📝 AUFGABE: KAPITEL ZUSAMMENFASSEN',
+      taskSummarize1: '- Verdichten Sie das Zielkapitel zu einer Zusammenfassung von 1-3 Absätzen.',
+      taskSummarize2:
+        '- Erfinden Sie KEINE neuen Ereignisse oder Dialoge; fassen Sie nur vorhandene Inhalte zusammen.',
+      taskSummarize3:
+        '- Die Zusammenfassung dient späteren Schreibagenten als Synopsis (bitig update:metadata --synopsis).',
+      taskExpandHeader: '📝 AUFGABE: KAPITEL ERWEITERN',
+      taskExpand1:
+        '- Bereichern Sie den Text mit Beschreibung, innerer Stimme und Details, ohne bestehende Szenen zu verändern.',
+      taskExpand2: '- Ändern Sie NICHT die Handlung oder das Kapitelende.',
+      taskExpand3: '- Vermeiden Sie Füllwiederholungen, die das Tempo verlangsamen.',
+      taskDialogueHeader: '📝 AUFGABE: DIALOGE NATÜRLICHER GESTALTEN',
+      taskDialogue1:
+        '- Verbessern Sie nur die Dialogzeilen; erhalten Sie die Erzählabsätze so weit wie möglich.',
+      taskDialogue2:
+        '- Bleiben Sie dem Sprechstil (speechStyle) jedes Charakters aus der Story-Bibel treu.',
+      taskDialogue3:
+        '- Straffen und naturalisieren Sie die Dialoge; verbergen Sie Exposition im Gespräch.',
+      taskStyleHeader: '📝 AUFGABE: STILTRANSFORMATION',
+      taskStyle1: '- Schreiben Sie das Kapitel im Stil "{target}" neu.',
+      taskStyle2: '- Behalten Sie Handlung, Charaktere und Kapitelstruktur exakt bei.',
+      taskStyle3: '- Passen Sie Wortwahl, Satzrhythmus und Erzählstimme an den Zielstil an.',
+      taskPrecedingSkipped:
+        '(Der Inhalt des vorherigen Kapitels wird für die Zusammenfassungsaufgabe absichtlich weggelassen.)',
+      taskNextSynopsis: '➡️ Zusammenfassung des nächsten Kapitels ({coords} "{title}"): {synopsis}',
+
       // Prose Analytics
       proseReportTitle: 'PROSA-ANALYSEBERICHT',
       proseTargetBook: 'Gesamtes Buch',
@@ -935,6 +1047,46 @@ export class Locale {
         '"{id}" ({name}) nunca aparece en ningún capítulo y no es referenciado por ningún evento',
       storyLinterPossibleUnregistered:
         'Posible nombre de personaje/lugar no registrado: "{word}" (aparece {count} veces)',
+      // Context Task Modes
+      taskContinueHeader: '📝 TAREA: CONTINUAR EL CAPÍTULO',
+      taskContinue1:
+        '- NO modifique el texto existente del capítulo; continúe desde donde termina.',
+      taskContinue2:
+        '- Arriba puede mostrarse solo el final del capítulo; retome el estilo y la escena desde allí.',
+      taskContinue3:
+        '- Termine el capítulo en un punto natural que no contradiga la sinopsis del siguiente capítulo.',
+      taskRewriteHeader: '📝 TAREA: REESCRIBIR EL CAPÍTULO',
+      taskRewrite1: '- Reescriba el capítulo de principio a fin conservando la misma trama.',
+      taskRewrite2:
+        '- Aplique con prioridad los comentarios y decisiones de estilo de la sección de memoria.',
+      taskRewrite3: '- Mantenga el título del capítulo (H1); genere solo el nuevo texto markdown.',
+      taskSummarizeHeader: '📝 TAREA: RESUMIR EL CAPÍTULO',
+      taskSummarize1: '- Condense el capítulo objetivo en un resumen de 1-3 párrafos.',
+      taskSummarize2:
+        '- NO invente nuevos eventos ni diálogos; resuma solo el contenido existente.',
+      taskSummarize3:
+        '- El resumen se usará como sinopsis para futuros agentes de escritura (bitig update:metadata --synopsis).',
+      taskExpandHeader: '📝 TAREA: AMPLIAR EL CAPÍTULO',
+      taskExpand1:
+        '- Enriquezca el texto con descripción, voz interior y detalles manteniendo las escenas existentes.',
+      taskExpand2: '- NO cambie la trama ni el final del capítulo.',
+      taskExpand3: '- Evite repeticiones de relleno que ralenticen el ritmo.',
+      taskDialogueHeader: '📝 TAREA: NATURALIZAR EL DIÁLOGO',
+      taskDialogue1:
+        '- Mejore solo las líneas de diálogo; conserve los párrafos narrativos en lo posible.',
+      taskDialogue2:
+        '- Sea fiel al estilo de habla (speechStyle) de cada personaje según la biblia de la historia.',
+      taskDialogue3:
+        '- Acorte y naturalice los diálogos; integre la exposición dentro de la conversación.',
+      taskStyleHeader: '📝 TAREA: TRANSFORMACIÓN DE ESTILO',
+      taskStyle1: '- Reescriba el capítulo transformándolo al estilo "{target}".',
+      taskStyle2: '- Mantenga exactamente la trama, los personajes y la estructura del capítulo.',
+      taskStyle3:
+        '- Adapte la elección de palabras, el ritmo de las frases y la voz narrativa al estilo objetivo.',
+      taskPrecedingSkipped:
+        '(El contenido del capítulo anterior se omite intencionadamente para la tarea de resumen.)',
+      taskNextSynopsis: '➡️ Sinopsis del siguiente capítulo ({coords} "{title}"): {synopsis}',
+
       // Prose Analytics
       proseReportTitle: 'INFORME DE ANÁLISIS DE PROSA',
       proseTargetBook: 'Libro Completo',
@@ -1182,6 +1334,47 @@ export class Locale {
         '"{id}" ({name}) n\'apparaît dans aucun chapitre et n\'est référencé par aucun événement',
       storyLinterPossibleUnregistered:
         'Nom de personnage/lieu possiblement non enregistré: "{word}" (apparaît {count} fois)',
+      // Context Task Modes
+      taskContinueHeader: '📝 TÂCHE: CONTINUER LE CHAPITRE',
+      taskContinue1:
+        "- Ne modifiez PAS le texte existant du chapitre; continuez là où il s'arrête.",
+      taskContinue2:
+        '- Seule la fin du chapitre peut être affichée ci-dessus; reprenez le style et la scène à partir de là.',
+      taskContinue3:
+        '- Terminez le chapitre à un point naturel qui ne contredit pas le synopsis du chapitre suivant.',
+      taskRewriteHeader: '📝 TÂCHE: RÉÉCRIRE LE CHAPITRE',
+      taskRewrite1: '- Réécrivez le chapitre du début à la fin en conservant la même intrigue.',
+      taskRewrite2:
+        '- Appliquez en priorité les retours et décisions stylistiques de la section mémoire.',
+      taskRewrite3:
+        '- Conservez le titre du chapitre (H1); ne produisez que le nouveau texte markdown.',
+      taskSummarizeHeader: '📝 TÂCHE: RÉSUMER LE CHAPITRE',
+      taskSummarize1: '- Condensez le chapitre cible en un résumé de 1 à 3 paragraphes.',
+      taskSummarize2:
+        "- N'inventez PAS de nouveaux événements ou dialogues; résumez uniquement le contenu existant.",
+      taskSummarize3:
+        "- Le résumé servira de synopsis aux futurs agents d'écriture (bitig update:metadata --synopsis).",
+      taskExpandHeader: '📝 TÂCHE: DÉVELOPPER LE CHAPITRE',
+      taskExpand1:
+        '- Enrichissez le texte avec descriptions, voix intérieure et détails en gardant les scènes existantes.',
+      taskExpand2: "- Ne changez PAS l'intrigue ni la fin du chapitre.",
+      taskExpand3: '- Évitez les répétitions de remplissage qui ralentiraient le rythme.',
+      taskDialogueHeader: '📝 TÂCHE: NATURALISER LES DIALOGUES',
+      taskDialogue1:
+        '- Améliorez uniquement les répliques; préservez autant que possible les paragraphes narratifs.',
+      taskDialogue2:
+        "- Restez fidèle au style de parole (speechStyle) de chaque personnage selon la bible de l'histoire.",
+      taskDialogue3:
+        "- Resserrez et naturalisez les dialogues; intégrez l'exposition dans la conversation.",
+      taskStyleHeader: '📝 TÂCHE: TRANSFORMATION DE STYLE',
+      taskStyle1: '- Réécrivez le chapitre transformé dans le style "{target}".',
+      taskStyle2: "- Conservez exactement l'intrigue, les personnages et la structure du chapitre.",
+      taskStyle3:
+        '- Adaptez le choix des mots, le rythme des phrases et la voix du narrateur au style cible.',
+      taskPrecedingSkipped:
+        '(Le contenu du chapitre précédent est volontairement omis pour la tâche de résumé.)',
+      taskNextSynopsis: '➡️ Synopsis du chapitre suivant ({coords} "{title}"): {synopsis}',
+
       // Prose Analytics
       proseReportTitle: "RAPPORT D'ANALYSE DE PROSE",
       proseTargetBook: 'Livre Entier',

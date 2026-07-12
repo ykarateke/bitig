@@ -227,4 +227,138 @@ describe('ContextPackager', () => {
       expect(result).not.toContain('bitig add:event');
     });
   });
+
+  describe('context task modes', () => {
+    const buildTaskCompiler = (targetContent: string, withNext: boolean = true): BookCompiler => {
+      const config = new BookConfig({
+        title: 'Task Book',
+        assetsDir: './no-such-assets',
+        distDir: './dist',
+        language: 'en',
+        synopses: withNext ? { '1.3': 'The finale synopsis.' } : {}
+      });
+      const compiler = new BookCompiler(config);
+      jest.spyOn(compiler, 'scanAndLoad').mockImplementation(() => {});
+
+      const section = new Section(1, 'S1');
+      const chapter1 = new Chapter('assets/section-1/1.1.md', './assets');
+      chapter1.title = 'Opening';
+      chapter1.rawContent = 'The opening chapter text.';
+      const chapter2 = new Chapter('assets/section-1/1.2.md', './assets');
+      chapter2.title = 'Target';
+      chapter2.rawContent = targetContent;
+      section.addChapter(chapter1);
+      section.addChapter(chapter2);
+      if (withNext) {
+        const chapter3 = new Chapter('assets/section-1/1.3.md', './assets');
+        chapter3.title = 'Finale';
+        chapter3.rawContent = '# Finale\n\nThe last chapter begins here with revelations.';
+        section.addChapter(chapter3);
+      }
+      compiler.sections = [section];
+      compiler.metadataGenerator = new AgentMetadataGenerator(config, compiler.sections);
+      return compiler;
+    };
+
+    it('should keep the default instruction block when no task is given', () => {
+      const packager = new ContextPackager(buildTaskCompiler('Target text.'));
+      const result = packager.packageContextFor(1, 2);
+
+      expect(result).toContain('Maintain the style, vocabulary, and tone');
+      expect(result).not.toContain('TASK:');
+    });
+
+    it('should trim the target to its tail and add the next synopsis for continue', () => {
+      const paragraphs = Array.from(
+        { length: 40 },
+        (_, i) => `Paragraph ${i} with enough words to make the chapter genuinely long.`
+      );
+      const packager = new ContextPackager(buildTaskCompiler(paragraphs.join('\n\n')));
+      const result = packager.packageContextFor(
+        1,
+        2,
+        ['global', 'section', 'chapter'],
+        ['characters', 'plot', 'world'],
+        { task: 'continue' }
+      );
+
+      expect(result).toContain('📝 TASK: CONTINUE THE CHAPTER');
+      expect(result).toContain('```markdown\n[...]');
+      expect(result).toContain('Paragraph 39');
+      // The full chapter opening only appears as a synopsis, not inside the target block
+      expect(result).not.toContain('Paragraph 5 with enough words');
+      expect(result).toContain('➡️ Next chapter (1.3 "Finale") synopsis: The finale synopsis.');
+    });
+
+    it('should fall back to the first paragraph when the next chapter has no synopsis', () => {
+      const config = new BookConfig({
+        title: 'Task Book',
+        assetsDir: './no-such-assets',
+        distDir: './dist',
+        language: 'en'
+      });
+      const compiler = new BookCompiler(config);
+      jest.spyOn(compiler, 'scanAndLoad').mockImplementation(() => {});
+      const section = new Section(1, 'S1');
+      const chapter1 = new Chapter('assets/section-1/1.1.md', './assets');
+      chapter1.title = 'Target';
+      chapter1.rawContent = 'Short target.';
+      const chapter2 = new Chapter('assets/section-1/1.2.md', './assets');
+      chapter2.title = 'Next';
+      chapter2.rawContent = '# Next\n\nOpening paragraph of the next chapter.';
+      section.addChapter(chapter1);
+      section.addChapter(chapter2);
+      compiler.sections = [section];
+      compiler.metadataGenerator = new AgentMetadataGenerator(config, compiler.sections);
+
+      const result = new ContextPackager(compiler).packageContextFor(
+        1,
+        1,
+        ['global', 'section', 'chapter'],
+        [],
+        { task: 'continue' }
+      );
+
+      expect(result).toContain('➡️ Next chapter (1.2 "Next") synopsis: Opening paragraph');
+    });
+
+    it('should omit the next-synopsis line for the last chapter', () => {
+      const packager = new ContextPackager(buildTaskCompiler('Target text.', false));
+      const result = packager.packageContextFor(1, 2, ['global', 'section', 'chapter'], [], {
+        task: 'continue'
+      });
+
+      expect(result).toContain('📝 TASK: CONTINUE THE CHAPTER');
+      expect(result).not.toContain('➡️');
+    });
+
+    it('should skip the preceding chapter for summarize', () => {
+      const packager = new ContextPackager(buildTaskCompiler('Target text to summarize.'));
+      const result = packager.packageContextFor(1, 2, ['global', 'section', 'chapter'], [], {
+        task: 'summarize'
+      });
+
+      expect(result).toContain('📝 TASK: SUMMARIZE THE CHAPTER');
+      expect(result).toContain('intentionally omitted for the summarize task');
+      // The preceding chapter's full-text block is dropped (its synopsis line may remain)
+      expect(result).not.toContain('Here is the full text of the preceding chapter');
+    });
+
+    it('should keep the full target for rewrite and inject the style target for style-transform', () => {
+      const packager = new ContextPackager(buildTaskCompiler('Full target body stays intact.'));
+
+      const rewrite = packager.packageContextFor(1, 2, ['global', 'section', 'chapter'], [], {
+        task: 'rewrite'
+      });
+      expect(rewrite).toContain('📝 TASK: REWRITE THE CHAPTER');
+      expect(rewrite).toContain('Full target body stays intact.');
+
+      const style = packager.packageContextFor(1, 2, ['global', 'section', 'chapter'], [], {
+        task: 'style-transform',
+        styleTarget: 'noir'
+      });
+      expect(style).toContain('📝 TASK: STYLE TRANSFORMATION');
+      expect(style).toContain('"noir"');
+    });
+  });
 });

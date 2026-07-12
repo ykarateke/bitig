@@ -100,6 +100,8 @@ bitig context <sectionNum>.<chapterNum> [--memory <layers>]
 Produces a focused context window prompt pack for LLM/RAG writers to edit or continue the target chapter. Contains outlines, synopses, preceding chapter content, visual theme guidelines, and injected memory layers.
 
 - `--memory <layers>`: Comma-separated list of memory layers to inject (options: `global`, `section`, `chapter` or `none`. Default: all layers).
+- `--story <layers>`: Comma-separated list of story bible layers to inject (options: `characters`, `plot`, `world` or `none`. Default: all layers).
+- `--task <mode>`: Swaps the instruction block with task-specific directives for the AI agent. Modes: `continue` (shows only the tail of the chapter plus the next chapter's synopsis), `rewrite` (prioritizes memory feedback), `summarize` (omits the preceding chapter), `expand`, `dialogue` (leans on story-bible `speechStyle`), `style-transform` (requires `--style-target "<style>"`, e.g. `"noir"`). Without `--task`, output is unchanged.
 
 ### 7. AI Agent Learning & Memory
 

@@ -25,3 +25,5 @@ export { StoryLinter } from './StoryLinter';
 export { ProseAnalyzer } from './ProseAnalyzer';
 export { GoalTracker } from './GoalTracker';
 export type { ChapterGoalStatus, DailySnapshot } from './GoalTracker';
+export { TaskInstructionLibrary } from './TaskInstructionLibrary';
+export type { ContextTask, TaskContextOptions } from './TaskInstructionLibrary';
