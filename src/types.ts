@@ -62,3 +62,151 @@ export interface BookMemoryData {
   sections: Record<string, MemoryContent>;
   chapters: Record<string, MemoryContent>;
 }
+
+export type StoryLayer = 'characters' | 'plot' | 'world';
+
+export interface CharacterArcPoint {
+  coords: string;
+  state: string;
+}
+
+export interface CharacterRelationship {
+  characterId: string;
+  type?: string;
+  description?: string;
+}
+
+export interface CharacterPhysical {
+  age?: number;
+  height?: string;
+  hair?: string;
+  eyes?: string;
+  distinguishingMarks?: string[];
+}
+
+export interface CharacterData {
+  id: string;
+  name: string;
+  aliases?: string[];
+  role?: string;
+  status?: string;
+  birthDate?: string | null;
+  deathDate?: string | null;
+  summary?: string;
+  physical?: CharacterPhysical;
+  personality?: string[];
+  speechStyle?: string;
+  goals?: string[];
+  arc?: CharacterArcPoint[];
+  relationships?: CharacterRelationship[];
+  firstAppearance?: string;
+  tags?: string[];
+  notes?: string;
+}
+
+export interface CharactersFileData {
+  version: number;
+  characters: CharacterData[];
+}
+
+export interface PlotThread {
+  id: string;
+  title: string;
+  summary?: string;
+  status?: 'open' | 'resolved' | 'abandoned';
+  introducedIn?: string;
+  resolutionCoords?: string | null;
+}
+
+export interface PlotEvent {
+  id: string;
+  title: string;
+  summary?: string;
+  type?: 'event' | 'setup' | 'payoff';
+  payoffFor?: string | null;
+  date?: string;
+  order?: number;
+  coords?: string[];
+  characterIds?: string[];
+  placeIds?: string[];
+  threadIds?: string[];
+  consequences?: string[];
+  notes?: string;
+}
+
+export interface PlotFileData {
+  version: number;
+  threads: PlotThread[];
+  events: PlotEvent[];
+}
+
+export interface WorldEntryBase {
+  id: string;
+  name: string;
+  aliases?: string[];
+  description?: string;
+  notes?: string;
+}
+
+export interface WorldPlace extends WorldEntryBase {
+  type?: string;
+  parentId?: string | null;
+  coords?: string[];
+  tags?: string[];
+}
+
+export interface WorldOrganization extends WorldEntryBase {
+  type?: string;
+  memberCharacterIds?: string[];
+  placeIds?: string[];
+}
+
+export interface WorldSpecies extends WorldEntryBase {
+  traits?: string[];
+}
+
+export interface WorldTechnology extends WorldEntryBase {
+  rules?: string[];
+}
+
+export interface WorldRule {
+  id: string;
+  title: string;
+  description?: string;
+  scope?: string;
+  notes?: string;
+}
+
+export interface WorldLoreEntry {
+  id: string;
+  term: string;
+  aliases?: string[];
+  definition?: string;
+  notes?: string;
+}
+
+export interface WorldFileData {
+  version: number;
+  places: WorldPlace[];
+  organizations: WorldOrganization[];
+  species: WorldSpecies[];
+  technologies: WorldTechnology[];
+  rules: WorldRule[];
+  lore: WorldLoreEntry[];
+}
+
+export type WorldCategory =
+  | 'places'
+  | 'organizations'
+  | 'species'
+  | 'technologies'
+  | 'rules'
+  | 'lore';
+
+export type WorldEntry =
+  | WorldPlace
+  | WorldOrganization
+  | WorldSpecies
+  | WorldTechnology
+  | WorldRule
+  | WorldLoreEntry;

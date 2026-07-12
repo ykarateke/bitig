@@ -125,6 +125,80 @@ export class Locale {
       contextMemoryFeedbackLabel: 'Geri Bildirimler & Düzeltmeler:',
       contextMemoryStyleLabel: 'Stil Kararları:',
       contextMemoryRoutineLabel: 'İş Akışı Rutinleri / Kurallar:',
+
+      // Story Bible (Context Packager)
+      contextStoryTitle: '## 📖 HİKAYE REHBERİ (STORY BIBLE)',
+      contextStoryIntro:
+        'Aşağıda bu bölümle ilgili karakterler, olay örgüsü zaman çizelgesi ve dünya bilgileri yer almaktadır. Yazarken bu bilgilerle asla çelişmeyin:',
+      contextStoryCharactersHeader: 'Kapsamdaki Karakterler',
+      contextStoryRosterHeader: 'Diğer Kadro (Özet Liste)',
+      contextStoryTimelineHeader: 'Zaman Çizelgesi (İlgili Olaylar)',
+      contextStoryThreadsHeader: 'Açık Hikaye Hatları',
+      contextStoryWorldHeader: 'Dünya Referansı',
+      contextStoryRulesHeader: 'Dünya Kuralları (Her Zaman Uyun)',
+      contextStorySummaryLabel: 'Özet',
+      contextStoryStatusLabel: 'Durum',
+      contextStoryBirthLabel: 'Doğum',
+      contextStoryDeathLabel: 'Ölüm',
+      contextStoryPhysicalLabel: 'Fiziksel',
+      contextStoryPersonalityLabel: 'Kişilik',
+      contextStorySpeechLabel: 'Konuşma Tarzı',
+      contextStoryGoalsLabel: 'Hedefler',
+      contextStoryRelationshipsLabel: 'İlişkiler',
+      contextStoryArcLabel: 'Karakter Gelişimi',
+      contextStoryFirstAppearanceLabel: 'İlk Görünüm',
+      contextStoryIntroducedInLabel: 'Tanıtıldığı Bölüm',
+      contextInstruction5:
+        '- Yazdıktan sonra yeni olayları ve karakter değişimlerini `bitig add:event` / `bitig update:character` komutlarıyla kaydedin.',
+
+      // Story CLI
+      storyInitSuccess: '✔ {file} oluşturuldu.',
+      storyInitExists: '⚠ {file} zaten mevcut, atlandı (üzerine yazmak için --force kullanın).',
+      storyCharacterAdded: '✔ "{id}" karakteri eklendi.',
+      storyCharacterUpdated: '✔ "{id}" karakteri güncellendi.',
+      storyCharacterDeleted: '✔ "{id}" karakteri silindi.',
+      storyEventAdded: '✔ "{id}" olayı eklendi.',
+      storyEventUpdated: '✔ "{id}" olayı güncellendi.',
+      storyEventDeleted: '✔ "{id}" olayı silindi.',
+      storyThreadAdded: '✔ "{id}" hikaye hattı eklendi.',
+      storyThreadUpdated: '✔ "{id}" hikaye hattı güncellendi.',
+      storyThreadDeleted: '✔ "{id}" hikaye hattı silindi.',
+      storyWorldAdded: '✔ "{id}" girdisi "{category}" kategorisine eklendi.',
+      storyWorldUpdated: '✔ "{id}" girdisi güncellendi ({category}).',
+      storyWorldDeleted: '✔ "{id}" girdisi silindi ({category}).',
+      storyListEmpty: 'Kayıt bulunamadı.',
+      storyTableId: 'ID',
+      storyTableName: 'İsim',
+      storyTableRole: 'Rol',
+      storyTableTitle: 'Başlık',
+      storyTableDate: 'Tarih',
+      storyTableOrder: 'Sıra',
+      storyTableChapters: 'Bölümler',
+      storyTableStatus: 'Durum',
+      storyTableCategory: 'Kategori',
+      cliErrorFailedStoryCommand: 'Hikaye komutu başarısız oldu:',
+
+      // Story Linter
+      storyLinterParseError: 'Dosya ayrıştırılamadı: {error}',
+      storyLinterDuplicateId: 'Yinelenen id: "{id}"',
+      storyLinterDanglingRef: '"{owner}" kaydındaki {refType} referansı tanımlı değil: "{id}"',
+      storyLinterUnknownCoords: '"{owner}" kitapta olmayan bir bölüme işaret ediyor: {coords}',
+      storyLinterTimelineConflict:
+        '"{idA}" ve "{idB}" olaylarının tarih ve sıra (order) değerleri çelişiyor',
+      storyLinterDuplicateOrder: 'Sıra değeri {order} birden fazla olayda kullanılmış: {ids}',
+      storyLinterUnparseableDate:
+        '"{id}" olayının tarihi ayrıştırılamıyor ve sıra (order) değeri yok: "{date}"',
+      storyLinterNotBorn: '"{character}" karakteri "{event}" olayı sırasında henüz doğmamış',
+      storyLinterAlreadyDead:
+        '"{character}" karakteri "{event}" olayı sırasında ölü görünüyor (geri dönüş sahnesi olabilir)',
+      storyLinterAgeMismatch:
+        '"{character}" karakterinin yaşı ({age}) doğum tarihiyle çelişiyor (beklenen ~{expected})',
+      storyLinterNonReciprocal:
+        '"{a}" karakteri "{b}" ile ilişki tanımlıyor ancak karşı taraf bu ilişkiyi tanımlamıyor',
+      storyLinterUnusedEntity:
+        '"{id}" ({name}) hiçbir bölümde geçmiyor ve hiçbir olayda referans edilmiyor',
+      storyLinterPossibleUnregistered:
+        'Kayıtlı olmayan olası karakter/mekan adı: "{word}" ({count} kez geçiyor)',
       copyrightPageTitle: 'TELİF HAKKI',
       copyrightPublisherLabel: 'Yayımcı',
       copyrightPublishedLabel: 'Yayın Tarihi',
@@ -257,6 +331,81 @@ export class Locale {
       contextMemoryFeedbackLabel: 'Feedback Corrections:',
       contextMemoryStyleLabel: 'Stylistic Decisions:',
       contextMemoryRoutineLabel: 'Workflow Routines & Rules:',
+
+      // Story Bible (Context Packager)
+      contextStoryTitle: '## 📖 STORY BIBLE',
+      contextStoryIntro:
+        'Below are the characters, plot timeline, and world facts relevant to this chapter. Never contradict this information while writing:',
+      contextStoryCharactersHeader: 'Characters in Scope',
+      contextStoryRosterHeader: 'Full Cast Roster (Compact)',
+      contextStoryTimelineHeader: 'Timeline (Relevant Events)',
+      contextStoryThreadsHeader: 'Open Plot Threads',
+      contextStoryWorldHeader: 'World Reference',
+      contextStoryRulesHeader: 'World Rules (Always Obey)',
+      contextStorySummaryLabel: 'Summary',
+      contextStoryStatusLabel: 'Status',
+      contextStoryBirthLabel: 'Born',
+      contextStoryDeathLabel: 'Died',
+      contextStoryPhysicalLabel: 'Physical',
+      contextStoryPersonalityLabel: 'Personality',
+      contextStorySpeechLabel: 'Speech Style',
+      contextStoryGoalsLabel: 'Goals',
+      contextStoryRelationshipsLabel: 'Relationships',
+      contextStoryArcLabel: 'Character Arc',
+      contextStoryFirstAppearanceLabel: 'First Appearance',
+      contextStoryIntroducedInLabel: 'Introduced In',
+      contextInstruction5:
+        '- After writing, record new events and character changes with `bitig add:event` / `bitig update:character` so the story bible stays current.',
+
+      // Story CLI
+      storyInitSuccess: '✔ {file} created.',
+      storyInitExists: '⚠ {file} already exists, skipped (use --force to overwrite).',
+      storyCharacterAdded: '✔ Character "{id}" added.',
+      storyCharacterUpdated: '✔ Character "{id}" updated.',
+      storyCharacterDeleted: '✔ Character "{id}" deleted.',
+      storyEventAdded: '✔ Event "{id}" added.',
+      storyEventUpdated: '✔ Event "{id}" updated.',
+      storyEventDeleted: '✔ Event "{id}" deleted.',
+      storyThreadAdded: '✔ Thread "{id}" added.',
+      storyThreadUpdated: '✔ Thread "{id}" updated.',
+      storyThreadDeleted: '✔ Thread "{id}" deleted.',
+      storyWorldAdded: '✔ Entry "{id}" added to "{category}".',
+      storyWorldUpdated: '✔ Entry "{id}" updated ({category}).',
+      storyWorldDeleted: '✔ Entry "{id}" deleted ({category}).',
+      storyListEmpty: 'No records found.',
+      storyTableId: 'ID',
+      storyTableName: 'Name',
+      storyTableRole: 'Role',
+      storyTableTitle: 'Title',
+      storyTableDate: 'Date',
+      storyTableOrder: 'Order',
+      storyTableChapters: 'Chapters',
+      storyTableStatus: 'Status',
+      storyTableCategory: 'Category',
+      cliErrorFailedStoryCommand: 'Story command failed:',
+
+      // Story Linter
+      storyLinterParseError: 'Failed to parse file: {error}',
+      storyLinterDuplicateId: 'Duplicate id: "{id}"',
+      storyLinterDanglingRef: 'Reference {refType} in "{owner}" is not defined: "{id}"',
+      storyLinterUnknownCoords:
+        '"{owner}" points to a chapter that does not exist in the book: {coords}',
+      storyLinterTimelineConflict:
+        'Events "{idA}" and "{idB}" have contradicting date and order values',
+      storyLinterDuplicateOrder: 'Order value {order} is used by multiple events: {ids}',
+      storyLinterUnparseableDate:
+        'Event "{id}" has an unparseable date and no order value: "{date}"',
+      storyLinterNotBorn: 'Character "{character}" is not yet born during event "{event}"',
+      storyLinterAlreadyDead:
+        'Character "{character}" appears to be dead during event "{event}" (may be a flashback)',
+      storyLinterAgeMismatch:
+        'Character "{character}" age ({age}) contradicts the birth date (expected ~{expected})',
+      storyLinterNonReciprocal:
+        'Character "{a}" defines a relationship with "{b}" but there is no reciprocal entry',
+      storyLinterUnusedEntity:
+        '"{id}" ({name}) never appears in any chapter and is not referenced by any event',
+      storyLinterPossibleUnregistered:
+        'Possible unregistered character/place name: "{word}" (occurs {count} times)',
       copyrightPageTitle: 'COPYRIGHT',
       copyrightPublisherLabel: 'Publisher',
       copyrightPublishedLabel: 'Published',
@@ -396,6 +545,83 @@ export class Locale {
       contextMemoryFeedbackLabel: 'Feedback-Korrekturen:',
       contextMemoryStyleLabel: 'Stilistische Entscheidungen:',
       contextMemoryRoutineLabel: 'Arbeitsabläufe & Regeln:',
+
+      // Story Bible (Context Packager)
+      contextStoryTitle: '## 📖 STORY-BIBEL',
+      contextStoryIntro:
+        'Nachfolgend finden Sie die für dieses Kapitel relevanten Charaktere, die Handlungs-Zeitleiste und Weltfakten. Widersprechen Sie diesen Informationen beim Schreiben niemals:',
+      contextStoryCharactersHeader: 'Relevante Charaktere',
+      contextStoryRosterHeader: 'Gesamte Besetzung (Kompakt)',
+      contextStoryTimelineHeader: 'Zeitleiste (Relevante Ereignisse)',
+      contextStoryThreadsHeader: 'Offene Handlungsstränge',
+      contextStoryWorldHeader: 'Welt-Referenz',
+      contextStoryRulesHeader: 'Weltregeln (Immer Beachten)',
+      contextStorySummaryLabel: 'Zusammenfassung',
+      contextStoryStatusLabel: 'Status',
+      contextStoryBirthLabel: 'Geboren',
+      contextStoryDeathLabel: 'Gestorben',
+      contextStoryPhysicalLabel: 'Physisch',
+      contextStoryPersonalityLabel: 'Persönlichkeit',
+      contextStorySpeechLabel: 'Sprechstil',
+      contextStoryGoalsLabel: 'Ziele',
+      contextStoryRelationshipsLabel: 'Beziehungen',
+      contextStoryArcLabel: 'Charakterentwicklung',
+      contextStoryFirstAppearanceLabel: 'Erster Auftritt',
+      contextStoryIntroducedInLabel: 'Eingeführt In',
+      contextInstruction5:
+        '- Erfassen Sie nach dem Schreiben neue Ereignisse und Charakteränderungen mit `bitig add:event` / `bitig update:character`, damit die Story-Bibel aktuell bleibt.',
+
+      // Story CLI
+      storyInitSuccess: '✔ {file} erstellt.',
+      storyInitExists: '⚠ {file} existiert bereits, übersprungen (mit --force überschreiben).',
+      storyCharacterAdded: '✔ Charakter "{id}" hinzugefügt.',
+      storyCharacterUpdated: '✔ Charakter "{id}" aktualisiert.',
+      storyCharacterDeleted: '✔ Charakter "{id}" gelöscht.',
+      storyEventAdded: '✔ Ereignis "{id}" hinzugefügt.',
+      storyEventUpdated: '✔ Ereignis "{id}" aktualisiert.',
+      storyEventDeleted: '✔ Ereignis "{id}" gelöscht.',
+      storyThreadAdded: '✔ Handlungsstrang "{id}" hinzugefügt.',
+      storyThreadUpdated: '✔ Handlungsstrang "{id}" aktualisiert.',
+      storyThreadDeleted: '✔ Handlungsstrang "{id}" gelöscht.',
+      storyWorldAdded: '✔ Eintrag "{id}" zu "{category}" hinzugefügt.',
+      storyWorldUpdated: '✔ Eintrag "{id}" aktualisiert ({category}).',
+      storyWorldDeleted: '✔ Eintrag "{id}" gelöscht ({category}).',
+      storyListEmpty: 'Keine Einträge gefunden.',
+      storyTableId: 'ID',
+      storyTableName: 'Name',
+      storyTableRole: 'Rolle',
+      storyTableTitle: 'Titel',
+      storyTableDate: 'Datum',
+      storyTableOrder: 'Reihenfolge',
+      storyTableChapters: 'Kapitel',
+      storyTableStatus: 'Status',
+      storyTableCategory: 'Kategorie',
+      cliErrorFailedStoryCommand: 'Story-Befehl fehlgeschlagen:',
+
+      // Story Linter
+      storyLinterParseError: 'Datei konnte nicht geparst werden: {error}',
+      storyLinterDuplicateId: 'Doppelte ID: "{id}"',
+      storyLinterDanglingRef: 'Referenz {refType} in "{owner}" ist nicht definiert: "{id}"',
+      storyLinterUnknownCoords:
+        '"{owner}" verweist auf ein Kapitel, das im Buch nicht existiert: {coords}',
+      storyLinterTimelineConflict:
+        'Die Ereignisse "{idA}" und "{idB}" haben widersprüchliche Datums- und Reihenfolgewerte',
+      storyLinterDuplicateOrder:
+        'Reihenfolgewert {order} wird von mehreren Ereignissen verwendet: {ids}',
+      storyLinterUnparseableDate:
+        'Ereignis "{id}" hat ein nicht parsbares Datum und keinen Reihenfolgewert: "{date}"',
+      storyLinterNotBorn:
+        'Charakter "{character}" ist während des Ereignisses "{event}" noch nicht geboren',
+      storyLinterAlreadyDead:
+        'Charakter "{character}" scheint während des Ereignisses "{event}" tot zu sein (könnte eine Rückblende sein)',
+      storyLinterAgeMismatch:
+        'Das Alter von Charakter "{character}" ({age}) widerspricht dem Geburtsdatum (erwartet ~{expected})',
+      storyLinterNonReciprocal:
+        'Charakter "{a}" definiert eine Beziehung zu "{b}", aber es gibt keinen gegenseitigen Eintrag',
+      storyLinterUnusedEntity:
+        '"{id}" ({name}) kommt in keinem Kapitel vor und wird von keinem Ereignis referenziert',
+      storyLinterPossibleUnregistered:
+        'Möglicher nicht registrierter Charakter-/Ortsname: "{word}" (kommt {count} Mal vor)',
       copyrightPageTitle: 'URHEBERRECHT',
       copyrightPublisherLabel: 'Herausgeber',
       copyrightPublishedLabel: 'Veröffentlicht',
@@ -532,6 +758,81 @@ export class Locale {
       contextMemoryFeedbackLabel: 'Correcciones de Retroalimentación:',
       contextMemoryStyleLabel: 'Decisiones Estilísticas:',
       contextMemoryRoutineLabel: 'Rutinas y Reglas de Trabajo:',
+
+      // Story Bible (Context Packager)
+      contextStoryTitle: '## 📖 BIBLIA DE LA HISTORIA',
+      contextStoryIntro:
+        'A continuación se presentan los personajes, la línea temporal de la trama y los datos del mundo relevantes para este capítulo. Nunca contradiga esta información al escribir:',
+      contextStoryCharactersHeader: 'Personajes en Escena',
+      contextStoryRosterHeader: 'Reparto Completo (Compacto)',
+      contextStoryTimelineHeader: 'Línea Temporal (Eventos Relevantes)',
+      contextStoryThreadsHeader: 'Hilos Argumentales Abiertos',
+      contextStoryWorldHeader: 'Referencia del Mundo',
+      contextStoryRulesHeader: 'Reglas del Mundo (Obedecer Siempre)',
+      contextStorySummaryLabel: 'Resumen',
+      contextStoryStatusLabel: 'Estado',
+      contextStoryBirthLabel: 'Nacimiento',
+      contextStoryDeathLabel: 'Muerte',
+      contextStoryPhysicalLabel: 'Físico',
+      contextStoryPersonalityLabel: 'Personalidad',
+      contextStorySpeechLabel: 'Estilo de Habla',
+      contextStoryGoalsLabel: 'Objetivos',
+      contextStoryRelationshipsLabel: 'Relaciones',
+      contextStoryArcLabel: 'Arco del Personaje',
+      contextStoryFirstAppearanceLabel: 'Primera Aparición',
+      contextStoryIntroducedInLabel: 'Introducido En',
+      contextInstruction5:
+        '- Después de escribir, registre los nuevos eventos y cambios de personajes con `bitig add:event` / `bitig update:character` para mantener actualizada la biblia de la historia.',
+
+      // Story CLI
+      storyInitSuccess: '✔ {file} creado.',
+      storyInitExists: '⚠ {file} ya existe, omitido (use --force para sobrescribir).',
+      storyCharacterAdded: '✔ Personaje "{id}" añadido.',
+      storyCharacterUpdated: '✔ Personaje "{id}" actualizado.',
+      storyCharacterDeleted: '✔ Personaje "{id}" eliminado.',
+      storyEventAdded: '✔ Evento "{id}" añadido.',
+      storyEventUpdated: '✔ Evento "{id}" actualizado.',
+      storyEventDeleted: '✔ Evento "{id}" eliminado.',
+      storyThreadAdded: '✔ Hilo argumental "{id}" añadido.',
+      storyThreadUpdated: '✔ Hilo argumental "{id}" actualizado.',
+      storyThreadDeleted: '✔ Hilo argumental "{id}" eliminado.',
+      storyWorldAdded: '✔ Entrada "{id}" añadida a "{category}".',
+      storyWorldUpdated: '✔ Entrada "{id}" actualizada ({category}).',
+      storyWorldDeleted: '✔ Entrada "{id}" eliminada ({category}).',
+      storyListEmpty: 'No se encontraron registros.',
+      storyTableId: 'ID',
+      storyTableName: 'Nombre',
+      storyTableRole: 'Rol',
+      storyTableTitle: 'Título',
+      storyTableDate: 'Fecha',
+      storyTableOrder: 'Orden',
+      storyTableChapters: 'Capítulos',
+      storyTableStatus: 'Estado',
+      storyTableCategory: 'Categoría',
+      cliErrorFailedStoryCommand: 'El comando de historia falló:',
+
+      // Story Linter
+      storyLinterParseError: 'No se pudo analizar el archivo: {error}',
+      storyLinterDuplicateId: 'ID duplicado: "{id}"',
+      storyLinterDanglingRef: 'La referencia {refType} en "{owner}" no está definida: "{id}"',
+      storyLinterUnknownCoords:
+        '"{owner}" apunta a un capítulo que no existe en el libro: {coords}',
+      storyLinterTimelineConflict:
+        'Los eventos "{idA}" y "{idB}" tienen valores de fecha y orden contradictorios',
+      storyLinterDuplicateOrder: 'El valor de orden {order} es usado por varios eventos: {ids}',
+      storyLinterUnparseableDate:
+        'El evento "{id}" tiene una fecha no analizable y ningún valor de orden: "{date}"',
+      storyLinterNotBorn: 'El personaje "{character}" aún no ha nacido durante el evento "{event}"',
+      storyLinterAlreadyDead:
+        'El personaje "{character}" parece estar muerto durante el evento "{event}" (podría ser un flashback)',
+      storyLinterAgeMismatch:
+        'La edad del personaje "{character}" ({age}) contradice la fecha de nacimiento (esperado ~{expected})',
+      storyLinterNonReciprocal:
+        'El personaje "{a}" define una relación con "{b}" pero no hay una entrada recíproca',
+      storyLinterUnusedEntity:
+        '"{id}" ({name}) nunca aparece en ningún capítulo y no es referenciado por ningún evento',
+      storyLinterPossibleUnregistered:
+        'Posible nombre de personaje/lugar no registrado: "{word}" (aparece {count} veces)',
       copyrightPageTitle: 'DERECHOS DE AUTOR',
       copyrightPublisherLabel: 'Editorial',
       copyrightPublishedLabel: 'Publicado',
@@ -667,6 +968,83 @@ export class Locale {
       contextMemoryFeedbackLabel: 'Corrections des Retours:',
       contextMemoryStyleLabel: 'Décisions Stylistiques:',
       contextMemoryRoutineLabel: 'Routines & Règles de Travail:',
+
+      // Story Bible (Context Packager)
+      contextStoryTitle: "## 📖 BIBLE DE L'HISTOIRE",
+      contextStoryIntro:
+        "Ci-dessous se trouvent les personnages, la chronologie de l'intrigue et les faits du monde pertinents pour ce chapitre. Ne contredisez jamais ces informations en écrivant:",
+      contextStoryCharactersHeader: 'Personnages Concernés',
+      contextStoryRosterHeader: 'Distribution Complète (Compact)',
+      contextStoryTimelineHeader: 'Chronologie (Événements Pertinents)',
+      contextStoryThreadsHeader: 'Intrigues Ouvertes',
+      contextStoryWorldHeader: 'Référence du Monde',
+      contextStoryRulesHeader: 'Règles du Monde (Toujours Respecter)',
+      contextStorySummaryLabel: 'Résumé',
+      contextStoryStatusLabel: 'Statut',
+      contextStoryBirthLabel: 'Naissance',
+      contextStoryDeathLabel: 'Décès',
+      contextStoryPhysicalLabel: 'Physique',
+      contextStoryPersonalityLabel: 'Personnalité',
+      contextStorySpeechLabel: 'Style de Parole',
+      contextStoryGoalsLabel: 'Objectifs',
+      contextStoryRelationshipsLabel: 'Relations',
+      contextStoryArcLabel: 'Arc du Personnage',
+      contextStoryFirstAppearanceLabel: 'Première Apparition',
+      contextStoryIntroducedInLabel: 'Introduit Dans',
+      contextInstruction5:
+        "- Après l'écriture, enregistrez les nouveaux événements et changements de personnages avec `bitig add:event` / `bitig update:character` pour maintenir la bible de l'histoire à jour.",
+
+      // Story CLI
+      storyInitSuccess: '✔ {file} créé.',
+      storyInitExists: '⚠ {file} existe déjà, ignoré (utilisez --force pour écraser).',
+      storyCharacterAdded: '✔ Personnage "{id}" ajouté.',
+      storyCharacterUpdated: '✔ Personnage "{id}" mis à jour.',
+      storyCharacterDeleted: '✔ Personnage "{id}" supprimé.',
+      storyEventAdded: '✔ Événement "{id}" ajouté.',
+      storyEventUpdated: '✔ Événement "{id}" mis à jour.',
+      storyEventDeleted: '✔ Événement "{id}" supprimé.',
+      storyThreadAdded: '✔ Intrigue "{id}" ajoutée.',
+      storyThreadUpdated: '✔ Intrigue "{id}" mise à jour.',
+      storyThreadDeleted: '✔ Intrigue "{id}" supprimée.',
+      storyWorldAdded: '✔ Entrée "{id}" ajoutée à "{category}".',
+      storyWorldUpdated: '✔ Entrée "{id}" mise à jour ({category}).',
+      storyWorldDeleted: '✔ Entrée "{id}" supprimée ({category}).',
+      storyListEmpty: 'Aucun enregistrement trouvé.',
+      storyTableId: 'ID',
+      storyTableName: 'Nom',
+      storyTableRole: 'Rôle',
+      storyTableTitle: 'Titre',
+      storyTableDate: 'Date',
+      storyTableOrder: 'Ordre',
+      storyTableChapters: 'Chapitres',
+      storyTableStatus: 'Statut',
+      storyTableCategory: 'Catégorie',
+      cliErrorFailedStoryCommand: "Échec de la commande d'histoire:",
+
+      // Story Linter
+      storyLinterParseError: "Impossible d'analyser le fichier: {error}",
+      storyLinterDuplicateId: 'ID en double: "{id}"',
+      storyLinterDanglingRef: 'La référence {refType} dans "{owner}" n\'est pas définie: "{id}"',
+      storyLinterUnknownCoords:
+        '"{owner}" pointe vers un chapitre qui n\'existe pas dans le livre: {coords}',
+      storyLinterTimelineConflict:
+        'Les événements "{idA}" et "{idB}" ont des valeurs de date et d\'ordre contradictoires',
+      storyLinterDuplicateOrder:
+        "La valeur d'ordre {order} est utilisée par plusieurs événements: {ids}",
+      storyLinterUnparseableDate:
+        'L\'événement "{id}" a une date non analysable et aucune valeur d\'ordre: "{date}"',
+      storyLinterNotBorn:
+        'Le personnage "{character}" n\'est pas encore né lors de l\'événement "{event}"',
+      storyLinterAlreadyDead:
+        'Le personnage "{character}" semble être mort lors de l\'événement "{event}" (peut être un flashback)',
+      storyLinterAgeMismatch:
+        'L\'âge du personnage "{character}" ({age}) contredit la date de naissance (attendu ~{expected})',
+      storyLinterNonReciprocal:
+        'Le personnage "{a}" définit une relation avec "{b}" mais il n\'y a pas d\'entrée réciproque',
+      storyLinterUnusedEntity:
+        '"{id}" ({name}) n\'apparaît dans aucun chapitre et n\'est référencé par aucun événement',
+      storyLinterPossibleUnregistered:
+        'Nom de personnage/lieu possiblement non enregistré: "{word}" (apparaît {count} fois)',
       copyrightPageTitle: "DROIT D'AUTEUR",
       copyrightPublisherLabel: 'Éditeur',
       copyrightPublishedLabel: 'Publié',

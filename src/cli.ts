@@ -14,6 +14,11 @@ import { DevServer } from './DevServer';
 import { CaptureManager } from './CaptureManager';
 import { MemoryManager } from './MemoryManager';
 import { DiagnosticsManager } from './DiagnosticsManager';
+import { CharacterManager } from './CharacterManager';
+import { PlotManager } from './PlotManager';
+import { WorldManager } from './WorldManager';
+import { StoryLinter } from './StoryLinter';
+import { CharacterData, PlotEvent, PlotThread, WorldEntry } from './types';
 
 interface CliArgs {
   command?: string;
@@ -42,6 +47,25 @@ interface CliArgs {
   memory?: string;
   file?: string;
   version?: boolean;
+  name?: string;
+  role?: string;
+  summary?: string;
+  date?: string;
+  order?: number;
+  characters?: string;
+  places?: string;
+  threads?: string;
+  character?: string;
+  thread?: string;
+  status?: string;
+  type?: string;
+  alias?: string;
+  json?: string;
+  only?: string;
+  force?: boolean;
+  story?: string;
+  storyNames?: boolean;
+  fiction?: boolean;
 }
 
 const args = process.argv.slice(2);
@@ -82,7 +106,7 @@ const command = cliArgs.command || 'build';
 
 switch (command) {
   case 'init':
-    handleInit();
+    handleInit(cliArgs);
     break;
   case 'build':
     handleBuild(cliArgs);
@@ -135,6 +159,60 @@ switch (command) {
   case 'capture':
   case 'screenshot':
     handleCapture(cliArgs);
+    break;
+  case 'story:init':
+    handleStoryInit(cliArgs);
+    break;
+  case 'story:guide':
+    handleStoryGuide();
+    break;
+  case 'add:character':
+    handleAddCharacter(cliArgs);
+    break;
+  case 'update:character':
+    handleUpdateCharacter(cliArgs);
+    break;
+  case 'delete:character':
+    handleDeleteCharacter(cliArgs);
+    break;
+  case 'list:characters':
+    handleListCharacters(cliArgs);
+    break;
+  case 'add:event':
+    handleAddEvent(cliArgs);
+    break;
+  case 'update:event':
+    handleUpdateEvent(cliArgs);
+    break;
+  case 'delete:event':
+    handleDeleteEvent(cliArgs);
+    break;
+  case 'list:events':
+    handleListEvents(cliArgs);
+    break;
+  case 'add:thread':
+    handleAddThread(cliArgs);
+    break;
+  case 'update:thread':
+    handleUpdateThread(cliArgs);
+    break;
+  case 'delete:thread':
+    handleDeleteThread(cliArgs);
+    break;
+  case 'list:threads':
+    handleListThreads(cliArgs);
+    break;
+  case 'add:world':
+    handleAddWorld(cliArgs);
+    break;
+  case 'update:world':
+    handleUpdateWorld(cliArgs);
+    break;
+  case 'delete:world':
+    handleDeleteWorld(cliArgs);
+    break;
+  case 'list:world':
+    handleListWorld(cliArgs);
     break;
   case 'guide':
     handleGuide();
@@ -335,6 +413,129 @@ function parseArgs(args: string[]): CliArgs {
       }
     } else if (arg === '-v' || arg === '--version') {
       result.version = true;
+    } else if (arg === '--name') {
+      if (i + 1 < args.length) {
+        result.name = args[++i];
+      } else {
+        console.error('Error: Option --name requires a value.');
+        process.exit(1);
+      }
+    } else if (arg === '--role') {
+      if (i + 1 < args.length) {
+        result.role = args[++i];
+      } else {
+        console.error('Error: Option --role requires a value.');
+        process.exit(1);
+      }
+    } else if (arg === '--summary') {
+      if (i + 1 < args.length) {
+        result.summary = args[++i];
+      } else {
+        console.error('Error: Option --summary requires a value.');
+        process.exit(1);
+      }
+    } else if (arg === '--date') {
+      if (i + 1 < args.length) {
+        result.date = args[++i];
+      } else {
+        console.error('Error: Option --date requires a value.');
+        process.exit(1);
+      }
+    } else if (arg === '--order') {
+      if (i + 1 < args.length) {
+        const orderVal = parseInt(args[++i], 10);
+        if (isNaN(orderVal)) {
+          console.error('Error: Option --order requires a valid number.');
+          process.exit(1);
+        }
+        result.order = orderVal;
+      } else {
+        console.error('Error: Option --order requires a value.');
+        process.exit(1);
+      }
+    } else if (arg === '--characters') {
+      if (i + 1 < args.length) {
+        result.characters = args[++i];
+      } else {
+        console.error('Error: Option --characters requires a value.');
+        process.exit(1);
+      }
+    } else if (arg === '--places') {
+      if (i + 1 < args.length) {
+        result.places = args[++i];
+      } else {
+        console.error('Error: Option --places requires a value.');
+        process.exit(1);
+      }
+    } else if (arg === '--threads') {
+      if (i + 1 < args.length) {
+        result.threads = args[++i];
+      } else {
+        console.error('Error: Option --threads requires a value.');
+        process.exit(1);
+      }
+    } else if (arg === '--character') {
+      if (i + 1 < args.length) {
+        result.character = args[++i];
+      } else {
+        console.error('Error: Option --character requires a value.');
+        process.exit(1);
+      }
+    } else if (arg === '--thread') {
+      if (i + 1 < args.length) {
+        result.thread = args[++i];
+      } else {
+        console.error('Error: Option --thread requires a value.');
+        process.exit(1);
+      }
+    } else if (arg === '--status') {
+      if (i + 1 < args.length) {
+        result.status = args[++i];
+      } else {
+        console.error('Error: Option --status requires a value.');
+        process.exit(1);
+      }
+    } else if (arg === '--type') {
+      if (i + 1 < args.length) {
+        result.type = args[++i];
+      } else {
+        console.error('Error: Option --type requires a value.');
+        process.exit(1);
+      }
+    } else if (arg === '--alias') {
+      if (i + 1 < args.length) {
+        result.alias = args[++i];
+      } else {
+        console.error('Error: Option --alias requires a value.');
+        process.exit(1);
+      }
+    } else if (arg === '--json') {
+      if (i + 1 < args.length) {
+        result.json = args[++i];
+      } else {
+        console.error('Error: Option --json requires a value.');
+        process.exit(1);
+      }
+    } else if (arg === '--only') {
+      if (i + 1 < args.length) {
+        result.only = args[++i];
+      } else {
+        console.error('Error: Option --only requires a value.');
+        process.exit(1);
+      }
+    } else if (arg === '--story') {
+      if (i + 1 < args.length) {
+        result.story = args[++i];
+      } else {
+        console.error('Error: Option --story requires a value.');
+        process.exit(1);
+      }
+    } else if (arg === '--force') {
+      result.force = true;
+    } else if (arg === '--story-names') {
+      result.storyNames = true;
+    } else if (arg === '--fiction') {
+      result.fiction = true;
     } else if (!arg.startsWith('-')) {
       result.positionals.push(arg);
     }
@@ -371,6 +572,24 @@ Commands:
   context <sec>.<chap>           Generates a focused RAG/prompt package containing outlines and synopsis.
   learn <scope> [options]        Updates the persistent AI agent memory and feedback log.
   search <query>                 Searches the entire book for keywords or phrases.
+  story:init                     Scaffolds the story bible files (characters.json, plot.json, world.json).
+  add:character <id>             Adds a character to characters.json (--name required).
+  update:character <id>          Updates character fields (--name, --role, --summary, --alias, --json, --file).
+  delete:character <id>          Removes a character from characters.json.
+  list:characters [<id>]         Lists characters as a table, or prints one character as JSON.
+  add:event <id>                 Adds a plot event to plot.json (--title required).
+  update:event <id>              Updates event fields (--title, --date, --order, --coords, --characters, ...).
+  delete:event <id>              Removes an event from plot.json.
+  list:events                    Lists events chronologically (--thread/--character/--coords filters).
+  add:thread <id>                Adds a plot thread to plot.json (--title required).
+  update:thread <id>             Updates thread fields (--status resolved --coords 3.4 marks resolution).
+  delete:thread <id>             Removes a thread from plot.json.
+  list:threads                   Lists plot threads as a table.
+  add:world <category> <id>      Adds a world entry (place, organization, species, technology, rule, lore).
+  update:world <category> <id>   Updates a world entry.
+  delete:world <category> <id>   Removes a world entry.
+  list:world [category]          Lists world entries as a table.
+  story:guide                    Displays the story bible workflow guide.
   guide                          Displays the comprehensive English guide on book writing workflow.
   diagnostics-guide              Displays the detailed AI quality scoring workflow guide.
   help                           Displays this help menu.
@@ -411,6 +630,25 @@ Metadata Options:
 Context Options:
   --target <sec>.<chap>          Alternative way to specify target chapter for context command.
   --memory <layers>              Comma-separated list of memory layers to include (global,section,chapter or none).
+  --story <layers>               Comma-separated list of story layers to include (characters,plot,world or none).
+
+Story Bible Options:
+  --name "<name>"                Entity display name (character/world entry).
+  --role <role>                  Character role (protagonist, antagonist, supporting, ...).
+  --summary "<text>"             Summary/description text for the entity.
+  --alias "<a,b>"                Comma-separated aliases for name matching.
+  --date <date>                  Event date (ISO or free-form fictional calendar).
+  --order <number>               Explicit chronological order for an event.
+  --coords <list>                Chapter coordinates (comma-separated for events, e.g. 1.2,1.3).
+  --characters <ids>             Comma-separated character ids referenced by an event.
+  --places <ids>                 Comma-separated place ids referenced by an event.
+  --threads <ids>                Comma-separated thread ids referenced by an event.
+  --status <status>              Thread status (open, resolved, abandoned).
+  --type <type>                  Entity type (event/setup/payoff for events, free-form for world entries).
+  --json '<object>'              Full or partial entity JSON for rich fields (relationships, arc, physical).
+  --only <list>                  Limit story:init to specific files (characters,plot,world).
+  --force                        Overwrite existing story files on story:init.
+  --story-names                  Enable the heuristic unregistered-name scan during bitig check (skipped for German).
 
 Memory / Learning Options:
   --feedback "<text>"            Add user feedback to specified scope.
@@ -468,7 +706,7 @@ function loadConfig(configArg?: string): BookConfig {
 /**
  * Initializes a template project directory in Turkish by default.
  */
-function handleInit(): void {
+function handleInit(cliArgs: CliArgs): void {
   const currentDir = process.cwd();
   const configPath = path.join(currentDir, 'book.json');
 
@@ -538,6 +776,16 @@ function handleInit(): void {
     );
 
     console.log(Locale.get('initSuccessChapters', 'tr'));
+
+    if (cliArgs.fiction) {
+      new CharacterManager(path.join(assetsDir, 'characters.json')).init(true);
+      console.log(Locale.get('storyInitSuccess', 'tr', { file: 'characters.json' }));
+      new PlotManager(path.join(assetsDir, 'plot.json')).init(true);
+      console.log(Locale.get('storyInitSuccess', 'tr', { file: 'plot.json' }));
+      new WorldManager(path.join(assetsDir, 'world.json')).init(true);
+      console.log(Locale.get('storyInitSuccess', 'tr', { file: 'world.json' }));
+    }
+
     console.log(Locale.get('initSuccessRun', 'tr'));
   } catch (error) {
     const err = error as Error;
@@ -798,7 +1046,21 @@ function handleCheck(cliArgs: CliArgs): void {
     const lang = config.language;
 
     console.log(Locale.get('checkRunning', lang));
-    const messages = linter.runAllChecks();
+    let messages = linter.runAllChecks();
+
+    const assetsDir = config.assetsDir;
+    const storyFiles = ['characters.json', 'plot.json', 'world.json'].map((f) =>
+      path.join(assetsDir, f)
+    );
+    if (storyFiles.some((f) => fs.existsSync(f))) {
+      const storyLinter = new StoryLinter(
+        compiler,
+        new CharacterManager(storyFiles[0]),
+        new PlotManager(storyFiles[1]),
+        new WorldManager(storyFiles[2])
+      );
+      messages = messages.concat(storyLinter.runAllChecks({ nameScan: cliArgs.storyNames }));
+    }
 
     if (messages.length === 0) {
       console.log(Locale.get('checkClean', lang));
@@ -869,7 +1131,25 @@ function handleContext(cliArgs: CliArgs): void {
       }
     }
 
-    const pack = packager.packageContextFor(sectionNum, chapterNum, activeMemoryLayers);
+    let activeStoryLayers = ['characters', 'plot', 'world'];
+    if (cliArgs.story !== undefined) {
+      const storyArg = cliArgs.story.trim().toLowerCase();
+      if (storyArg === 'none') {
+        activeStoryLayers = [];
+      } else {
+        activeStoryLayers = storyArg
+          .split(',')
+          .map((s) => s.trim())
+          .filter(Boolean);
+      }
+    }
+
+    const pack = packager.packageContextFor(
+      sectionNum,
+      chapterNum,
+      activeMemoryLayers,
+      activeStoryLayers
+    );
     console.log('\n' + pack);
   } catch (error) {
     const err = error as Error;
@@ -1329,6 +1609,656 @@ function handleAnalyzeReport(cliArgs: CliArgs): void {
   } catch (error) {
     const err = error as Error;
     console.error(`Error: Failed to report diagnostics: ${err.message}`);
+    process.exit(1);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Story Bible Commands (characters.json / plot.json / world.json)
+// ---------------------------------------------------------------------------
+
+function storyPathsFor(config: BookConfig): {
+  characters: string;
+  plot: string;
+  world: string;
+} {
+  return {
+    characters: path.join(config.assetsDir, 'characters.json'),
+    plot: path.join(config.assetsDir, 'plot.json'),
+    world: path.join(config.assetsDir, 'world.json')
+  };
+}
+
+/**
+ * Merges an optional JSON payload from --file and/or --json for rich entity
+ * fields; explicit flag values are applied on top by the callers.
+ */
+function readJsonPayload(cliArgs: CliArgs): Record<string, unknown> {
+  let payload: Record<string, unknown> = {};
+  if (cliArgs.file) {
+    const filePath = path.resolve(cliArgs.file);
+    if (!fs.existsSync(filePath)) {
+      throw new Error(`Payload file not found: ${filePath}`);
+    }
+    payload = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+  }
+  if (cliArgs.json) {
+    payload = { ...payload, ...JSON.parse(cliArgs.json) };
+  }
+  return payload;
+}
+
+function splitList(value?: string): string[] | undefined {
+  if (value === undefined) return undefined;
+  return value
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean);
+}
+
+function truncPad(value: unknown, width: number): string {
+  let text = value === undefined || value === null ? '' : String(value);
+  if (text.length > width) {
+    text = text.substring(0, Math.max(0, width - 3)) + '...';
+  }
+  return text.padEnd(width);
+}
+
+function printAsciiTable(headers: string[], widths: number[], rows: unknown[][]): void {
+  const sep = `+${widths.map((w) => '-'.repeat(w)).join('+')}+`;
+  const formatRow = (cells: unknown[]): string =>
+    `| ${cells.map((cell, i) => truncPad(cell, widths[i] - 2)).join(' | ')} |`;
+
+  console.log(sep);
+  console.log(formatRow(headers));
+  console.log(sep);
+  rows.forEach((row) => console.log(formatRow(row)));
+  console.log(sep);
+}
+
+function handleStoryInit(cliArgs: CliArgs): void {
+  let config: BookConfig | undefined;
+  try {
+    config = loadConfig(cliArgs.config);
+    const lang = config.language;
+    const paths = storyPathsFor(config);
+
+    let targets = ['characters', 'plot', 'world'];
+    if (cliArgs.only !== undefined) {
+      targets = (splitList(cliArgs.only) || []).filter((t) =>
+        ['characters', 'plot', 'world'].includes(t)
+      );
+      if (targets.length === 0) {
+        console.error(
+          'Error: Option --only accepts a comma-separated list of: characters, plot, world'
+        );
+        process.exit(1);
+      }
+    }
+
+    targets.forEach((target) => {
+      const filePath = paths[target as keyof typeof paths];
+      const fileName = path.basename(filePath);
+      if (fs.existsSync(filePath) && !cliArgs.force) {
+        console.log(Locale.get('storyInitExists', lang, { file: fileName }));
+        return;
+      }
+      if (target === 'characters') new CharacterManager(filePath).init(true);
+      else if (target === 'plot') new PlotManager(filePath).init(true);
+      else new WorldManager(filePath).init(true);
+      console.log(Locale.get('storyInitSuccess', lang, { file: fileName }));
+    });
+  } catch (error) {
+    const err = error as Error;
+    const lang = config ? config.language : 'tr';
+    console.error(Locale.get('cliErrorFailedStoryCommand', lang), err.message);
+    process.exit(1);
+  }
+}
+
+/**
+ * Displays the story bible workflow guide from resources.
+ */
+function handleStoryGuide(): void {
+  const guidePath = path.join(__dirname, 'resources', 'story-guide.md');
+  if (fs.existsSync(guidePath)) {
+    try {
+      const content = fs.readFileSync(guidePath, 'utf8');
+      console.log(content);
+      return;
+    } catch (e) {
+      // Fallback if read failed
+    }
+  }
+
+  console.log(
+    `
+# BITIG - STORY BIBLE GUIDE
+
+Manage characters, plot timeline, and world building data in assets/characters.json, assets/plot.json, and assets/world.json.
+1. Run "bitig story:init" to scaffold the three story files.
+2. Manage entries with add/update/delete/list commands (add:character, add:event, add:thread, add:world ...).
+3. Run "bitig context <coords>" to inject relevant story data into the AI prompt pack (--story <layers> to filter).
+4. Run "bitig check" to validate consistency (dangling references, timeline conflicts, unused entities).
+  `.trim()
+  );
+}
+
+function handleAddCharacter(cliArgs: CliArgs): void {
+  const id = cliArgs.positionals[0];
+  if (!id) {
+    console.error(
+      'Error: Please specify a character id, e.g.: bitig add:character aylin --name "Aylin Demir"'
+    );
+    process.exit(1);
+  }
+
+  let config: BookConfig | undefined;
+  try {
+    config = loadConfig(cliArgs.config);
+    const manager = new CharacterManager(storyPathsFor(config).characters);
+    const payload = readJsonPayload(cliArgs) as Partial<CharacterData>;
+    if (cliArgs.name) payload.name = cliArgs.name;
+    if (cliArgs.role) payload.role = cliArgs.role;
+    if (cliArgs.summary) payload.summary = cliArgs.summary;
+    if (cliArgs.alias !== undefined) payload.aliases = splitList(cliArgs.alias);
+    if (!payload.name) {
+      console.error('Error: Please provide the character name with --name (or via --json/--file).');
+      process.exit(1);
+    }
+    manager.addCharacter({ ...payload, id, name: payload.name });
+    console.log(Locale.get('storyCharacterAdded', config.language, { id }));
+  } catch (error) {
+    const err = error as Error;
+    const lang = config ? config.language : 'tr';
+    console.error(Locale.get('cliErrorFailedStoryCommand', lang), err.message);
+    process.exit(1);
+  }
+}
+
+function handleUpdateCharacter(cliArgs: CliArgs): void {
+  const id = cliArgs.positionals[0];
+  if (!id) {
+    console.error(
+      'Error: Please specify a character id, e.g.: bitig update:character aylin --role antagonist'
+    );
+    process.exit(1);
+  }
+
+  let config: BookConfig | undefined;
+  try {
+    config = loadConfig(cliArgs.config);
+    const manager = new CharacterManager(storyPathsFor(config).characters);
+    const patch = readJsonPayload(cliArgs) as Partial<CharacterData>;
+    if (cliArgs.name) patch.name = cliArgs.name;
+    if (cliArgs.role) patch.role = cliArgs.role;
+    if (cliArgs.summary) patch.summary = cliArgs.summary;
+    if (cliArgs.alias !== undefined) patch.aliases = splitList(cliArgs.alias);
+    if (Object.keys(patch).length === 0) {
+      console.error(
+        'Error: Please provide at least one field to update (--name, --role, --summary, --alias, --json, --file).'
+      );
+      process.exit(1);
+    }
+    manager.updateCharacter(id, patch);
+    console.log(Locale.get('storyCharacterUpdated', config.language, { id }));
+  } catch (error) {
+    const err = error as Error;
+    const lang = config ? config.language : 'tr';
+    console.error(Locale.get('cliErrorFailedStoryCommand', lang), err.message);
+    process.exit(1);
+  }
+}
+
+function handleDeleteCharacter(cliArgs: CliArgs): void {
+  const id = cliArgs.positionals[0];
+  if (!id) {
+    console.error('Error: Please specify a character id, e.g.: bitig delete:character aylin');
+    process.exit(1);
+  }
+
+  let config: BookConfig | undefined;
+  try {
+    config = loadConfig(cliArgs.config);
+    const manager = new CharacterManager(storyPathsFor(config).characters);
+    manager.removeCharacter(id);
+    console.log(Locale.get('storyCharacterDeleted', config.language, { id }));
+  } catch (error) {
+    const err = error as Error;
+    const lang = config ? config.language : 'tr';
+    console.error(Locale.get('cliErrorFailedStoryCommand', lang), err.message);
+    process.exit(1);
+  }
+}
+
+function handleListCharacters(cliArgs: CliArgs): void {
+  let config: BookConfig | undefined;
+  try {
+    config = loadConfig(cliArgs.config);
+    const lang = config.language;
+    const manager = new CharacterManager(storyPathsFor(config).characters);
+
+    const id = cliArgs.positionals[0];
+    if (id) {
+      const character = manager.getCharacter(id);
+      if (!character) {
+        throw new Error(`Character with id "${id}" not found.`);
+      }
+      console.log(JSON.stringify(character, null, 2));
+      return;
+    }
+
+    const characters = manager.listCharacters();
+    if (characters.length === 0) {
+      console.log(Locale.get('storyListEmpty', lang));
+      return;
+    }
+
+    printAsciiTable(
+      [
+        Locale.get('storyTableId', lang),
+        Locale.get('storyTableName', lang),
+        Locale.get('storyTableRole', lang),
+        Locale.get('contextStoryFirstAppearanceLabel', lang)
+      ],
+      [22, 26, 16, 16],
+      characters.map((c) => [c.id, c.name, c.role || '', c.firstAppearance || ''])
+    );
+  } catch (error) {
+    const err = error as Error;
+    const lang = config ? config.language : 'tr';
+    console.error(Locale.get('cliErrorFailedStoryCommand', lang), err.message);
+    process.exit(1);
+  }
+}
+
+function handleAddEvent(cliArgs: CliArgs): void {
+  const id = cliArgs.positionals[0];
+  if (!id) {
+    console.error(
+      'Error: Please specify an event id, e.g.: bitig add:event ev-crash --title "The crash" --coords 1.2'
+    );
+    process.exit(1);
+  }
+
+  let config: BookConfig | undefined;
+  try {
+    config = loadConfig(cliArgs.config);
+    const manager = new PlotManager(storyPathsFor(config).plot);
+    const payload = readJsonPayload(cliArgs) as Partial<PlotEvent>;
+    if (cliArgs.title) payload.title = cliArgs.title;
+    if (cliArgs.summary) payload.summary = cliArgs.summary;
+    if (cliArgs.date !== undefined) payload.date = cliArgs.date;
+    if (cliArgs.order !== undefined) payload.order = cliArgs.order;
+    if (cliArgs.type) payload.type = cliArgs.type as PlotEvent['type'];
+    if (cliArgs.coords !== undefined) payload.coords = splitList(cliArgs.coords);
+    if (cliArgs.characters !== undefined) payload.characterIds = splitList(cliArgs.characters);
+    if (cliArgs.places !== undefined) payload.placeIds = splitList(cliArgs.places);
+    if (cliArgs.threads !== undefined) payload.threadIds = splitList(cliArgs.threads);
+    if (!payload.title) {
+      console.error('Error: Please provide the event title with --title (or via --json/--file).');
+      process.exit(1);
+    }
+    manager.addEvent({ ...payload, id, title: payload.title });
+    console.log(Locale.get('storyEventAdded', config.language, { id }));
+  } catch (error) {
+    const err = error as Error;
+    const lang = config ? config.language : 'tr';
+    console.error(Locale.get('cliErrorFailedStoryCommand', lang), err.message);
+    process.exit(1);
+  }
+}
+
+function handleUpdateEvent(cliArgs: CliArgs): void {
+  const id = cliArgs.positionals[0];
+  if (!id) {
+    console.error(
+      'Error: Please specify an event id, e.g.: bitig update:event ev-crash --order 20'
+    );
+    process.exit(1);
+  }
+
+  let config: BookConfig | undefined;
+  try {
+    config = loadConfig(cliArgs.config);
+    const manager = new PlotManager(storyPathsFor(config).plot);
+    const patch = readJsonPayload(cliArgs) as Partial<PlotEvent>;
+    if (cliArgs.title) patch.title = cliArgs.title;
+    if (cliArgs.summary) patch.summary = cliArgs.summary;
+    if (cliArgs.date !== undefined) patch.date = cliArgs.date;
+    if (cliArgs.order !== undefined) patch.order = cliArgs.order;
+    if (cliArgs.type) patch.type = cliArgs.type as PlotEvent['type'];
+    if (cliArgs.coords !== undefined) patch.coords = splitList(cliArgs.coords);
+    if (cliArgs.characters !== undefined) patch.characterIds = splitList(cliArgs.characters);
+    if (cliArgs.places !== undefined) patch.placeIds = splitList(cliArgs.places);
+    if (cliArgs.threads !== undefined) patch.threadIds = splitList(cliArgs.threads);
+    if (Object.keys(patch).length === 0) {
+      console.error('Error: Please provide at least one field to update.');
+      process.exit(1);
+    }
+    manager.updateEvent(id, patch);
+    console.log(Locale.get('storyEventUpdated', config.language, { id }));
+  } catch (error) {
+    const err = error as Error;
+    const lang = config ? config.language : 'tr';
+    console.error(Locale.get('cliErrorFailedStoryCommand', lang), err.message);
+    process.exit(1);
+  }
+}
+
+function handleDeleteEvent(cliArgs: CliArgs): void {
+  const id = cliArgs.positionals[0];
+  if (!id) {
+    console.error('Error: Please specify an event id, e.g.: bitig delete:event ev-crash');
+    process.exit(1);
+  }
+
+  let config: BookConfig | undefined;
+  try {
+    config = loadConfig(cliArgs.config);
+    const manager = new PlotManager(storyPathsFor(config).plot);
+    manager.removeEvent(id);
+    console.log(Locale.get('storyEventDeleted', config.language, { id }));
+  } catch (error) {
+    const err = error as Error;
+    const lang = config ? config.language : 'tr';
+    console.error(Locale.get('cliErrorFailedStoryCommand', lang), err.message);
+    process.exit(1);
+  }
+}
+
+function handleListEvents(cliArgs: CliArgs): void {
+  let config: BookConfig | undefined;
+  try {
+    config = loadConfig(cliArgs.config);
+    const lang = config.language;
+    const manager = new PlotManager(storyPathsFor(config).plot);
+
+    const events = manager.listEvents({
+      threadId: cliArgs.thread,
+      characterId: cliArgs.character,
+      coords: cliArgs.coords
+    });
+    if (events.length === 0) {
+      console.log(Locale.get('storyListEmpty', lang));
+      return;
+    }
+
+    printAsciiTable(
+      [
+        Locale.get('storyTableId', lang),
+        Locale.get('storyTableTitle', lang),
+        Locale.get('storyTableOrder', lang),
+        Locale.get('storyTableDate', lang),
+        Locale.get('storyTableChapters', lang)
+      ],
+      [22, 30, 8, 14, 14],
+      events.map((e) => [
+        e.id,
+        e.title,
+        e.order !== undefined ? e.order : '',
+        e.date || '',
+        (e.coords || []).join(', ')
+      ])
+    );
+  } catch (error) {
+    const err = error as Error;
+    const lang = config ? config.language : 'tr';
+    console.error(Locale.get('cliErrorFailedStoryCommand', lang), err.message);
+    process.exit(1);
+  }
+}
+
+function handleAddThread(cliArgs: CliArgs): void {
+  const id = cliArgs.positionals[0];
+  if (!id) {
+    console.error(
+      'Error: Please specify a thread id, e.g.: bitig add:thread missing-brother --title "The search"'
+    );
+    process.exit(1);
+  }
+
+  let config: BookConfig | undefined;
+  try {
+    config = loadConfig(cliArgs.config);
+    const manager = new PlotManager(storyPathsFor(config).plot);
+    const payload = readJsonPayload(cliArgs) as Partial<PlotThread>;
+    if (cliArgs.title) payload.title = cliArgs.title;
+    if (cliArgs.summary) payload.summary = cliArgs.summary;
+    if (cliArgs.status) payload.status = cliArgs.status as PlotThread['status'];
+    if (cliArgs.coords !== undefined) payload.introducedIn = cliArgs.coords;
+    if (!payload.title) {
+      console.error('Error: Please provide the thread title with --title (or via --json/--file).');
+      process.exit(1);
+    }
+    manager.addThread({ ...payload, id, title: payload.title });
+    console.log(Locale.get('storyThreadAdded', config.language, { id }));
+  } catch (error) {
+    const err = error as Error;
+    const lang = config ? config.language : 'tr';
+    console.error(Locale.get('cliErrorFailedStoryCommand', lang), err.message);
+    process.exit(1);
+  }
+}
+
+function handleUpdateThread(cliArgs: CliArgs): void {
+  const id = cliArgs.positionals[0];
+  if (!id) {
+    console.error(
+      'Error: Please specify a thread id, e.g.: bitig update:thread missing-brother --status resolved --coords 3.4'
+    );
+    process.exit(1);
+  }
+
+  let config: BookConfig | undefined;
+  try {
+    config = loadConfig(cliArgs.config);
+    const manager = new PlotManager(storyPathsFor(config).plot);
+    const patch = readJsonPayload(cliArgs) as Partial<PlotThread>;
+    if (cliArgs.title) patch.title = cliArgs.title;
+    if (cliArgs.summary) patch.summary = cliArgs.summary;
+    if (cliArgs.status) patch.status = cliArgs.status as PlotThread['status'];
+    if (cliArgs.coords !== undefined) patch.resolutionCoords = cliArgs.coords;
+    if (Object.keys(patch).length === 0) {
+      console.error('Error: Please provide at least one field to update.');
+      process.exit(1);
+    }
+    manager.updateThread(id, patch);
+    console.log(Locale.get('storyThreadUpdated', config.language, { id }));
+  } catch (error) {
+    const err = error as Error;
+    const lang = config ? config.language : 'tr';
+    console.error(Locale.get('cliErrorFailedStoryCommand', lang), err.message);
+    process.exit(1);
+  }
+}
+
+function handleDeleteThread(cliArgs: CliArgs): void {
+  const id = cliArgs.positionals[0];
+  if (!id) {
+    console.error('Error: Please specify a thread id, e.g.: bitig delete:thread missing-brother');
+    process.exit(1);
+  }
+
+  let config: BookConfig | undefined;
+  try {
+    config = loadConfig(cliArgs.config);
+    const manager = new PlotManager(storyPathsFor(config).plot);
+    manager.removeThread(id);
+    console.log(Locale.get('storyThreadDeleted', config.language, { id }));
+  } catch (error) {
+    const err = error as Error;
+    const lang = config ? config.language : 'tr';
+    console.error(Locale.get('cliErrorFailedStoryCommand', lang), err.message);
+    process.exit(1);
+  }
+}
+
+function handleListThreads(cliArgs: CliArgs): void {
+  let config: BookConfig | undefined;
+  try {
+    config = loadConfig(cliArgs.config);
+    const lang = config.language;
+    const manager = new PlotManager(storyPathsFor(config).plot);
+
+    const threads = manager.listThreads();
+    if (threads.length === 0) {
+      console.log(Locale.get('storyListEmpty', lang));
+      return;
+    }
+
+    printAsciiTable(
+      [
+        Locale.get('storyTableId', lang),
+        Locale.get('storyTableTitle', lang),
+        Locale.get('storyTableStatus', lang),
+        Locale.get('contextStoryIntroducedInLabel', lang)
+      ],
+      [22, 32, 12, 18],
+      threads.map((t) => [t.id, t.title, t.status || 'open', t.introducedIn || ''])
+    );
+  } catch (error) {
+    const err = error as Error;
+    const lang = config ? config.language : 'tr';
+    console.error(Locale.get('cliErrorFailedStoryCommand', lang), err.message);
+    process.exit(1);
+  }
+}
+
+function handleAddWorld(cliArgs: CliArgs): void {
+  const categoryArg = cliArgs.positionals[0];
+  const id = cliArgs.positionals[1];
+  if (!categoryArg || !id) {
+    console.error(
+      'Error: Please specify a category and id, e.g.: bitig add:world place haydarpasa --name "Haydarpaşa Station"'
+    );
+    process.exit(1);
+  }
+
+  let config: BookConfig | undefined;
+  try {
+    config = loadConfig(cliArgs.config);
+    const manager = new WorldManager(storyPathsFor(config).world);
+    const category = manager.normalizeCategory(categoryArg);
+    const payload = readJsonPayload(cliArgs) as Partial<WorldEntry> & Record<string, unknown>;
+
+    const labelField = WorldManager.labelFieldOf(category);
+    const label = cliArgs.name || cliArgs.title;
+    if (label) payload[labelField] = label;
+    if (cliArgs.type) payload.type = cliArgs.type;
+    if (cliArgs.alias !== undefined) payload.aliases = splitList(cliArgs.alias);
+    if (cliArgs.summary) {
+      payload[category === 'lore' ? 'definition' : 'description'] = cliArgs.summary;
+    }
+
+    manager.addEntry(category, { ...payload, id });
+    console.log(Locale.get('storyWorldAdded', config.language, { id, category }));
+  } catch (error) {
+    const err = error as Error;
+    const lang = config ? config.language : 'tr';
+    console.error(Locale.get('cliErrorFailedStoryCommand', lang), err.message);
+    process.exit(1);
+  }
+}
+
+function handleUpdateWorld(cliArgs: CliArgs): void {
+  const categoryArg = cliArgs.positionals[0];
+  const id = cliArgs.positionals[1];
+  if (!categoryArg || !id) {
+    console.error(
+      'Error: Please specify a category and id, e.g.: bitig update:world place haydarpasa --name "New Name"'
+    );
+    process.exit(1);
+  }
+
+  let config: BookConfig | undefined;
+  try {
+    config = loadConfig(cliArgs.config);
+    const manager = new WorldManager(storyPathsFor(config).world);
+    const category = manager.normalizeCategory(categoryArg);
+    const patch = readJsonPayload(cliArgs) as Partial<WorldEntry> & Record<string, unknown>;
+
+    const labelField = WorldManager.labelFieldOf(category);
+    const label = cliArgs.name || cliArgs.title;
+    if (label) patch[labelField] = label;
+    if (cliArgs.type) patch.type = cliArgs.type;
+    if (cliArgs.alias !== undefined) patch.aliases = splitList(cliArgs.alias);
+    if (cliArgs.summary) {
+      patch[category === 'lore' ? 'definition' : 'description'] = cliArgs.summary;
+    }
+    if (Object.keys(patch).length === 0) {
+      console.error('Error: Please provide at least one field to update.');
+      process.exit(1);
+    }
+
+    manager.updateEntry(category, id, patch);
+    console.log(Locale.get('storyWorldUpdated', config.language, { id, category }));
+  } catch (error) {
+    const err = error as Error;
+    const lang = config ? config.language : 'tr';
+    console.error(Locale.get('cliErrorFailedStoryCommand', lang), err.message);
+    process.exit(1);
+  }
+}
+
+function handleDeleteWorld(cliArgs: CliArgs): void {
+  const categoryArg = cliArgs.positionals[0];
+  const id = cliArgs.positionals[1];
+  if (!categoryArg || !id) {
+    console.error(
+      'Error: Please specify a category and id, e.g.: bitig delete:world place haydarpasa'
+    );
+    process.exit(1);
+  }
+
+  let config: BookConfig | undefined;
+  try {
+    config = loadConfig(cliArgs.config);
+    const manager = new WorldManager(storyPathsFor(config).world);
+    const category = manager.normalizeCategory(categoryArg);
+    manager.removeEntry(category, id);
+    console.log(Locale.get('storyWorldDeleted', config.language, { id, category }));
+  } catch (error) {
+    const err = error as Error;
+    const lang = config ? config.language : 'tr';
+    console.error(Locale.get('cliErrorFailedStoryCommand', lang), err.message);
+    process.exit(1);
+  }
+}
+
+function handleListWorld(cliArgs: CliArgs): void {
+  let config: BookConfig | undefined;
+  try {
+    config = loadConfig(cliArgs.config);
+    const lang = config.language;
+    const manager = new WorldManager(storyPathsFor(config).world);
+
+    const categoryArg = cliArgs.positionals[0];
+    const category = categoryArg ? manager.normalizeCategory(categoryArg) : undefined;
+
+    const entries = manager.listEntries(category);
+    if (entries.length === 0) {
+      console.log(Locale.get('storyListEmpty', lang));
+      return;
+    }
+
+    printAsciiTable(
+      [
+        Locale.get('storyTableId', lang),
+        Locale.get('storyTableName', lang),
+        Locale.get('storyTableCategory', lang)
+      ],
+      [22, 32, 16],
+      entries.map(({ category: cat, entry }) => [
+        entry.id,
+        WorldManager.displayNameOf(cat, entry),
+        cat
+      ])
+    );
+  } catch (error) {
+    const err = error as Error;
+    const lang = config ? config.language : 'tr';
+    console.error(Locale.get('cliErrorFailedStoryCommand', lang), err.message);
     process.exit(1);
   }
 }

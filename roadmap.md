@@ -50,13 +50,15 @@ This document outlines the planned feature roadmap for the **Bitig** book compil
   - Allow writing assistants to programmatically append "lessons learned", user preferences, or characters' tone details.
   - Enrich the `bitig context <coords>` command to automatically inject past notes, feedback history, and context-specific rules into the RAG prompt package.
 
-### 6. Fiction & Narrative Planning Tools
+### [COMPLETED] 6. Fiction & Narrative Planning Tools
 
 - **Objective**: Provide structured database models for managing plot structures and character arcs, targeted at creative writing and novels.
 - **Details**:
-  - Support defining character profiles (e.g., attributes, relationships, descriptions) inside a structured database file (`assets/characters.json`).
-  - Support plot outlines, timelines, and narrative constraints inside `assets/plot.json`.
-  - Include character details and event outlines inside the AI agent prompt package (`bitig context`) to help writing agents avoid narrative contradictions and maintain character consistency.
+  - Character profiles (attributes, relationships, arcs, speech styles) live in a structured database file (`assets/characters.json`) managed via `bitig add:character` / `update:character` / `delete:character` / `list:characters`.
+  - Plot threads and a chronological event timeline live in `assets/plot.json` (`add:event`, `add:thread`, `list:events`, ...); world building data (places, organizations, species, technologies, rules, lore dictionary) lives in `assets/world.json` (`add:world`, ...).
+  - `bitig context <coords>` automatically injects a relevance-filtered STORY BIBLE block (character cards, timeline neighborhood, open threads, world rules) into the RAG prompt package (`--story <layers>` to filter).
+  - `bitig check` validates story consistency: dangling id references, unknown chapter coordinates, timeline date/order conflicts, birth/death date contradictions, non-reciprocal relationships, unused entities, and an opt-in unregistered-name scan (`--story-names`).
+  - Scaffolding via `bitig story:init` or `bitig init --fiction`; workflow documented in `bitig story:guide`.
 
 ### 7. Advanced Cover Design System (Research & Implementation)
 
@@ -78,3 +80,36 @@ This document outlines the planned feature roadmap for the **Bitig** book compil
 - **Details**:
   - Allow defining a `profile` key in `book.json` (e.g., `"profile": "novel"` or `"profile": "academic-article"`) that automatically configures visual templates, styling rules, page dimensions, and page numbering conventions.
   - Maintain a clean, minimal root configuration schema where custom parameters can still override profile defaults.
+
+### 10. Local Prose Analytics & Writing Goals
+
+- **Objective**: Deterministic, LLM-free manuscript metrics and progress tracking.
+- **Details**:
+  - `bitig analyze:prose [<coords>]`: repeated-word frequency (language-aware stopword lists), sentence-length distribution, dialogue/narration ratio, approximate readability scoring.
+  - Writing goals in `book.json` (`goals` block: total words, per-chapter min/max, daily words) surfaced by `bitig stats --goals` with completion bars and a `progress.json` daily word log.
+
+### 11. Smart Context Task Modes
+
+- **Objective**: Task-specific instruction blocks for the context pack — the facilitator answer to "continue/rewrite this chapter".
+- **Details**:
+  - `bitig context <coords> --task continue|rewrite|summarize|expand|dialogue|style-transform` swaps the instruction block and adjusts included content per task.
+
+### 12. AI Review Suite: Continuity, Style & Plot Holes
+
+- **Objective**: Facilitator-pattern review loops (clone of the `analyze:*` triple) grounded in the story bible data.
+- **Details**:
+  - `bitig review:context <coords>|all --type continuity|style|plotholes` packages character cards, chronology, world rules, open threads, and Chekhov's-gun instructions with a strict JSON findings schema.
+  - `bitig review:report --file findings.json` validates, renders an ASCII findings table, and logs under `diagnostics/`.
+
+### 13. Multi-Agent Editor Pipeline
+
+- **Objective**: A documented, trackable six-role editorial workflow (Chapter Review, Continuity, Style, Proofreader, Fact Checker, Final Editor) with zero API calls.
+- **Details**:
+  - `bitig pipeline:init` (role definitions in `pipeline.json`), `pipeline:status` (per-chapter checklist from diagnostics logs), `pipeline:next` (next role's exact command + packaged context).
+
+### 14. Publishing Outputs: Kindle EPUB Validation & Print-Ready PDF
+
+- **Objective**: Submission-grade outputs. Amazon deprecated MOBI; KDP ingests EPUB 3, so Kindle support means a validated, Kindle-safe EPUB profile.
+- **Details**:
+  - Zero-dependency structural EPUB pre-flight validation (`bitig check:epub`) as a companion to external epubcheck.
+  - `bitig build --profile kindle|print`: KDP trim sizes, mirrored margins/gutter, widow/orphan control (print), Kindle-safe CSS/font policies (kindle). Implements the config plumbing for roadmap item 9's `profile` key.

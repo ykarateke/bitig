@@ -3,6 +3,10 @@ import { BookCompiler } from './BookCompiler';
 import { Chapter } from './Chapter';
 import { Locale } from './Locale';
 import { MemoryManager } from './MemoryManager';
+import { CharacterManager } from './CharacterManager';
+import { PlotManager } from './PlotManager';
+import { WorldManager } from './WorldManager';
+import { StoryContextBuilder } from './StoryContextBuilder';
 
 export class ContextPackager {
   public compiler: BookCompiler;
@@ -22,7 +26,8 @@ export class ContextPackager {
   public packageContextFor(
     sectionNum: number,
     chapterNum: number,
-    activeMemoryLayers: string[] = ['global', 'section', 'chapter']
+    activeMemoryLayers: string[] = ['global', 'section', 'chapter'],
+    activeStoryLayers: string[] = ['characters', 'plot', 'world']
   ): string {
     // Ensure files are loaded
     this.compiler.scanAndLoad();
@@ -94,6 +99,29 @@ export class ContextPackager {
         memoryBlock = `${formatted}\n`;
       }
     }
+
+    let storyBlock = '';
+    if (activeStoryLayers.length > 0) {
+      const assetsDir = this.compiler.config.assetsDir;
+      const characterManager = new CharacterManager(path.join(assetsDir, 'characters.json'));
+      const plotManager = new PlotManager(path.join(assetsDir, 'plot.json'));
+      const worldManager = new WorldManager(path.join(assetsDir, 'world.json'));
+      const storyBuilder = new StoryContextBuilder(characterManager, plotManager, worldManager);
+      const formatted = storyBuilder.buildStoryBlock({
+        sectionNum,
+        chapterNum,
+        targetText: targetChapter.rawContent,
+        precedingText: prevChapter ? prevChapter.rawContent : '',
+        precedingCoords: prevChapter
+          ? `${prevChapter.sectionNum}.${prevChapter.chapterNum}`
+          : undefined,
+        activeLayers: activeStoryLayers,
+        language: lang
+      });
+      if (formatted) {
+        storyBlock = `${formatted}\n`;
+      }
+    }
     const styleTheme = this.compiler.config.theme;
 
     const metadataHeader = Locale.get('contextMetadataHeader', lang);
@@ -156,7 +184,7 @@ ${Locale.get('contextStructureIntro', lang)}
 ${synopsesText}
 
 ---
-${memoryBlock}${guidelinesHeader}
+${memoryBlock}${storyBlock}${guidelinesHeader}
 ${Locale.get('contextGuidelinesIntro', lang)}
 ${citationsText}
 
@@ -175,7 +203,7 @@ ${targetText}
 ${Locale.get('contextInstruction1', lang)}
 ${Locale.get('contextInstruction2', lang)}
 ${Locale.get('contextInstruction3', lang)}
-${Locale.get('contextInstruction4', lang)}
+${Locale.get('contextInstruction4', lang)}${storyBlock ? `\n${Locale.get('contextInstruction5', lang)}` : ''}
 `;
 
     return context.trim();

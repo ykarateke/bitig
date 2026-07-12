@@ -1,3 +1,6 @@
+import * as fs from 'fs';
+import * as os from 'os';
+import * as path from 'path';
 import { ContextPackager } from '../src/ContextPackager';
 import { BookCompiler } from '../src/BookCompiler';
 import { BookConfig } from '../src/BookConfig';
@@ -140,5 +143,88 @@ describe('ContextPackager', () => {
     expect(result).toContain('No citations defined.');
     expect(result).toContain('No preceding chapter exists.');
     expect(result).toContain('The target chapter is currently empty.');
+  });
+
+  describe('story bible integration', () => {
+    const buildCompiler = (assetsDir: string): BookCompiler => {
+      const config = new BookConfig({
+        title: 'Story Book',
+        assetsDir,
+        distDir: './dist',
+        language: 'en'
+      });
+      const compiler = new BookCompiler(config);
+      jest.spyOn(compiler, 'scanAndLoad').mockImplementation(() => {});
+
+      const section = new Section(1, 'S1');
+      const chapter1 = new Chapter(path.join(assetsDir, 'section-1/1.1.md'), assetsDir);
+      chapter1.title = 'Opening';
+      chapter1.rawContent = 'Aylin Demir looked at the sea.';
+      const chapter2 = new Chapter(path.join(assetsDir, 'section-1/1.2.md'), assetsDir);
+      chapter2.title = 'Target';
+      chapter2.rawContent = 'The target chapter content.';
+      section.addChapter(chapter1);
+      section.addChapter(chapter2);
+      compiler.sections = [section];
+      compiler.metadataGenerator = new AgentMetadataGenerator(config, compiler.sections);
+      return compiler;
+    };
+
+    let tempDir: string;
+
+    beforeEach(() => {
+      tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'bitig-story-'));
+    });
+
+    afterEach(() => {
+      fs.rmSync(tempDir, { recursive: true, force: true });
+    });
+
+    it('should produce identical output with and without story layers when no story files exist', () => {
+      const packager = new ContextPackager(buildCompiler(tempDir));
+
+      const withDefaults = packager.packageContextFor(1, 2);
+      const withoutStory = packager.packageContextFor(1, 2, ['global', 'section', 'chapter'], []);
+
+      expect(withDefaults).toBe(withoutStory);
+      expect(withDefaults).not.toContain('STORY BIBLE');
+    });
+
+    it('should inject the story bible block when story files exist', () => {
+      fs.writeFileSync(
+        path.join(tempDir, 'characters.json'),
+        JSON.stringify({
+          version: 1,
+          characters: [
+            { id: 'aylin', name: 'Aylin Demir', role: 'protagonist', summary: 'The lead.' }
+          ]
+        }),
+        'utf8'
+      );
+
+      const packager = new ContextPackager(buildCompiler(tempDir));
+      const result = packager.packageContextFor(1, 2);
+
+      expect(result).toContain('## 📖 STORY BIBLE');
+      expect(result).toContain('#### Aylin Demir (`aylin`) — protagonist');
+      expect(result).toContain('bitig add:event');
+    });
+
+    it('should omit the story bible block when story layers are disabled', () => {
+      fs.writeFileSync(
+        path.join(tempDir, 'characters.json'),
+        JSON.stringify({
+          version: 1,
+          characters: [{ id: 'aylin', name: 'Aylin Demir' }]
+        }),
+        'utf8'
+      );
+
+      const packager = new ContextPackager(buildCompiler(tempDir));
+      const result = packager.packageContextFor(1, 2, ['global', 'section', 'chapter'], []);
+
+      expect(result).not.toContain('STORY BIBLE');
+      expect(result).not.toContain('bitig add:event');
+    });
   });
 });
