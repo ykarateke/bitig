@@ -35,6 +35,65 @@ export interface BookConfigData {
   publishDate?: string;
   copyright?: string;
   sectionHeaderStyle?: 'combined' | 'split' | 'title-only' | 'hidden';
+  goals?: WritingGoals;
+}
+
+export interface ChapterGoal {
+  min?: number;
+  max?: number;
+}
+
+export interface WritingGoals {
+  totalWords?: number;
+  dailyWords?: number;
+  perChapter?: Record<string, ChapterGoal>;
+}
+
+export interface ProgressLogEntry {
+  date: string;
+  totalWords: number;
+}
+
+export interface ProgressData {
+  version: number;
+  log: ProgressLogEntry[];
+}
+
+export interface SentenceDistribution {
+  short: number;
+  medium: number;
+  long: number;
+  longest: number;
+}
+
+export interface RepeatedWord {
+  word: string;
+  count: number;
+}
+
+export interface DialogueStats {
+  dialogueLines: number;
+  narrationLines: number;
+  dialogueRatio: number;
+}
+
+export interface ReadabilityResult {
+  score: number;
+  label: string;
+  formula: string;
+}
+
+export interface ProseAnalysis {
+  coords: string | null;
+  wordCount: number;
+  sentenceCount: number;
+  avgSentenceLength: number;
+  avgSyllablesPerWord: number;
+  distribution: SentenceDistribution;
+  longSentenceCount: number;
+  repeatedWords: RepeatedWord[];
+  dialogue: DialogueStats;
+  readability: ReadabilityResult;
 }
 
 export interface SpecialFiles {

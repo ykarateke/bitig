@@ -263,4 +263,74 @@ describe('Bitig CLI Integration Tests', () => {
       expect(guideOutput).toContain('add:character');
     });
   });
+
+  describe('prose analytics and writing goals', () => {
+    it('should analyze prose for a chapter and for the whole book', () => {
+      execSync(`node ${cliPath} init`, { cwd: tempDir });
+
+      const chapterOutput = execSync(`node ${cliPath} analyze:prose 1.1`, {
+        cwd: tempDir,
+        encoding: 'utf8'
+      });
+      expect(chapterOutput).toContain('METİN ANALİZ RAPORU: 1.1');
+      expect(chapterOutput).toContain('Okunabilirlik (Ateşman, yaklaşık)');
+      expect(chapterOutput).toContain('Kelime:');
+
+      const bookOutput = execSync(`node ${cliPath} analyze:prose`, {
+        cwd: tempDir,
+        encoding: 'utf8'
+      });
+      expect(bookOutput).toContain('METİN ANALİZ RAPORU: Tüm Kitap');
+
+      const jsonOutput = execSync(`node ${cliPath} analyze:prose 1.1 --json`, {
+        cwd: tempDir,
+        encoding: 'utf8'
+      });
+      const parsed = JSON.parse(jsonOutput);
+      expect(parsed.coords).toBe('1.1');
+      expect(parsed.wordCount).toBeGreaterThan(0);
+      expect(parsed.readability.formula).toBe('Ateşman');
+    });
+
+    it('should set goals, render the goals report, and log progress', () => {
+      execSync(`node ${cliPath} init`, { cwd: tempDir });
+
+      execSync(`node ${cliPath} goals:set --total 500 --daily 100`, { cwd: tempDir });
+      execSync(`node ${cliPath} goals:set --chapter 1.1 --min 5 --max 500`, { cwd: tempDir });
+
+      const config = JSON.parse(fs.readFileSync(path.join(tempDir, 'book.json'), 'utf8'));
+      expect(config.goals.totalWords).toBe(500);
+      expect(config.goals.dailyWords).toBe(100);
+      expect(config.goals.perChapter['1.1']).toEqual({ min: 5, max: 500 });
+
+      const statsOutput = execSync(`node ${cliPath} stats --goals`, {
+        cwd: tempDir,
+        encoding: 'utf8'
+      });
+      expect(statsOutput).toContain('[Yazım Hedefleri]');
+      expect(statsOutput).toContain('Toplam Kelime Hedefi');
+      expect(statsOutput).toContain('%');
+      expect(statsOutput).toContain('✔ 1.1:');
+
+      const progress = JSON.parse(fs.readFileSync(path.join(tempDir, 'progress.json'), 'utf8'));
+      expect(progress.log).toHaveLength(1);
+      expect(progress.log[0].totalWords).toBeGreaterThan(0);
+
+      // Build (without PDF) should refresh the same-day snapshot
+      execSync(`node ${cliPath} build --no-pdf --no-epub`, { cwd: tempDir });
+      const progressAfterBuild = JSON.parse(
+        fs.readFileSync(path.join(tempDir, 'progress.json'), 'utf8')
+      );
+      expect(progressAfterBuild.log).toHaveLength(1);
+    });
+
+    it('should report missing goals block gracefully', () => {
+      execSync(`node ${cliPath} init`, { cwd: tempDir });
+      const statsOutput = execSync(`node ${cliPath} stats --goals`, {
+        cwd: tempDir,
+        encoding: 'utf8'
+      });
+      expect(statsOutput).toContain('"goals" bloğu tanımlı değil');
+    });
+  });
 });

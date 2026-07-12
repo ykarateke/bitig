@@ -18,7 +18,9 @@ import { CharacterManager } from './CharacterManager';
 import { PlotManager } from './PlotManager';
 import { WorldManager } from './WorldManager';
 import { StoryLinter } from './StoryLinter';
-import { CharacterData, PlotEvent, PlotThread, WorldEntry } from './types';
+import { ProseAnalyzer } from './ProseAnalyzer';
+import { GoalTracker } from './GoalTracker';
+import { CharacterData, PlotEvent, PlotThread, WorldEntry, WritingGoals } from './types';
 
 interface CliArgs {
   command?: string;
@@ -66,6 +68,14 @@ interface CliArgs {
   story?: string;
   storyNames?: boolean;
   fiction?: boolean;
+  top?: number;
+  goals?: boolean;
+  jsonOutput?: boolean;
+  total?: number;
+  daily?: number;
+  min?: number;
+  max?: number;
+  chapter?: string;
 }
 
 const args = process.argv.slice(2);
@@ -155,6 +165,12 @@ switch (command) {
     break;
   case 'analyze:report':
     handleAnalyzeReport(cliArgs);
+    break;
+  case 'analyze:prose':
+    handleAnalyzeProse(cliArgs);
+    break;
+  case 'goals:set':
+    handleGoalsSet(cliArgs);
     break;
   case 'capture':
   case 'screenshot':
@@ -510,11 +526,12 @@ function parseArgs(args: string[]): CliArgs {
         process.exit(1);
       }
     } else if (arg === '--json') {
-      if (i + 1 < args.length) {
+      // With a JSON payload it feeds entity fields (add:/update: commands);
+      // without one it switches the command output to machine-readable JSON.
+      if (i + 1 < args.length && /^[[{]/.test(args[i + 1])) {
         result.json = args[++i];
       } else {
-        console.error('Error: Option --json requires a value.');
-        process.exit(1);
+        result.jsonOutput = true;
       }
     } else if (arg === '--only') {
       if (i + 1 < args.length) {
@@ -536,6 +553,75 @@ function parseArgs(args: string[]): CliArgs {
       result.storyNames = true;
     } else if (arg === '--fiction') {
       result.fiction = true;
+    } else if (arg === '--goals') {
+      result.goals = true;
+    } else if (arg === '--top') {
+      if (i + 1 < args.length) {
+        const topVal = parseInt(args[++i], 10);
+        if (isNaN(topVal) || topVal <= 0) {
+          console.error('Error: Option --top requires a positive number.');
+          process.exit(1);
+        }
+        result.top = topVal;
+      } else {
+        console.error('Error: Option --top requires a value.');
+        process.exit(1);
+      }
+    } else if (arg === '--total') {
+      if (i + 1 < args.length) {
+        const totalVal = parseInt(args[++i], 10);
+        if (isNaN(totalVal) || totalVal < 0) {
+          console.error('Error: Option --total requires a non-negative number.');
+          process.exit(1);
+        }
+        result.total = totalVal;
+      } else {
+        console.error('Error: Option --total requires a value.');
+        process.exit(1);
+      }
+    } else if (arg === '--daily') {
+      if (i + 1 < args.length) {
+        const dailyVal = parseInt(args[++i], 10);
+        if (isNaN(dailyVal) || dailyVal < 0) {
+          console.error('Error: Option --daily requires a non-negative number.');
+          process.exit(1);
+        }
+        result.daily = dailyVal;
+      } else {
+        console.error('Error: Option --daily requires a value.');
+        process.exit(1);
+      }
+    } else if (arg === '--min') {
+      if (i + 1 < args.length) {
+        const minVal = parseInt(args[++i], 10);
+        if (isNaN(minVal) || minVal < 0) {
+          console.error('Error: Option --min requires a non-negative number.');
+          process.exit(1);
+        }
+        result.min = minVal;
+      } else {
+        console.error('Error: Option --min requires a value.');
+        process.exit(1);
+      }
+    } else if (arg === '--max') {
+      if (i + 1 < args.length) {
+        const maxVal = parseInt(args[++i], 10);
+        if (isNaN(maxVal) || maxVal < 0) {
+          console.error('Error: Option --max requires a non-negative number.');
+          process.exit(1);
+        }
+        result.max = maxVal;
+      } else {
+        console.error('Error: Option --max requires a value.');
+        process.exit(1);
+      }
+    } else if (arg === '--chapter') {
+      if (i + 1 < args.length) {
+        result.chapter = args[++i];
+      } else {
+        console.error('Error: Option --chapter requires a value.');
+        process.exit(1);
+      }
     } else if (!arg.startsWith('-')) {
       result.positionals.push(arg);
     }
@@ -564,11 +650,13 @@ Commands:
   add:chapter <secNum>.<chapNum> Creates a template markdown file for the chapter.
   move:chapter <from> <to>       Moves and renames a chapter (e.g., bitig move:chapter 1.1 1.2).
   delete:chapter <sec>.<chap>    Deletes a chapter markdown file.
-  stats                          Prints progress analytics, word counts, and structure breakdown.
+  stats [--goals]                Prints progress analytics, word counts, structure, and writing goals.
   check                          Runs static diagnostics for broken links, syntax, and citation usage.
   analyze:init                   Initializes a quality guidelines schema (quality-guidelines.json).
   analyze:context <sec>.<chap>   Generates the diagnostic context block (manuscript + guidelines) for AI.
   analyze:report <sec>.<chap>    Formats and records the AI agent's JSON evaluation as a diagnostic report.
+  analyze:prose [<sec>.<chap>]   Local prose metrics: repeated words, sentence stats, dialogue ratio, readability.
+  goals:set                      Saves writing goals to book.json (--total, --daily, --chapter with --min/--max).
   context <sec>.<chap>           Generates a focused RAG/prompt package containing outlines and synopsis.
   learn <scope> [options]        Updates the persistent AI agent memory and feedback log.
   search <query>                 Searches the entire book for keywords or phrases.
@@ -658,6 +746,15 @@ Memory / Learning Options:
 
 Diagnostics / Quality Scoring Options:
   --file <path>                  Path to the temporary AI diagnostics JSON file for analyze:report.
+
+Prose Analytics & Goals Options:
+  --top <n>                      Number of repeated words to list for analyze:prose (default: 20).
+  --json                         Output analyze:prose results as machine-readable JSON.
+  --goals                        Append the writing-goals section to the stats report.
+  --total <words>                Set the total word goal (goals:set).
+  --daily <words>                Set the daily word goal (goals:set).
+  --chapter <sec>.<chap>         Target chapter for a per-chapter goal (goals:set, with --min/--max).
+  --min <words> / --max <words>  Per-chapter word range for --chapter (goals:set).
 
 Configuration Details:
   For a comprehensive reference on book.json structural and styling parameters (themes, custom fonts, page sizes, margins, colors, etc.), run:
@@ -831,6 +928,14 @@ async function handleBuild(cliArgs: CliArgs): Promise<void> {
     await compiler.writeOutputs();
 
     console.log(Locale.get('buildSuccess', lang));
+
+    // Log a daily word-count snapshot when writing goals are configured
+    if (config.rawConfig.goals && compiler.metadataGenerator) {
+      const metadata = JSON.parse(compiler.metadataGenerator.generateJSONMetadata());
+      const projectDir = path.dirname(config.assetsDir);
+      const tracker = new GoalTracker(path.join(projectDir, 'progress.json'));
+      tracker.recordSnapshot(metadata.stats.totalWords);
+    }
   } catch (error) {
     const err = error as Error;
     const lang = config ? config.language : 'tr';
@@ -1025,12 +1130,71 @@ ${Locale.get('statsStructureBreakdown', lang)}`);
         );
       });
     });
+
+    if (cliArgs.goals) {
+      printGoalsReport(config, metadata, lang);
+    }
+
     console.log('\n============================================================');
   } catch (error) {
     const err = error as Error;
     const lang = config ? config.language : 'tr';
     console.error(Locale.get('cliErrorFailedLoadStats', lang), err.message);
     process.exit(1);
+  }
+}
+
+/**
+ * Renders the writing-goals section of the stats report and records
+ * today's word-count snapshot into progress.json.
+ */
+function printGoalsReport(config: BookConfig, metadata: any, lang: string): void {
+  const goals = config.rawConfig.goals;
+  console.log(`\n${Locale.get('goalsSectionTitle', lang)}`);
+
+  if (!goals || (!goals.totalWords && !goals.dailyWords && !goals.perChapter)) {
+    console.log(Locale.get('goalsNoGoals', lang));
+    return;
+  }
+
+  const totalWords: number = metadata.stats.totalWords;
+  const projectDir = path.dirname(config.assetsDir);
+  const tracker = new GoalTracker(path.join(projectDir, 'progress.json'));
+  const snapshot = tracker.recordSnapshot(totalWords);
+
+  if (goals.totalWords) {
+    console.log(
+      `${Locale.get('goalsTotalLabel', lang)}: ${GoalTracker.renderBar(totalWords, goals.totalWords)}`
+    );
+  }
+
+  if (goals.dailyWords) {
+    console.log(
+      `${Locale.get('goalsDailyLabel', lang)}:  ${GoalTracker.renderBar(snapshot.wordsToday, goals.dailyWords)}`
+    );
+    if (snapshot.isBaseline) {
+      console.log(Locale.get('goalsBaselineNote', lang));
+    }
+  }
+
+  if (goals.perChapter && Object.keys(goals.perChapter).length > 0) {
+    console.log(`\n${Locale.get('goalsChapterHeader', lang)}:`);
+    const wordCounts = new Map<string, number>();
+    metadata.structure.forEach((sec: any) => {
+      sec.chapters.forEach((chap: any) => {
+        wordCounts.set(`${sec.sectionNum}.${chap.chapterNum}`, chap.wordCount);
+      });
+    });
+
+    GoalTracker.evaluateChapterGoals(goals, wordCounts).forEach((row) => {
+      const statusKey =
+        row.status === 'under' ? 'goalsUnder' : row.status === 'over' ? 'goalsOver' : 'goalsOk';
+      const badge = row.status === 'ok' ? '✔' : '⚠';
+      const range = `${row.goal.min ?? '-'}..${row.goal.max ?? '-'}`;
+      console.log(
+        `  ${badge} ${row.coords}: ${row.words} (${range}) — ${Locale.get(statusKey, lang)}`
+      );
+    });
   }
 }
 
@@ -2259,6 +2423,127 @@ function handleListWorld(cliArgs: CliArgs): void {
     const err = error as Error;
     const lang = config ? config.language : 'tr';
     console.error(Locale.get('cliErrorFailedStoryCommand', lang), err.message);
+    process.exit(1);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Prose Analytics & Writing Goals
+// ---------------------------------------------------------------------------
+
+/**
+ * Deterministic local prose metrics for a chapter or the whole book.
+ */
+function handleAnalyzeProse(cliArgs: CliArgs): void {
+  let config: BookConfig | undefined;
+  try {
+    config = loadConfig(cliArgs.config);
+    const lang = config.language;
+    const compiler = new BookCompiler(config);
+    const analyzer = new ProseAnalyzer(compiler);
+    const topN = cliArgs.top || 20;
+
+    const coords = cliArgs.positionals[0];
+    let analysis;
+    if (coords) {
+      const parts = coords.split('.');
+      const sectionNum = parseInt(parts[0], 10);
+      const chapterNum = parseInt(parts[1], 10);
+      if (isNaN(sectionNum) || isNaN(chapterNum)) {
+        console.error('Error: Invalid section/chapter format. Use e.g. 1.2');
+        process.exit(1);
+      }
+      analysis = analyzer.analyzeChapter(sectionNum, chapterNum, topN);
+    } else {
+      analysis = analyzer.analyzeBook(topN);
+    }
+
+    if (cliArgs.jsonOutput) {
+      console.log(JSON.stringify(analysis, null, 2));
+      return;
+    }
+
+    const target = analysis.coords || Locale.get('proseTargetBook', lang);
+    const dialoguePct = Math.round(analysis.dialogue.dialogueRatio * 100);
+
+    console.log(`
+============================================================
+${Locale.get('proseReportTitle', lang)}: ${target}
+============================================================
+${Locale.get('proseWords', lang)}: ${analysis.wordCount}
+${Locale.get('proseSentences', lang)}: ${analysis.sentenceCount}
+${Locale.get('proseAvgSentence', lang)}: ${analysis.avgSentenceLength}
+${Locale.get('proseAvgSyllables', lang)}: ${analysis.avgSyllablesPerWord}
+${Locale.get('proseDistribution', lang, {
+  short: analysis.distribution.short,
+  medium: analysis.distribution.medium,
+  long: analysis.distribution.long
+})}
+${Locale.get('proseLongest', lang)}: ${analysis.distribution.longest}
+${Locale.get('proseLongSentences', lang)}: ${analysis.longSentenceCount}
+${Locale.get('proseDialogue', lang)}: ${analysis.dialogue.dialogueLines} / ${analysis.dialogue.narrationLines} (%${dialoguePct})
+${Locale.get('proseReadability', lang, { formula: analysis.readability.formula })}: ${analysis.readability.score} (${analysis.readability.label})
+
+${Locale.get('proseRepeatedHeader', lang)}:`);
+
+    if (analysis.repeatedWords.length === 0) {
+      console.log(`  ${Locale.get('proseNoRepeats', lang)}`);
+    } else {
+      analysis.repeatedWords.forEach((entry) => {
+        console.log(`  ${entry.word.padEnd(24)} ${entry.count}`);
+      });
+    }
+
+    console.log(`\n${Locale.get('proseApproxNote', lang)}`);
+    console.log('============================================================');
+  } catch (error) {
+    const err = error as Error;
+    const lang = config ? config.language : 'tr';
+    console.error(Locale.get('cliErrorFailedLoadStats', lang), err.message);
+    process.exit(1);
+  }
+}
+
+/**
+ * Writes the goals block of book.json (total/daily/per-chapter word goals).
+ */
+function handleGoalsSet(cliArgs: CliArgs): void {
+  const hasChapterGoal = cliArgs.chapter !== undefined;
+  if (cliArgs.total === undefined && cliArgs.daily === undefined && !hasChapterGoal) {
+    console.error(
+      'Error: Please specify at least one goal: --total <words>, --daily <words>, or --chapter <coords> --min <words> [--max <words>].'
+    );
+    process.exit(1);
+  }
+  if (hasChapterGoal && cliArgs.min === undefined && cliArgs.max === undefined) {
+    console.error('Error: Option --chapter requires --min and/or --max.');
+    process.exit(1);
+  }
+
+  let config: BookConfig | undefined;
+  try {
+    config = loadConfig(cliArgs.config);
+    const configPath = getConfigPath(cliArgs.config);
+    const rawConfig = JSON.parse(fs.readFileSync(configPath, 'utf8')) as BookConfigData;
+    const goals: WritingGoals = rawConfig.goals || {};
+
+    if (cliArgs.total !== undefined) goals.totalWords = cliArgs.total;
+    if (cliArgs.daily !== undefined) goals.dailyWords = cliArgs.daily;
+    if (hasChapterGoal) {
+      goals.perChapter = goals.perChapter || {};
+      const chapterGoal = goals.perChapter[cliArgs.chapter!] || {};
+      if (cliArgs.min !== undefined) chapterGoal.min = cliArgs.min;
+      if (cliArgs.max !== undefined) chapterGoal.max = cliArgs.max;
+      goals.perChapter[cliArgs.chapter!] = chapterGoal;
+    }
+
+    rawConfig.goals = goals;
+    fs.writeFileSync(configPath, JSON.stringify(rawConfig, null, 2), 'utf8');
+    console.log(Locale.get('goalsUpdated', config.language));
+  } catch (error) {
+    const err = error as Error;
+    const lang = config ? config.language : 'tr';
+    console.error(Locale.get('cliErrorFailedLoadStats', lang), err.message);
     process.exit(1);
   }
 }

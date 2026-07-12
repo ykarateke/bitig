@@ -81,12 +81,12 @@ This document outlines the planned feature roadmap for the **Bitig** book compil
   - Allow defining a `profile` key in `book.json` (e.g., `"profile": "novel"` or `"profile": "academic-article"`) that automatically configures visual templates, styling rules, page dimensions, and page numbering conventions.
   - Maintain a clean, minimal root configuration schema where custom parameters can still override profile defaults.
 
-### 10. Local Prose Analytics & Writing Goals
+### [COMPLETED] 10. Local Prose Analytics & Writing Goals
 
 - **Objective**: Deterministic, LLM-free manuscript metrics and progress tracking.
 - **Details**:
-  - `bitig analyze:prose [<coords>]`: repeated-word frequency (language-aware stopword lists), sentence-length distribution, dialogue/narration ratio, approximate readability scoring.
-  - Writing goals in `book.json` (`goals` block: total words, per-chapter min/max, daily words) surfaced by `bitig stats --goals` with completion bars and a `progress.json` daily word log.
+  - `bitig analyze:prose [<coords>] [--top N] [--json]`: repeated-word frequency (language-aware stopword lists for tr/en/de/es/fr), sentence-length distribution, dialogue/narration ratio (Turkish `—` dialogue dash aware), and approximate readability scoring using language-specific formulas (Ateşman, Flesch, Amstad, Fernández-Huerta, Kandel-Moles).
+  - Writing goals in `book.json` (`goals` block: `totalWords`, `dailyWords`, `perChapter` min/max) managed via `bitig goals:set` and surfaced by `bitig stats --goals` with zero-dependency completion bars; a `progress.json` daily word log is appended on `stats --goals` and `bitig build`.
 
 ### 11. Smart Context Task Modes
 

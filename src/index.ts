@@ -22,3 +22,6 @@ export { WorldManager } from './WorldManager';
 export { StoryContextBuilder } from './StoryContextBuilder';
 export type { StoryBlockOptions } from './StoryContextBuilder';
 export { StoryLinter } from './StoryLinter';
+export { ProseAnalyzer } from './ProseAnalyzer';
+export { GoalTracker } from './GoalTracker';
+export type { ChapterGoalStatus, DailySnapshot } from './GoalTracker';
