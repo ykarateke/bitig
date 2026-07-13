@@ -382,4 +382,71 @@ describe('Bitig CLI Integration Tests', () => {
       ).toThrow();
     });
   });
+
+  describe('AI review suite', () => {
+    it('should package review contexts and record findings', () => {
+      execSync(`node ${cliPath} init`, { cwd: tempDir });
+      execSync(`node ${cliPath} story:init`, { cwd: tempDir });
+
+      const continuityContext = execSync(`node ${cliPath} review:context 1.1 --type continuity`, {
+        cwd: tempDir,
+        encoding: 'utf8'
+      });
+      expect(continuityContext).toContain('=== REVIEW TASK: CONTINUITY (1.1) ===');
+      expect(continuityContext).toContain('=== EXPECTED OUTPUT SCHEMA (JSON) ===');
+      expect(continuityContext).toContain('=== CHAPTER CONTENT (1.1');
+
+      const plotholesContext = execSync(`node ${cliPath} review:context all --type plotholes`, {
+        cwd: tempDir,
+        encoding: 'utf8'
+      });
+      expect(plotholesContext).toContain('=== REVIEW TASK: PLOTHOLES (WHOLE BOOK) ===');
+      expect(plotholesContext).toContain('=== BOOK STRUCTURE & SYNOPSES ===');
+
+      const findingsPath = path.join(tempDir, 'findings.json');
+      fs.writeFileSync(
+        findingsPath,
+        JSON.stringify({
+          findings: [
+            { severity: 'high', kind: 'continuity', coords: '1.1', explanation: 'Test bulgusu.' }
+          ],
+          summary: 'Genel not.'
+        }),
+        'utf8'
+      );
+
+      const reportOutput = execSync(
+        `node ${cliPath} review:report 1.1 --type continuity --file findings.json --learn`,
+        { cwd: tempDir, encoding: 'utf8' }
+      );
+      expect(reportOutput).toContain('İNCELEME RAPORU — continuity (1.1)');
+      expect(reportOutput).toContain('Test bulgusu.');
+      expect(reportOutput).toContain('Genel Değerlendirme');
+
+      expect(fs.existsSync(path.join(tempDir, 'diagnostics', 'review_continuity_1.1.json'))).toBe(
+        true
+      );
+
+      const memory = JSON.parse(fs.readFileSync(path.join(tempDir, 'memory.json'), 'utf8'));
+      expect(memory.chapters['1.1'].feedback.join(' ')).toContain('[review:continuity]');
+    });
+
+    it('should reject book-wide continuity reviews and display the review guide', () => {
+      execSync(`node ${cliPath} init`, { cwd: tempDir });
+
+      expect(() =>
+        execSync(`node ${cliPath} review:context all --type continuity`, {
+          cwd: tempDir,
+          stdio: 'pipe'
+        })
+      ).toThrow();
+
+      const guideOutput = execSync(`node ${cliPath} review:guide`, {
+        cwd: tempDir,
+        encoding: 'utf8'
+      });
+      expect(guideOutput).toContain('AI REVIEW SUITE GUIDE');
+      expect(guideOutput).toContain('review:context');
+    });
+  });
 });

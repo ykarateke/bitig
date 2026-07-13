@@ -27,3 +27,5 @@ export { GoalTracker } from './GoalTracker';
 export type { ChapterGoalStatus, DailySnapshot } from './GoalTracker';
 export { TaskInstructionLibrary } from './TaskInstructionLibrary';
 export type { ContextTask, TaskContextOptions } from './TaskInstructionLibrary';
+export { ReviewManager } from './ReviewManager';
+export type { ReviewType, ReviewFinding, ReviewResult } from './ReviewManager';

@@ -21,6 +21,7 @@ import { StoryLinter } from './StoryLinter';
 import { ProseAnalyzer } from './ProseAnalyzer';
 import { GoalTracker } from './GoalTracker';
 import { TaskContextOptions, TaskInstructionLibrary } from './TaskInstructionLibrary';
+import { ReviewManager } from './ReviewManager';
 import { CharacterData, PlotEvent, PlotThread, WorldEntry, WritingGoals } from './types';
 
 interface CliArgs {
@@ -79,6 +80,7 @@ interface CliArgs {
   chapter?: string;
   task?: string;
   styleTarget?: string;
+  learn?: boolean;
 }
 
 const args = process.argv.slice(2);
@@ -174,6 +176,15 @@ switch (command) {
     break;
   case 'goals:set':
     handleGoalsSet(cliArgs);
+    break;
+  case 'review:context':
+    handleReviewContext(cliArgs);
+    break;
+  case 'review:report':
+    handleReviewReport(cliArgs);
+    break;
+  case 'review:guide':
+    handleReviewGuide();
     break;
   case 'capture':
   case 'screenshot':
@@ -558,6 +569,8 @@ function parseArgs(args: string[]): CliArgs {
       result.fiction = true;
     } else if (arg === '--goals') {
       result.goals = true;
+    } else if (arg === '--learn') {
+      result.learn = true;
     } else if (arg === '--top') {
       if (i + 1 < args.length) {
         const topVal = parseInt(args[++i], 10);
@@ -674,6 +687,9 @@ Commands:
   analyze:report <sec>.<chap>    Formats and records the AI agent's JSON evaluation as a diagnostic report.
   analyze:prose [<sec>.<chap>]   Local prose metrics: repeated words, sentence stats, dialogue ratio, readability.
   goals:set                      Saves writing goals to book.json (--total, --daily, --chapter with --min/--max).
+  review:context <coords>|all    Packages a review context for an AI agent (--type continuity|style|plotholes).
+  review:report <coords>|all     Renders and logs the agent's findings JSON (--type, --file, optional --learn).
+  review:guide                   Displays the AI review workflow guide.
   context <sec>.<chap>           Generates a focused RAG/prompt package containing outlines and synopsis.
   learn <scope> [options]        Updates the persistent AI agent memory and feedback log.
   search <query>                 Searches the entire book for keywords or phrases.
@@ -765,6 +781,10 @@ Memory / Learning Options:
 
 Diagnostics / Quality Scoring Options:
   --file <path>                  Path to the temporary AI diagnostics JSON file for analyze:report.
+
+Review Options:
+  --type <type>                  Review type: continuity, style, or plotholes ("all" coords only for plotholes).
+  --learn                        Push accepted review findings into memory.json as feedback (review:report).
 
 Prose Analytics & Goals Options:
   --top <n>                      Number of repeated words to list for analyze:prose (default: 20).
@@ -2578,4 +2598,102 @@ function handleGoalsSet(cliArgs: CliArgs): void {
     console.error(Locale.get('cliErrorFailedLoadStats', lang), err.message);
     process.exit(1);
   }
+}
+
+// ---------------------------------------------------------------------------
+// AI Review Suite (continuity / style / plotholes)
+// ---------------------------------------------------------------------------
+
+/**
+ * Packages a facilitator-pattern review context for an external AI agent.
+ */
+function handleReviewContext(cliArgs: CliArgs): void {
+  const coords = cliArgs.positionals[0];
+  if (!coords) {
+    console.error(
+      'Error: Please specify target coordinates or "all", e.g.: bitig review:context 1.2 --type continuity'
+    );
+    process.exit(1);
+  }
+  if (!cliArgs.type) {
+    console.error('Error: Please specify the review type with --type continuity|style|plotholes');
+    process.exit(1);
+  }
+
+  let config: BookConfig | undefined;
+  try {
+    config = loadConfig(cliArgs.config);
+    const compiler = new BookCompiler(config);
+    const reviewManager = new ReviewManager(compiler);
+    const type = ReviewManager.normalizeType(cliArgs.type);
+    console.log(reviewManager.packageContext(type, coords));
+  } catch (error) {
+    const err = error as Error;
+    const lang = config ? config.language : 'tr';
+    console.error(Locale.get('cliErrorFailedReview', lang), err.message);
+    process.exit(1);
+  }
+}
+
+/**
+ * Validates, renders, and logs the agent's review findings JSON.
+ */
+function handleReviewReport(cliArgs: CliArgs): void {
+  const coords = cliArgs.positionals[0];
+  if (!coords) {
+    console.error(
+      'Error: Please specify target coordinates or "all", e.g.: bitig review:report 1.2 --type continuity --file findings.json'
+    );
+    process.exit(1);
+  }
+  if (!cliArgs.type) {
+    console.error('Error: Please specify the review type with --type continuity|style|plotholes');
+    process.exit(1);
+  }
+  if (!cliArgs.file) {
+    console.error('Error: Please provide the findings JSON file with --file');
+    process.exit(1);
+  }
+
+  let config: BookConfig | undefined;
+  try {
+    config = loadConfig(cliArgs.config);
+    const compiler = new BookCompiler(config);
+    const reviewManager = new ReviewManager(compiler);
+    const type = ReviewManager.normalizeType(cliArgs.type);
+    reviewManager.reportFindings(type, coords, cliArgs.file, cliArgs.learn);
+  } catch (error) {
+    const err = error as Error;
+    const lang = config ? config.language : 'tr';
+    console.error(Locale.get('cliErrorFailedReview', lang), err.message);
+    process.exit(1);
+  }
+}
+
+/**
+ * Displays the AI review workflow guide from resources.
+ */
+function handleReviewGuide(): void {
+  const guidePath = path.join(__dirname, 'resources', 'review-guide.md');
+  if (fs.existsSync(guidePath)) {
+    try {
+      const content = fs.readFileSync(guidePath, 'utf8');
+      console.log(content);
+      return;
+    } catch (e) {
+      // Fallback if read failed
+    }
+  }
+
+  console.log(
+    `
+# BITIG - AI REVIEW SUITE GUIDE
+
+Facilitator-pattern editorial review loops (no LLM calls from Bitig):
+1. bitig review:context <coords>|all --type continuity|style|plotholes  --> package the review material
+2. [External AI agent analyzes the package and writes a findings JSON matching the embedded schema]
+3. bitig review:report <coords>|all --type <type> --file findings.json [--learn]  --> ASCII table + diagnostics/ log
+"all" (book-wide) is supported for --type plotholes.
+  `.trim()
+  );
 }

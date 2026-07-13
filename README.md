@@ -196,7 +196,25 @@ bitig stats --goals
 
 `stats --goals` renders progress bars for the total and daily word goals plus per-chapter min/max status, and appends today's word count to a `progress.json` log (also updated on every `bitig build`) so daily output can be tracked over time.
 
-### 13. Fiction & Story Bible (Characters, Timeline, World Building)
+### 13. AI Review Suite (Continuity, Style & Plot Holes)
+
+Facilitator-pattern editorial review loops — Bitig packages the material, an external AI agent judges it, Bitig records the verdict:
+
+```bash
+# 1. Package the review context for the AI agent
+bitig review:context 1.2 --type continuity     # story bible + full chronology + chapter text
+bitig review:context 1.2 --type style          # memory + speech styles + prose metrics + chapter text
+bitig review:context all --type plotholes      # book-wide: synopses + unresolved setups + open threads
+
+# 2. The agent outputs a findings JSON matching the embedded schema
+
+# 3. Render the ASCII findings table and log under diagnostics/
+bitig review:report 1.2 --type continuity --file findings.json [--learn]
+```
+
+The plothole review surfaces **setup events without a payoff** (Chekhov's guns) and open threads from `plot.json`. `--learn` pushes each finding into `memory.json` feedback so future `bitig context` packs warn the writing agent automatically. Agents are told not to re-report what `bitig check` already catches mechanically. Run `bitig review:guide` for the full workflow.
+
+### 14. Fiction & Story Bible (Characters, Timeline, World Building)
 
 Manage narrative consistency data in three optional JSON files under `assets/`: `characters.json`, `plot.json`, and `world.json`. Projects without these files behave exactly as before.
 

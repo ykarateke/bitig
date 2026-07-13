@@ -199,6 +199,18 @@ export class Locale {
         '"{id}" ({name}) hiçbir bölümde geçmiyor ve hiçbir olayda referans edilmiyor',
       storyLinterPossibleUnregistered:
         'Kayıtlı olmayan olası karakter/mekan adı: "{word}" ({count} kez geçiyor)',
+      // AI Review Suite
+      reviewReportTitle: 'İNCELEME RAPORU — {type} ({coords})',
+      reviewTableSeverity: 'Önem',
+      reviewTableKind: 'Tür',
+      reviewTableWhere: 'Konum',
+      reviewTableExplanation: 'Açıklama',
+      reviewNoFindings: 'Bulgu yok — bölüm temiz görünüyor!',
+      reviewSummaryLabel: 'Genel Değerlendirme',
+      reviewSaved: 'İnceleme raporu kaydedildi: {path}',
+      reviewLearned: '✔ {count} bulgu memory.json geri bildirim katmanına eklendi.',
+      cliErrorFailedReview: 'İnceleme komutu başarısız oldu:',
+
       // Context Task Modes
       taskContinueHeader: '📝 GÖREV: BÖLÜMÜ DEVAM ETTİR',
       taskContinue1: '- Hedef bölümün mevcut metnini DEĞİŞTİRMEYİN; kaldığı yerden devam edin.',
@@ -475,6 +487,18 @@ export class Locale {
         '"{id}" ({name}) never appears in any chapter and is not referenced by any event',
       storyLinterPossibleUnregistered:
         'Possible unregistered character/place name: "{word}" (occurs {count} times)',
+      // AI Review Suite
+      reviewReportTitle: 'REVIEW REPORT — {type} ({coords})',
+      reviewTableSeverity: 'Severity',
+      reviewTableKind: 'Kind',
+      reviewTableWhere: 'Where',
+      reviewTableExplanation: 'Explanation',
+      reviewNoFindings: 'No findings — the chapter looks clean!',
+      reviewSummaryLabel: 'Overall Assessment',
+      reviewSaved: 'Review report saved to: {path}',
+      reviewLearned: '✔ {count} finding(s) added to the memory.json feedback layer.',
+      cliErrorFailedReview: 'Review command failed:',
+
       // Context Task Modes
       taskContinueHeader: '📝 TASK: CONTINUE THE CHAPTER',
       taskContinue1: '- Do NOT modify the existing chapter text; continue from where it stops.',
@@ -761,6 +785,18 @@ export class Locale {
         '"{id}" ({name}) kommt in keinem Kapitel vor und wird von keinem Ereignis referenziert',
       storyLinterPossibleUnregistered:
         'Möglicher nicht registrierter Charakter-/Ortsname: "{word}" (kommt {count} Mal vor)',
+      // AI Review Suite
+      reviewReportTitle: 'PRÜFBERICHT — {type} ({coords})',
+      reviewTableSeverity: 'Schwere',
+      reviewTableKind: 'Art',
+      reviewTableWhere: 'Ort',
+      reviewTableExplanation: 'Erklärung',
+      reviewNoFindings: 'Keine Befunde — das Kapitel sieht sauber aus!',
+      reviewSummaryLabel: 'Gesamtbewertung',
+      reviewSaved: 'Prüfbericht gespeichert unter: {path}',
+      reviewLearned: '✔ {count} Befund(e) zur Feedback-Ebene von memory.json hinzugefügt.',
+      cliErrorFailedReview: 'Prüfbefehl fehlgeschlagen:',
+
       // Context Task Modes
       taskContinueHeader: '📝 AUFGABE: KAPITEL FORTSETZEN',
       taskContinue1:
@@ -1047,6 +1083,19 @@ export class Locale {
         '"{id}" ({name}) nunca aparece en ningún capítulo y no es referenciado por ningún evento',
       storyLinterPossibleUnregistered:
         'Posible nombre de personaje/lugar no registrado: "{word}" (aparece {count} veces)',
+      // AI Review Suite
+      reviewReportTitle: 'INFORME DE REVISIÓN — {type} ({coords})',
+      reviewTableSeverity: 'Gravedad',
+      reviewTableKind: 'Tipo',
+      reviewTableWhere: 'Ubicación',
+      reviewTableExplanation: 'Explicación',
+      reviewNoFindings: '¡Sin hallazgos — el capítulo parece limpio!',
+      reviewSummaryLabel: 'Evaluación General',
+      reviewSaved: 'Informe de revisión guardado en: {path}',
+      reviewLearned:
+        '✔ {count} hallazgo(s) añadido(s) a la capa de retroalimentación de memory.json.',
+      cliErrorFailedReview: 'El comando de revisión falló:',
+
       // Context Task Modes
       taskContinueHeader: '📝 TAREA: CONTINUAR EL CAPÍTULO',
       taskContinue1:
@@ -1334,6 +1383,18 @@ export class Locale {
         '"{id}" ({name}) n\'apparaît dans aucun chapitre et n\'est référencé par aucun événement',
       storyLinterPossibleUnregistered:
         'Nom de personnage/lieu possiblement non enregistré: "{word}" (apparaît {count} fois)',
+      // AI Review Suite
+      reviewReportTitle: 'RAPPORT DE REVUE — {type} ({coords})',
+      reviewTableSeverity: 'Gravité',
+      reviewTableKind: 'Type',
+      reviewTableWhere: 'Emplacement',
+      reviewTableExplanation: 'Explication',
+      reviewNoFindings: 'Aucun constat — le chapitre semble propre!',
+      reviewSummaryLabel: 'Évaluation Générale',
+      reviewSaved: 'Rapport de revue enregistré dans: {path}',
+      reviewLearned: '✔ {count} constat(s) ajouté(s) à la couche de retours de memory.json.',
+      cliErrorFailedReview: 'Échec de la commande de revue:',
+
       // Context Task Modes
       taskContinueHeader: '📝 TÂCHE: CONTINUER LE CHAPITRE',
       taskContinue1:

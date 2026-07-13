@@ -96,12 +96,13 @@ This document outlines the planned feature roadmap for the **Bitig** book compil
   - Content adapts per task: `continue` trims the target to its tail and appends the next chapter's synopsis; `summarize` omits the preceding chapter's full text; `dialogue` leans on the story bible's `speechStyle` fields; `style-transform` interpolates the requested target style.
   - Without `--task`, the context output is byte-identical to previous versions.
 
-### 12. AI Review Suite: Continuity, Style & Plot Holes
+### [COMPLETED] 12. AI Review Suite: Continuity, Style & Plot Holes
 
 - **Objective**: Facilitator-pattern review loops (clone of the `analyze:*` triple) grounded in the story bible data.
 - **Details**:
-  - `bitig review:context <coords>|all --type continuity|style|plotholes` packages character cards, chronology, world rules, open threads, and Chekhov's-gun instructions with a strict JSON findings schema.
-  - `bitig review:report --file findings.json` validates, renders an ASCII findings table, and logs under `diagnostics/`.
+  - `bitig review:context <coords> --type continuity|style|plotholes` (plus `all` for book-wide plothole hunting) packages review material with a strict JSON findings schema: continuity → story bible + full chronology + chapter text; style → recorded memory + character speech styles + local prose metrics + chapter text; plotholes → synopses + chronology + unresolved setup events (Chekhov's guns) + open threads + world rules.
+  - `bitig review:report <coords>|all --type <type> --file findings.json [--learn]` validates the agent's JSON, renders an ASCII findings table, logs under `diagnostics/review_<type>_<coords>.json`, and with `--learn` pushes findings into `memory.json` feedback.
+  - Agents are explicitly instructed not to re-report issues `bitig check` catches mechanically; `bitig review:guide` documents the loop.
 
 ### 13. Multi-Agent Editor Pipeline
 
