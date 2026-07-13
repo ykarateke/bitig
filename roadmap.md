@@ -104,11 +104,13 @@ This document outlines the planned feature roadmap for the **Bitig** book compil
   - `bitig review:report <coords>|all --type <type> --file findings.json [--learn]` validates the agent's JSON, renders an ASCII findings table, logs under `diagnostics/review_<type>_<coords>.json`, and with `--learn` pushes findings into `memory.json` feedback.
   - Agents are explicitly instructed not to re-report issues `bitig check` catches mechanically; `bitig review:guide` documents the loop.
 
-### 13. Multi-Agent Editor Pipeline
+### [COMPLETED] 13. Multi-Agent Editor Pipeline
 
 - **Objective**: A documented, trackable six-role editorial workflow (Chapter Review, Continuity, Style, Proofreader, Fact Checker, Final Editor) with zero API calls.
 - **Details**:
-  - `bitig pipeline:init` (role definitions in `pipeline.json`), `pipeline:status` (per-chapter checklist from diagnostics logs), `pipeline:next` (next role's exact command + packaged context).
+  - `bitig pipeline:init` writes the user-editable `pipeline.json` role definitions; each role maps to existing commands (analyze:\*, review:\*, analyze:prose, context) with `{coords}` placeholders and an artifact filename under `diagnostics/`.
+  - Completion is artifact-based: a role is done for a chapter when its diagnostics file exists. Roles without a natural report file (proofreader, fact-checker, final-editor) are completed via `bitig pipeline:done <roleId> <coords> [--file notes.json]`.
+  - `bitig pipeline:status [<coords>]` renders a per-role checklist or a per-chapter progress table; `bitig pipeline:next <coords>` prints the next incomplete role with its exact commands — the conveyor belt an external orchestrator loops over. `bitig pipeline:guide` documents the workflow.
 
 ### 14. Publishing Outputs: Kindle EPUB Validation & Print-Ready PDF
 

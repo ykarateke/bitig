@@ -22,6 +22,7 @@ import { ProseAnalyzer } from './ProseAnalyzer';
 import { GoalTracker } from './GoalTracker';
 import { TaskContextOptions, TaskInstructionLibrary } from './TaskInstructionLibrary';
 import { ReviewManager } from './ReviewManager';
+import { PipelineManager } from './PipelineManager';
 import { CharacterData, PlotEvent, PlotThread, WorldEntry, WritingGoals } from './types';
 
 interface CliArgs {
@@ -185,6 +186,21 @@ switch (command) {
     break;
   case 'review:guide':
     handleReviewGuide();
+    break;
+  case 'pipeline:init':
+    handlePipelineInit(cliArgs);
+    break;
+  case 'pipeline:status':
+    handlePipelineStatus(cliArgs);
+    break;
+  case 'pipeline:next':
+    handlePipelineNext(cliArgs);
+    break;
+  case 'pipeline:done':
+    handlePipelineDone(cliArgs);
+    break;
+  case 'pipeline:guide':
+    handlePipelineGuide();
     break;
   case 'capture':
   case 'screenshot':
@@ -690,6 +706,11 @@ Commands:
   review:context <coords>|all    Packages a review context for an AI agent (--type continuity|style|plotholes).
   review:report <coords>|all     Renders and logs the agent's findings JSON (--type, --file, optional --learn).
   review:guide                   Displays the AI review workflow guide.
+  pipeline:init                  Writes the editable six-role editor pipeline definition (pipeline.json).
+  pipeline:status [<sec>.<chap>] Per-role checklist for a chapter, or per-chapter progress table.
+  pipeline:next <sec>.<chap>     Prints the next incomplete role and its exact commands.
+  pipeline:done <role> <coords>  Marks a role complete (for roles without a report artifact).
+  pipeline:guide                 Displays the editor pipeline workflow guide.
   context <sec>.<chap>           Generates a focused RAG/prompt package containing outlines and synopsis.
   learn <scope> [options]        Updates the persistent AI agent memory and feedback log.
   search <query>                 Searches the entire book for keywords or phrases.
@@ -2694,6 +2715,191 @@ Facilitator-pattern editorial review loops (no LLM calls from Bitig):
 2. [External AI agent analyzes the package and writes a findings JSON matching the embedded schema]
 3. bitig review:report <coords>|all --type <type> --file findings.json [--learn]  --> ASCII table + diagnostics/ log
 "all" (book-wide) is supported for --type plotholes.
+  `.trim()
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Multi-Agent Editor Pipeline
+// ---------------------------------------------------------------------------
+
+function pipelineManagerFor(config: BookConfig): PipelineManager {
+  return new PipelineManager(path.dirname(config.assetsDir));
+}
+
+function handlePipelineInit(cliArgs: CliArgs): void {
+  let config: BookConfig | undefined;
+  try {
+    config = loadConfig(cliArgs.config);
+    const lang = config.language;
+    const manager = pipelineManagerFor(config);
+
+    if (manager.exists() && !cliArgs.force) {
+      console.log(Locale.get('pipelineInitExists', lang));
+      return;
+    }
+    manager.init(true);
+    console.log(Locale.get('pipelineInitSuccess', lang, { count: manager.getRoles().length }));
+  } catch (error) {
+    const err = error as Error;
+    const lang = config ? config.language : 'tr';
+    console.error(Locale.get('cliErrorFailedPipeline', lang), err.message);
+    process.exit(1);
+  }
+}
+
+/**
+ * Per-role checklist for one chapter, or a per-chapter progress table
+ * for the whole book when no coordinates are given.
+ */
+function handlePipelineStatus(cliArgs: CliArgs): void {
+  let config: BookConfig | undefined;
+  try {
+    config = loadConfig(cliArgs.config);
+    const lang = config.language;
+    const manager = pipelineManagerFor(config);
+    const coords = cliArgs.positionals[0];
+
+    if (coords) {
+      console.log(`\n${Locale.get('pipelineStatusTitle', lang, { coords })}`);
+      manager.getStatus(coords).forEach(({ role, done }) => {
+        const badge = done ? '✔' : '⬜';
+        const label = done
+          ? Locale.get('pipelineDoneLabel', lang)
+          : Locale.get('pipelinePendingLabel', lang);
+        console.log(`  ${badge} ${role.title} (\`${role.id}\`) — ${label}`);
+      });
+      return;
+    }
+
+    const compiler = new BookCompiler(config);
+    compiler.scanAndLoad();
+    const totalRoles = manager.getRoles().length;
+    const rows: unknown[][] = [];
+    compiler.sections
+      .filter((section) => section.sectionNum < 998)
+      .forEach((section) => {
+        section.chapters.forEach((chapter) => {
+          const chapterCoords = `${chapter.sectionNum}.${chapter.chapterNum}`;
+          const done = manager.getStatus(chapterCoords).filter((s) => s.done).length;
+          rows.push([chapterCoords, `${done}/${totalRoles}`]);
+        });
+      });
+
+    console.log(`\n${Locale.get('pipelineStatusBookTitle', lang)}`);
+    printAsciiTable(
+      [Locale.get('storyTableChapters', lang), Locale.get('pipelineTableProgress', lang)],
+      [14, 14],
+      rows
+    );
+  } catch (error) {
+    const err = error as Error;
+    const lang = config ? config.language : 'tr';
+    console.error(Locale.get('cliErrorFailedPipeline', lang), err.message);
+    process.exit(1);
+  }
+}
+
+/**
+ * Prints the next incomplete role with its exact commands — the conveyor
+ * belt an external orchestrator loops over.
+ */
+function handlePipelineNext(cliArgs: CliArgs): void {
+  const coords = cliArgs.positionals[0];
+  if (!coords) {
+    console.error(
+      'Error: Please specify target chapter coordinates, e.g.: bitig pipeline:next 1.2'
+    );
+    process.exit(1);
+  }
+
+  let config: BookConfig | undefined;
+  try {
+    config = loadConfig(cliArgs.config);
+    const lang = config.language;
+    const manager = pipelineManagerFor(config);
+
+    const next = manager.getNextRole(coords);
+    if (!next) {
+      console.log(Locale.get('pipelineAllDone', lang, { coords }));
+      return;
+    }
+
+    console.log(`\n${Locale.get('pipelineNextTitle', lang, { title: next.title, id: next.id })}`);
+    console.log(next.description);
+    console.log(
+      `\n${Locale.get('pipelineNextContextLabel', lang)}:\n  ${PipelineManager.renderCommand(next.contextCommand, coords)}`
+    );
+    console.log(
+      `${Locale.get('pipelineNextReportLabel', lang)}:\n  ${PipelineManager.renderCommand(next.reportCommand, coords)}`
+    );
+  } catch (error) {
+    const err = error as Error;
+    const lang = config ? config.language : 'tr';
+    console.error(Locale.get('cliErrorFailedPipeline', lang), err.message);
+    process.exit(1);
+  }
+}
+
+/**
+ * Marks a role complete for a chapter (for roles without a natural
+ * report artifact: proofreader, fact-checker, final-editor).
+ */
+function handlePipelineDone(cliArgs: CliArgs): void {
+  const roleId = cliArgs.positionals[0];
+  const coords = cliArgs.positionals[1];
+  if (!roleId || !coords) {
+    console.error(
+      'Error: Please specify a role id and coordinates, e.g.: bitig pipeline:done proofreader 1.2 [--file notes.json]'
+    );
+    process.exit(1);
+  }
+
+  let config: BookConfig | undefined;
+  try {
+    config = loadConfig(cliArgs.config);
+    const manager = pipelineManagerFor(config);
+    const artifactPath = manager.markDone(roleId, coords, cliArgs.file);
+    console.log(
+      Locale.get('pipelineMarkedDone', config.language, {
+        role: roleId,
+        coords,
+        path: artifactPath
+      })
+    );
+  } catch (error) {
+    const err = error as Error;
+    const lang = config ? config.language : 'tr';
+    console.error(Locale.get('cliErrorFailedPipeline', lang), err.message);
+    process.exit(1);
+  }
+}
+
+/**
+ * Displays the editor pipeline workflow guide from resources.
+ */
+function handlePipelineGuide(): void {
+  const guidePath = path.join(__dirname, 'resources', 'pipeline-guide.md');
+  if (fs.existsSync(guidePath)) {
+    try {
+      const content = fs.readFileSync(guidePath, 'utf8');
+      console.log(content);
+      return;
+    } catch (e) {
+      // Fallback if read failed
+    }
+  }
+
+  console.log(
+    `
+# BITIG - MULTI-AGENT EDITOR PIPELINE GUIDE
+
+A trackable six-role editorial workflow (no LLM calls from Bitig):
+1. bitig pipeline:init                --> writes the editable pipeline.json role definitions
+2. bitig pipeline:next <coords>       --> prints the next incomplete role and its exact commands
+3. [Run the role's context command, let the agent work, then run its report command]
+4. bitig pipeline:status [<coords>]   --> per-role checklist, or per-chapter progress table
+Roles without a report file are completed via: bitig pipeline:done <roleId> <coords> [--file notes.json]
   `.trim()
   );
 }

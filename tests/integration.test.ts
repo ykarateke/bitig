@@ -449,4 +449,79 @@ describe('Bitig CLI Integration Tests', () => {
       expect(guideOutput).toContain('review:context');
     });
   });
+
+  describe('editor pipeline', () => {
+    it('should initialize, track, and advance the pipeline per chapter', () => {
+      execSync(`node ${cliPath} init`, { cwd: tempDir });
+
+      const initOutput = execSync(`node ${cliPath} pipeline:init`, {
+        cwd: tempDir,
+        encoding: 'utf8'
+      });
+      expect(initOutput).toContain('pipeline.json oluşturuldu (6 rol)');
+      expect(fs.existsSync(path.join(tempDir, 'pipeline.json'))).toBe(true);
+
+      // Re-run without --force is skipped
+      const rerun = execSync(`node ${cliPath} pipeline:init`, { cwd: tempDir, encoding: 'utf8' });
+      expect(rerun).toContain('zaten mevcut');
+
+      // First incomplete role is chapter-review with substituted coords
+      const nextOutput = execSync(`node ${cliPath} pipeline:next 1.1`, {
+        cwd: tempDir,
+        encoding: 'utf8'
+      });
+      expect(nextOutput).toContain('SIRADAKİ ROL');
+      expect(nextOutput).toContain('chapter-review');
+      expect(nextOutput).toContain('bitig analyze:context 1.1');
+
+      // Simulate the first three roles' artifacts
+      fs.mkdirSync(path.join(tempDir, 'diagnostics'), { recursive: true });
+      ['diagnostic_1.1.json', 'review_continuity_1.1.json', 'review_style_1.1.json'].forEach(
+        (name) => fs.writeFileSync(path.join(tempDir, 'diagnostics', name), '{}', 'utf8')
+      );
+
+      const statusOutput = execSync(`node ${cliPath} pipeline:status 1.1`, {
+        cwd: tempDir,
+        encoding: 'utf8'
+      });
+      expect(statusOutput).toContain('PIPELINE DURUMU — Bölüm 1.1');
+      expect(statusOutput).toContain('✔ Continuity Agent');
+      expect(statusOutput).toContain('⬜ Proofreader Agent');
+
+      // Complete the remaining manual roles via pipeline:done
+      execSync(`node ${cliPath} pipeline:done proofreader 1.1`, { cwd: tempDir });
+      execSync(`node ${cliPath} pipeline:done fact-checker 1.1`, { cwd: tempDir });
+      execSync(`node ${cliPath} pipeline:done final-editor 1.1`, { cwd: tempDir });
+
+      const allDone = execSync(`node ${cliPath} pipeline:next 1.1`, {
+        cwd: tempDir,
+        encoding: 'utf8'
+      });
+      expect(allDone).toContain('tüm pipeline rolleri tamamlandı');
+
+      // Book-wide progress table
+      const bookStatus = execSync(`node ${cliPath} pipeline:status`, {
+        cwd: tempDir,
+        encoding: 'utf8'
+      });
+      expect(bookStatus).toContain('PIPELINE DURUMU — Tüm Bölümler');
+      expect(bookStatus).toContain('6/6');
+      expect(bookStatus).toContain('0/6');
+    });
+
+    it('should reject unknown roles and display the pipeline guide', () => {
+      execSync(`node ${cliPath} init`, { cwd: tempDir });
+
+      expect(() =>
+        execSync(`node ${cliPath} pipeline:done ghost-role 1.1`, { cwd: tempDir, stdio: 'pipe' })
+      ).toThrow();
+
+      const guideOutput = execSync(`node ${cliPath} pipeline:guide`, {
+        cwd: tempDir,
+        encoding: 'utf8'
+      });
+      expect(guideOutput).toContain('MULTI-AGENT EDITOR PIPELINE GUIDE');
+      expect(guideOutput).toContain('pipeline:next');
+    });
+  });
 });

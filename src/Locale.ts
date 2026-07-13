@@ -199,6 +199,22 @@ export class Locale {
         '"{id}" ({name}) hiçbir bölümde geçmiyor ve hiçbir olayda referans edilmiyor',
       storyLinterPossibleUnregistered:
         'Kayıtlı olmayan olası karakter/mekan adı: "{word}" ({count} kez geçiyor)',
+      // Editor Pipeline
+      pipelineInitSuccess: '✔ pipeline.json oluşturuldu ({count} rol).',
+      pipelineInitExists: '⚠ pipeline.json zaten mevcut (üzerine yazmak için --force kullanın).',
+      pipelineStatusTitle: 'PIPELINE DURUMU — Bölüm {coords}',
+      pipelineStatusBookTitle: 'PIPELINE DURUMU — Tüm Bölümler',
+      pipelineDoneLabel: 'tamamlandı',
+      pipelinePendingLabel: 'bekliyor',
+      pipelineAllDone: '🎉 Bölüm {coords} için tüm pipeline rolleri tamamlandı!',
+      pipelineNextTitle: 'SIRADAKİ ROL: {title} (`{id}`)',
+      pipelineNextContextLabel: 'Bağlam komutu',
+      pipelineNextReportLabel: 'Rapor komutu',
+      pipelineMarkedDone: '✔ "{role}" rolü {coords} için tamamlandı olarak işaretlendi: {path}',
+      pipelineTableRole: 'Rol',
+      pipelineTableProgress: 'İlerleme',
+      cliErrorFailedPipeline: 'Pipeline komutu başarısız oldu:',
+
       // AI Review Suite
       reviewReportTitle: 'İNCELEME RAPORU — {type} ({coords})',
       reviewTableSeverity: 'Önem',
@@ -487,6 +503,22 @@ export class Locale {
         '"{id}" ({name}) never appears in any chapter and is not referenced by any event',
       storyLinterPossibleUnregistered:
         'Possible unregistered character/place name: "{word}" (occurs {count} times)',
+      // Editor Pipeline
+      pipelineInitSuccess: '✔ pipeline.json created ({count} roles).',
+      pipelineInitExists: '⚠ pipeline.json already exists (use --force to overwrite).',
+      pipelineStatusTitle: 'PIPELINE STATUS — Chapter {coords}',
+      pipelineStatusBookTitle: 'PIPELINE STATUS — All Chapters',
+      pipelineDoneLabel: 'done',
+      pipelinePendingLabel: 'pending',
+      pipelineAllDone: '🎉 All pipeline roles are complete for chapter {coords}!',
+      pipelineNextTitle: 'NEXT ROLE: {title} (`{id}`)',
+      pipelineNextContextLabel: 'Context command',
+      pipelineNextReportLabel: 'Report command',
+      pipelineMarkedDone: '✔ Role "{role}" marked as done for {coords}: {path}',
+      pipelineTableRole: 'Role',
+      pipelineTableProgress: 'Progress',
+      cliErrorFailedPipeline: 'Pipeline command failed:',
+
       // AI Review Suite
       reviewReportTitle: 'REVIEW REPORT — {type} ({coords})',
       reviewTableSeverity: 'Severity',
@@ -785,6 +817,22 @@ export class Locale {
         '"{id}" ({name}) kommt in keinem Kapitel vor und wird von keinem Ereignis referenziert',
       storyLinterPossibleUnregistered:
         'Möglicher nicht registrierter Charakter-/Ortsname: "{word}" (kommt {count} Mal vor)',
+      // Editor Pipeline
+      pipelineInitSuccess: '✔ pipeline.json erstellt ({count} Rollen).',
+      pipelineInitExists: '⚠ pipeline.json existiert bereits (mit --force überschreiben).',
+      pipelineStatusTitle: 'PIPELINE-STATUS — Kapitel {coords}',
+      pipelineStatusBookTitle: 'PIPELINE-STATUS — Alle Kapitel',
+      pipelineDoneLabel: 'erledigt',
+      pipelinePendingLabel: 'ausstehend',
+      pipelineAllDone: '🎉 Alle Pipeline-Rollen für Kapitel {coords} sind abgeschlossen!',
+      pipelineNextTitle: 'NÄCHSTE ROLLE: {title} (`{id}`)',
+      pipelineNextContextLabel: 'Kontext-Befehl',
+      pipelineNextReportLabel: 'Bericht-Befehl',
+      pipelineMarkedDone: '✔ Rolle "{role}" für {coords} als erledigt markiert: {path}',
+      pipelineTableRole: 'Rolle',
+      pipelineTableProgress: 'Fortschritt',
+      cliErrorFailedPipeline: 'Pipeline-Befehl fehlgeschlagen:',
+
       // AI Review Suite
       reviewReportTitle: 'PRÜFBERICHT — {type} ({coords})',
       reviewTableSeverity: 'Schwere',
@@ -1083,6 +1131,23 @@ export class Locale {
         '"{id}" ({name}) nunca aparece en ningún capítulo y no es referenciado por ningún evento',
       storyLinterPossibleUnregistered:
         'Posible nombre de personaje/lugar no registrado: "{word}" (aparece {count} veces)',
+      // Editor Pipeline
+      pipelineInitSuccess: '✔ pipeline.json creado ({count} roles).',
+      pipelineInitExists: '⚠ pipeline.json ya existe (use --force para sobrescribir).',
+      pipelineStatusTitle: 'ESTADO DEL PIPELINE — Capítulo {coords}',
+      pipelineStatusBookTitle: 'ESTADO DEL PIPELINE — Todos los Capítulos',
+      pipelineDoneLabel: 'completado',
+      pipelinePendingLabel: 'pendiente',
+      pipelineAllDone:
+        '🎉 ¡Todos los roles del pipeline están completos para el capítulo {coords}!',
+      pipelineNextTitle: 'SIGUIENTE ROL: {title} (`{id}`)',
+      pipelineNextContextLabel: 'Comando de contexto',
+      pipelineNextReportLabel: 'Comando de informe',
+      pipelineMarkedDone: '✔ Rol "{role}" marcado como completado para {coords}: {path}',
+      pipelineTableRole: 'Rol',
+      pipelineTableProgress: 'Progreso',
+      cliErrorFailedPipeline: 'El comando de pipeline falló:',
+
       // AI Review Suite
       reviewReportTitle: 'INFORME DE REVISIÓN — {type} ({coords})',
       reviewTableSeverity: 'Gravedad',
@@ -1383,6 +1448,22 @@ export class Locale {
         '"{id}" ({name}) n\'apparaît dans aucun chapitre et n\'est référencé par aucun événement',
       storyLinterPossibleUnregistered:
         'Nom de personnage/lieu possiblement non enregistré: "{word}" (apparaît {count} fois)',
+      // Editor Pipeline
+      pipelineInitSuccess: '✔ pipeline.json créé ({count} rôles).',
+      pipelineInitExists: '⚠ pipeline.json existe déjà (utilisez --force pour écraser).',
+      pipelineStatusTitle: 'ÉTAT DU PIPELINE — Chapitre {coords}',
+      pipelineStatusBookTitle: 'ÉTAT DU PIPELINE — Tous les Chapitres',
+      pipelineDoneLabel: 'terminé',
+      pipelinePendingLabel: 'en attente',
+      pipelineAllDone: '🎉 Tous les rôles du pipeline sont terminés pour le chapitre {coords}!',
+      pipelineNextTitle: 'RÔLE SUIVANT: {title} (`{id}`)',
+      pipelineNextContextLabel: 'Commande de contexte',
+      pipelineNextReportLabel: 'Commande de rapport',
+      pipelineMarkedDone: '✔ Rôle "{role}" marqué comme terminé pour {coords}: {path}',
+      pipelineTableRole: 'Rôle',
+      pipelineTableProgress: 'Progression',
+      cliErrorFailedPipeline: 'Échec de la commande de pipeline:',
+
       // AI Review Suite
       reviewReportTitle: 'RAPPORT DE REVUE — {type} ({coords})',
       reviewTableSeverity: 'Gravité',

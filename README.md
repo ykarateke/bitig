@@ -214,7 +214,21 @@ bitig review:report 1.2 --type continuity --file findings.json [--learn]
 
 The plothole review surfaces **setup events without a payoff** (Chekhov's guns) and open threads from `plot.json`. `--learn` pushes each finding into `memory.json` feedback so future `bitig context` packs warn the writing agent automatically. Agents are told not to re-report what `bitig check` already catches mechanically. Run `bitig review:guide` for the full workflow.
 
-### 14. Fiction & Story Bible (Characters, Timeline, World Building)
+### 14. Multi-Agent Editor Pipeline
+
+A trackable six-role editorial workflow (Chapter Review → Continuity → Style → Proofreader → Fact Checker → Final Editor) that orchestrates the analytics and review suites — zero API calls, fully machine-drivable:
+
+```bash
+bitig pipeline:init              # writes the editable pipeline.json role definitions
+bitig pipeline:next 1.2          # prints the next incomplete role + its exact commands
+bitig pipeline:status 1.2        # per-role checklist for one chapter
+bitig pipeline:status            # per-chapter progress table (e.g. 4/6)
+bitig pipeline:done proofreader 1.2 [--file notes.json]   # complete manual roles
+```
+
+Completion is artifact-based: a role counts as done when its report file exists under `diagnostics/` (the review and analyze commands produce these automatically; manual roles use `pipeline:done`). Delete an artifact to re-run a role. Run `bitig pipeline:guide` for the full workflow and role wiring recommendations.
+
+### 15. Fiction & Story Bible (Characters, Timeline, World Building)
 
 Manage narrative consistency data in three optional JSON files under `assets/`: `characters.json`, `plot.json`, and `world.json`. Projects without these files behave exactly as before.
 
