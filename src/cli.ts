@@ -23,6 +23,8 @@ import { GoalTracker } from './GoalTracker';
 import { TaskContextOptions, TaskInstructionLibrary } from './TaskInstructionLibrary';
 import { ReviewManager } from './ReviewManager';
 import { PipelineManager } from './PipelineManager';
+import { EpubValidator } from './EpubValidator';
+import { StyleManager } from './StyleManager';
 import { CharacterData, PlotEvent, PlotThread, WorldEntry, WritingGoals } from './types';
 
 interface CliArgs {
@@ -82,6 +84,7 @@ interface CliArgs {
   task?: string;
   styleTarget?: string;
   learn?: boolean;
+  profile?: string;
 }
 
 const args = process.argv.slice(2);
@@ -146,6 +149,9 @@ switch (command) {
   case 'check':
   case 'lint':
     handleCheck(cliArgs);
+    break;
+  case 'check:epub':
+    handleCheckEpub(cliArgs);
     break;
   case 'context':
     handleContext(cliArgs);
@@ -668,6 +674,13 @@ function parseArgs(args: string[]): CliArgs {
         console.error('Error: Option --style-target requires a value.');
         process.exit(1);
       }
+    } else if (arg === '--profile') {
+      if (i + 1 < args.length) {
+        result.profile = args[++i];
+      } else {
+        console.error('Error: Option --profile requires a value.');
+        process.exit(1);
+      }
     } else if (!arg.startsWith('-')) {
       result.positionals.push(arg);
     }
@@ -698,6 +711,7 @@ Commands:
   delete:chapter <sec>.<chap>    Deletes a chapter markdown file.
   stats [--goals]                Prints progress analytics, word counts, structure, and writing goals.
   check                          Runs static diagnostics for broken links, syntax, and citation usage.
+  check:epub [<file>]            Structural EPUB pre-flight (defaults to the compiled dist/*.epub).
   analyze:init                   Initializes a quality guidelines schema (quality-guidelines.json).
   analyze:context <sec>.<chap>   Generates the diagnostic context block (manuscript + guidelines) for AI.
   analyze:report <sec>.<chap>    Formats and records the AI agent's JSON evaluation as a diagnostic report.
@@ -750,6 +764,7 @@ Build Options:
   --no-pdf                       Disable PDF compilation.
   --epub                         Enable EPUB 3 compilation (opt-in, disabled by default).
   --no-epub                      Disable EPUB compilation (overrides book.json).
+  --profile <kindle|print>       Publishing profile: kindle (EPUB only + pre-flight) or print (PDF with KDP 6x9 trim, mirrored margins).
 
 Dev Options:
   -p, --port <number>            Port for the local development preview server (default: 3000).
@@ -959,6 +974,25 @@ async function handleBuild(cliArgs: CliArgs): Promise<void> {
   let config: BookConfig | undefined;
   try {
     config = loadConfig(cliArgs.config);
+    const lang = config.language;
+
+    // Publishing profile (config key or --profile flag); explicit
+    // --pdf/--epub flags below still win over the profile defaults
+    const profile = (cliArgs.profile || config.rawConfig.profile || '').trim().toLowerCase();
+    if (profile && !['kindle', 'print'].includes(profile)) {
+      console.error(`Error: Unknown publishing profile "${profile}". Supported: kindle, print`);
+      process.exit(1);
+    }
+    if (profile === 'kindle') {
+      config.epub = true;
+      config.pdf = false;
+    } else if (profile === 'print') {
+      config.pdf = true;
+      config.epub = false;
+    }
+    if (profile) {
+      console.log(Locale.get('buildProfileApplied', lang, { profile }));
+    }
 
     // Apply CLI argument overrides
     if (cliArgs.theme) {
@@ -978,7 +1012,9 @@ async function handleBuild(cliArgs: CliArgs): Promise<void> {
     }
 
     const compiler = new BookCompiler(config);
-    const lang = config.language;
+    if (profile === 'print') {
+      compiler.styleManager.appendCSS(StyleManager.getPrintProfileCSS());
+    }
 
     console.log(Locale.get('buildLoadingConfig', lang));
     console.log(Locale.get('buildScanning', lang));
@@ -996,12 +1032,50 @@ async function handleBuild(cliArgs: CliArgs): Promise<void> {
       const tracker = new GoalTracker(path.join(projectDir, 'progress.json'));
       tracker.recordSnapshot(metadata.stats.totalWords);
     }
+
+    // Kindle profile: run the structural EPUB pre-flight on the fresh output
+    if (profile === 'kindle' && config.epub) {
+      const epubPath = path.join(config.distDir, config.outputFilename.replace(/\.md$/, '.epub'));
+      console.log(`\n${Locale.get('epubPreflightTitle', lang)}`);
+      const failed = await runEpubValidation(epubPath, lang);
+      if (failed) {
+        process.exit(1);
+      }
+    }
   } catch (error) {
     const err = error as Error;
     const lang = config ? config.language : 'tr';
     console.error(Locale.get('cliErrorCompilationFailed', lang), err.message);
     process.exit(1);
   }
+}
+
+/**
+ * Runs the structural EPUB pre-flight and prints its report.
+ * Returns true when errors were found.
+ */
+async function runEpubValidation(epubPath: string, lang: string): Promise<boolean> {
+  console.log(Locale.get('epubCheckRunning', lang, { path: epubPath }));
+  const validator = new EpubValidator();
+  const messages = await validator.validate(epubPath);
+
+  if (messages.length === 0) {
+    console.log(Locale.get('epubCheckClean', lang));
+    console.log(Locale.get('epubCheckHint', lang));
+    return false;
+  }
+
+  let errors = 0;
+  let warnings = 0;
+  messages.forEach((msg) => {
+    const badge = msg.type === 'error' ? '[ERROR]' : '[WARN]';
+    if (msg.type === 'error') errors++;
+    else warnings++;
+    console.log(`${badge} ${msg.file} - ${msg.message}`);
+  });
+  console.log(Locale.get('checkFinished', lang, { errors, warnings }));
+  console.log(Locale.get('epubCheckHint', lang));
+  return errors > 0;
 }
 
 /**
@@ -2902,4 +2976,28 @@ A trackable six-role editorial workflow (no LLM calls from Bitig):
 Roles without a report file are completed via: bitig pipeline:done <roleId> <coords> [--file notes.json]
   `.trim()
   );
+}
+
+/**
+ * Structural EPUB pre-flight validation (local companion to epubcheck).
+ */
+async function handleCheckEpub(cliArgs: CliArgs): Promise<void> {
+  let config: BookConfig | undefined;
+  try {
+    config = loadConfig(cliArgs.config);
+    const lang = config.language;
+    const epubPath =
+      cliArgs.positionals[0] ||
+      path.join(config.distDir, config.outputFilename.replace(/\.md$/, '.epub'));
+
+    const failed = await runEpubValidation(epubPath, lang);
+    if (failed) {
+      process.exit(1);
+    }
+  } catch (error) {
+    const err = error as Error;
+    const lang = config ? config.language : 'tr';
+    console.error(Locale.get('cliErrorFailedRunCheck', lang), err.message);
+    process.exit(1);
+  }
 }

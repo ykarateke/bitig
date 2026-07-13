@@ -112,9 +112,10 @@ This document outlines the planned feature roadmap for the **Bitig** book compil
   - Completion is artifact-based: a role is done for a chapter when its diagnostics file exists. Roles without a natural report file (proofreader, fact-checker, final-editor) are completed via `bitig pipeline:done <roleId> <coords> [--file notes.json]`.
   - `bitig pipeline:status [<coords>]` renders a per-role checklist or a per-chapter progress table; `bitig pipeline:next <coords>` prints the next incomplete role with its exact commands — the conveyor belt an external orchestrator loops over. `bitig pipeline:guide` documents the workflow.
 
-### 14. Publishing Outputs: Kindle EPUB Validation & Print-Ready PDF
+### [COMPLETED] 14. Publishing Outputs: Kindle EPUB Validation & Print-Ready PDF
 
 - **Objective**: Submission-grade outputs. Amazon deprecated MOBI; KDP ingests EPUB 3, so Kindle support means a validated, Kindle-safe EPUB profile.
 - **Details**:
-  - Zero-dependency structural EPUB pre-flight validation (`bitig check:epub`) as a companion to external epubcheck.
-  - `bitig build --profile kindle|print`: KDP trim sizes, mirrored margins/gutter, widow/orphan control (print), Kindle-safe CSS/font policies (kindle). Implements the config plumbing for roadmap item 9's `profile` key.
+  - `bitig check:epub [file]`: zero-dependency structural EPUB pre-flight (mimetype first+stored, container.xml rootfile, OPF metadata incl. `dcterms:modified`, manifest↔spine↔file agreement, nav document, cover declaration, image media types, internal reference resolution inside XHTML) — a local companion to the official epubcheck tool, which is still recommended before submission.
+  - `bitig build --profile kindle|print` (or a `profile` key in book.json; explicit `--pdf`/`--epub` flags still win): `kindle` enables EPUB, skips PDF, and runs the pre-flight on the fresh output (errors fail the build); `print` enables PDF with a KDP 6"x9" trim overlay — mirrored margins with a binding gutter and widow/orphan control. Implements the config plumbing for roadmap item 9's `profile` key.
+  - Known limits (documented): Puppeteer emits RGB PDFs (KDP accepts RGB; offset-print CMYK is out of scope) and cover images await roadmap item 7.

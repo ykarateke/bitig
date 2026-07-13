@@ -524,4 +524,75 @@ describe('Bitig CLI Integration Tests', () => {
       expect(guideOutput).toContain('pipeline:next');
     });
   });
+
+  describe('publishing outputs', () => {
+    it('should build with the kindle profile and pass the EPUB pre-flight', () => {
+      execSync(`node ${cliPath} init`, { cwd: tempDir });
+
+      const buildOutput = execSync(`node ${cliPath} build --profile kindle`, {
+        cwd: tempDir,
+        encoding: 'utf8'
+      });
+      expect(buildOutput).toContain('Yayın profili uygulandı: kindle');
+      expect(buildOutput).toContain('KINDLE ÖN KONTROLÜ');
+      expect(buildOutput).toContain('EPUB doğrulanıyor');
+
+      // Kindle profile: EPUB produced, PDF skipped
+      expect(fs.existsSync(path.join(tempDir, 'dist/book.epub'))).toBe(true);
+      expect(fs.existsSync(path.join(tempDir, 'dist/book.pdf'))).toBe(false);
+
+      // Standalone pre-flight on the same output (cover warning only → exit 0)
+      const checkOutput = execSync(`node ${cliPath} check:epub`, {
+        cwd: tempDir,
+        encoding: 'utf8'
+      });
+      expect(checkOutput).toContain('No cover image declared');
+      expect(checkOutput).toContain('0 hata, 1 uyarı');
+    });
+
+    it('should build with the print profile applying the KDP trim CSS', () => {
+      execSync(`node ${cliPath} init`, { cwd: tempDir });
+
+      const buildOutput = execSync(`node ${cliPath} build --profile print --no-pdf`, {
+        cwd: tempDir,
+        encoding: 'utf8'
+      });
+      expect(buildOutput).toContain('Yayın profili uygulandı: print');
+
+      const html = fs.readFileSync(path.join(tempDir, 'dist/book.html'), 'utf8');
+      expect(html).toContain('size: 6in 9in');
+      expect(html).toContain('@page :left');
+
+      // Print profile disables EPUB
+      expect(fs.existsSync(path.join(tempDir, 'dist/book.epub'))).toBe(false);
+    });
+
+    it('should support the profile key in book.json and reject unknown profiles', () => {
+      execSync(`node ${cliPath} init`, { cwd: tempDir });
+
+      const configPath = path.join(tempDir, 'book.json');
+      const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+      config.profile = 'print';
+      fs.writeFileSync(configPath, JSON.stringify(config, null, 2), 'utf8');
+
+      const buildOutput = execSync(`node ${cliPath} build --no-pdf`, {
+        cwd: tempDir,
+        encoding: 'utf8'
+      });
+      expect(buildOutput).toContain('Yayın profili uygulandı: print');
+
+      expect(() =>
+        execSync(`node ${cliPath} build --profile paperback`, { cwd: tempDir, stdio: 'pipe' })
+      ).toThrow();
+    });
+
+    it('should fail check:epub for a structurally broken EPUB', () => {
+      execSync(`node ${cliPath} init`, { cwd: tempDir });
+      fs.writeFileSync(path.join(tempDir, 'broken.epub'), 'this is not a zip archive at all!!');
+
+      expect(() =>
+        execSync(`node ${cliPath} check:epub broken.epub`, { cwd: tempDir, stdio: 'pipe' })
+      ).toThrow();
+    });
+  });
 });

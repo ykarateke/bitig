@@ -36,6 +36,7 @@ export interface BookConfigData {
   copyright?: string;
   sectionHeaderStyle?: 'combined' | 'split' | 'title-only' | 'hidden';
   goals?: WritingGoals;
+  profile?: string;
 }
 
 export interface ChapterGoal {

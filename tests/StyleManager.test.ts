@@ -137,4 +137,49 @@ describe('StyleManager', () => {
       expect(html).toContain('ISBN:</strong> 978-3-16-148410-0');
     });
   });
+
+  describe('print profile overlay', () => {
+    it('should append extra CSS on top of the active theme', () => {
+      const manager = new StyleManager();
+      const baseLength = manager.getCSS().length;
+
+      manager.appendCSS('.print-only { color: black; }');
+      const combined = manager.getCSS();
+
+      expect(combined.length).toBeGreaterThan(baseLength);
+      expect(combined).toContain('.print-only { color: black; }');
+      expect(combined.indexOf('.print-only')).toBeGreaterThan(0);
+    });
+
+    it('should accumulate multiple overlays and ignore empty ones', () => {
+      const manager = new StyleManager();
+      manager.appendCSS('.a { color: red; }');
+      manager.appendCSS('   ');
+      manager.appendCSS('.b { color: blue; }');
+
+      const css = manager.getCSS();
+      expect(css).toContain('.a { color: red; }');
+      expect(css).toContain('.b { color: blue; }');
+    });
+
+    it('should provide a KDP print profile with trim size, gutter, and widow control', () => {
+      const printCSS = StyleManager.getPrintProfileCSS();
+
+      expect(printCSS).toContain('size: 6in 9in');
+      expect(printCSS).toContain('@page :left');
+      expect(printCSS).toContain('@page :right');
+      expect(printCSS).toContain('orphans: 3');
+      expect(printCSS).toContain('widows: 3');
+    });
+
+    it('should strip the print overlay from EPUB CSS', () => {
+      const manager = new StyleManager();
+      manager.appendCSS(StyleManager.getPrintProfileCSS());
+
+      const epubCSS = manager.getEpubCSS();
+      expect(epubCSS).not.toContain('size: 6in 9in');
+      expect(epubCSS).not.toContain('orphans');
+      expect(epubCSS).not.toContain('widows');
+    });
+  });
 });

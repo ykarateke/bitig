@@ -7,11 +7,56 @@ export class StyleManager {
   public themeName: string;
   public customCSS: string;
   public customCSSPath: string;
+  public extraCSS: string;
 
   constructor() {
     this.themeName = 'serif';
     this.customCSS = '';
     this.customCSSPath = '';
+    this.extraCSS = '';
+  }
+
+  /**
+   * Appends an extra CSS overlay on top of the active theme
+   * (used by build profiles like "print").
+   */
+  public appendCSS(css: string): void {
+    if (!css || !css.trim()) return;
+    this.extraCSS = this.extraCSS ? `${this.extraCSS}\n\n${css.trim()}` : css.trim();
+  }
+
+  /**
+   * Print profile overlay: KDP-standard 6"x9" trim with mirrored margins
+   * and a binding gutter, plus widow/orphan control for body text.
+   */
+  public static getPrintProfileCSS(): string {
+    return `
+/* Print profile (KDP 6x9 trim, mirrored margins with gutter) */
+@page {
+  size: 6in 9in;
+  margin: 0.75in 0.5in 0.75in 0.5in;
+}
+@page :left {
+  margin-left: 0.5in;
+  margin-right: 0.875in;
+}
+@page :right {
+  margin-left: 0.875in;
+  margin-right: 0.5in;
+}
+p {
+  orphans: 3;
+  widows: 3;
+}
+h1,
+h2,
+h3 {
+  page-break-after: avoid;
+}
+img {
+  max-width: 100%;
+}
+`.trim();
   }
 
   /**
@@ -51,19 +96,24 @@ export class StyleManager {
    * @returns string
    */
   public getCSS(): string {
+    let base: string;
     if (this.customCSS) {
-      return this.customCSS;
+      base = this.customCSS;
+    } else {
+      switch (this.themeName) {
+        case 'sans-serif':
+          base = this._getSansSerifCSS();
+          break;
+        case 'academic':
+          base = this._getAcademicCSS();
+          break;
+        case 'serif':
+        default:
+          base = this._getSerifCSS();
+          break;
+      }
     }
-
-    switch (this.themeName) {
-      case 'sans-serif':
-        return this._getSansSerifCSS();
-      case 'academic':
-        return this._getAcademicCSS();
-      case 'serif':
-      default:
-        return this._getSerifCSS();
-    }
+    return this.extraCSS ? `${base}\n\n${this.extraCSS}` : base;
   }
 
   /**

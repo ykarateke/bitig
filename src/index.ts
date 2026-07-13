@@ -31,3 +31,4 @@ export { ReviewManager } from './ReviewManager';
 export type { ReviewType, ReviewFinding, ReviewResult } from './ReviewManager';
 export { PipelineManager } from './PipelineManager';
 export type { PipelineRole, PipelineData, PipelineRoleStatus } from './PipelineManager';
+export { EpubValidator } from './EpubValidator';

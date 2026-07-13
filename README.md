@@ -42,6 +42,16 @@ Generates outputs inside the `dist/` directory.
 - `--no-pdf`: Compiles Markdown, HTML, and AI metadata but skips Puppeteer PDF rendering.
 - `--epub`: Enables EPUB 3 compilation (opt-in; disabled by default). Overrides `epub: false` in `book.json`.
 - `--no-epub`: Disables EPUB compilation even if `epub: true` is set in `book.json`.
+- `--profile <kindle|print>`: Publishing profile (also settable as `"profile"` in `book.json`; explicit `--pdf`/`--epub` flags still win). **kindle** enables EPUB, skips PDF, and runs a structural EPUB pre-flight on the output (errors fail the build). **print** enables PDF with a KDP 6"×9" trim overlay: mirrored margins with a binding gutter and widow/orphan control. Note: Puppeteer produces RGB PDFs — KDP accepts RGB; offset-print CMYK conversion is out of scope.
+
+Validate any EPUB independently with:
+
+```bash
+bitig check:epub [file]    # defaults to the compiled dist/*.epub
+```
+
+This zero-dependency pre-flight checks the OCF/OPF structure (mimetype placement, container rootfile, required EPUB 3 metadata, manifest↔spine↔file agreement, nav document, cover declaration, internal reference resolution). It is a local companion to — not a replacement for — the official `epubcheck` tool.
+
 - `-t, --theme <serif|sans-serif|academic>`: Overrides the visual stylesheet.
 - `-c, --config <path>`: Points to a custom configuration JSON (defaults to `./book.json`).
 

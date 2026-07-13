@@ -199,6 +199,14 @@ export class Locale {
         '"{id}" ({name}) hiçbir bölümde geçmiyor ve hiçbir olayda referans edilmiyor',
       storyLinterPossibleUnregistered:
         'Kayıtlı olmayan olası karakter/mekan adı: "{word}" ({count} kez geçiyor)',
+      // Publishing Outputs
+      buildProfileApplied: 'Yayın profili uygulandı: {profile}',
+      epubCheckRunning: 'EPUB doğrulanıyor: {path}',
+      epubCheckClean: 'EPUB yapısal ön kontrolü temiz!',
+      epubCheckHint:
+        'Not: Bu yerel bir ön kontroldür; yayına göndermeden önce resmi epubcheck aracıyla da doğrulamanız önerilir.',
+      epubPreflightTitle: '[KINDLE ÖN KONTROLÜ]',
+
       // Editor Pipeline
       pipelineInitSuccess: '✔ pipeline.json oluşturuldu ({count} rol).',
       pipelineInitExists: '⚠ pipeline.json zaten mevcut (üzerine yazmak için --force kullanın).',
@@ -503,6 +511,14 @@ export class Locale {
         '"{id}" ({name}) never appears in any chapter and is not referenced by any event',
       storyLinterPossibleUnregistered:
         'Possible unregistered character/place name: "{word}" (occurs {count} times)',
+      // Publishing Outputs
+      buildProfileApplied: 'Publishing profile applied: {profile}',
+      epubCheckRunning: 'Validating EPUB: {path}',
+      epubCheckClean: 'EPUB structural pre-flight is clean!',
+      epubCheckHint:
+        'Note: This is a local pre-flight; validating with the official epubcheck tool before publishing is recommended.',
+      epubPreflightTitle: '[KINDLE PRE-FLIGHT]',
+
       // Editor Pipeline
       pipelineInitSuccess: '✔ pipeline.json created ({count} roles).',
       pipelineInitExists: '⚠ pipeline.json already exists (use --force to overwrite).',
@@ -817,6 +833,14 @@ export class Locale {
         '"{id}" ({name}) kommt in keinem Kapitel vor und wird von keinem Ereignis referenziert',
       storyLinterPossibleUnregistered:
         'Möglicher nicht registrierter Charakter-/Ortsname: "{word}" (kommt {count} Mal vor)',
+      // Publishing Outputs
+      buildProfileApplied: 'Veröffentlichungsprofil angewendet: {profile}',
+      epubCheckRunning: 'EPUB wird validiert: {path}',
+      epubCheckClean: 'Strukturelle EPUB-Vorprüfung ist sauber!',
+      epubCheckHint:
+        'Hinweis: Dies ist eine lokale Vorprüfung; vor der Veröffentlichung wird zusätzlich das offizielle epubcheck-Tool empfohlen.',
+      epubPreflightTitle: '[KINDLE-VORPRÜFUNG]',
+
       // Editor Pipeline
       pipelineInitSuccess: '✔ pipeline.json erstellt ({count} Rollen).',
       pipelineInitExists: '⚠ pipeline.json existiert bereits (mit --force überschreiben).',
@@ -1131,6 +1155,14 @@ export class Locale {
         '"{id}" ({name}) nunca aparece en ningún capítulo y no es referenciado por ningún evento',
       storyLinterPossibleUnregistered:
         'Posible nombre de personaje/lugar no registrado: "{word}" (aparece {count} veces)',
+      // Publishing Outputs
+      buildProfileApplied: 'Perfil de publicación aplicado: {profile}',
+      epubCheckRunning: 'Validando EPUB: {path}',
+      epubCheckClean: '¡La verificación estructural del EPUB está limpia!',
+      epubCheckHint:
+        'Nota: Esta es una verificación previa local; se recomienda validar también con la herramienta oficial epubcheck antes de publicar.',
+      epubPreflightTitle: '[VERIFICACIÓN PREVIA KINDLE]',
+
       // Editor Pipeline
       pipelineInitSuccess: '✔ pipeline.json creado ({count} roles).',
       pipelineInitExists: '⚠ pipeline.json ya existe (use --force para sobrescribir).',
@@ -1448,6 +1480,14 @@ export class Locale {
         '"{id}" ({name}) n\'apparaît dans aucun chapitre et n\'est référencé par aucun événement',
       storyLinterPossibleUnregistered:
         'Nom de personnage/lieu possiblement non enregistré: "{word}" (apparaît {count} fois)',
+      // Publishing Outputs
+      buildProfileApplied: 'Profil de publication appliqué: {profile}',
+      epubCheckRunning: 'Validation du EPUB: {path}',
+      epubCheckClean: 'La pré-vérification structurelle du EPUB est propre!',
+      epubCheckHint:
+        "Remarque: Il s'agit d'une pré-vérification locale; il est recommandé de valider aussi avec l'outil officiel epubcheck avant la publication.",
+      epubPreflightTitle: '[PRÉ-VÉRIFICATION KINDLE]',
+
       // Editor Pipeline
       pipelineInitSuccess: '✔ pipeline.json créé ({count} rôles).',
       pipelineInitExists: '⚠ pipeline.json existe déjà (utilisez --force pour écraser).',
