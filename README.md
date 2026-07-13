@@ -9,6 +9,8 @@
 
 Bitig is a structured, type-safe TypeScript command-line tool designed for authors and AI agents to outline, write, analyze, lint, and compile manuscripts into high-quality publications (Markdown, HTML, PDF, and AI-readable metadata).
 
+📘 **[Usage Guide](USAGE.md)** — New here, or not sure which command to reach for? Start there — it's a task-oriented walkthrough (solo writing, AI-assisted drafting, fiction/story bible, quality control, publishing) with a full command cheat sheet. This README below is the exhaustive flag-by-flag reference.
+
 📍 **[Project Roadmap](roadmap.md)** — View our active roadmap and upcoming features.
 
 ---
